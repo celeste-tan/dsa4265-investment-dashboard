@@ -1,0 +1,19 @@
+# Virtual environment folder
+venv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS-specific files
+.DS_Store
+
+# Editor-specific settings (VSCode)
+.vscode/
+
+# Environment variable files
+.env
+
+# Other log or temporary files (if any)
+*.log

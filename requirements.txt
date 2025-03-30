@@ -1,0 +1,7 @@
+Flask==2.2.2
+requests>=2.31
+yfinance==0.2.54
+openai==0.27.0
+matplotlib==3.6.2
+ipywidgets==8.0.4
+Werkzeug==2.2.3
