@@ -14,6 +14,7 @@ def index():
 def ask():
     data = request.get_json()
     ticker = data.get("question", "").strip().upper()  # Expecting a ticker symbol, e.g., "AAPL"
+    horizon = data.get("horizon", "")
     try:
         stock_rec, stock_summary = get_stock_recommendation(ticker, DEFAULT_PERIOD, OPENAI_API_KEY)
         holistic_report = (

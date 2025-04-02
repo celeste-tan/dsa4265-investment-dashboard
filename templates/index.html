@@ -108,6 +108,13 @@
     <div id="chatbox"></div>
     <form id="inputForm">
       <input type="text" id="question" placeholder="Enter ticker (e.g., AAPL)" required />
+
+      <select id="investment-horizon" required>
+        <option value="" disabled selected>Select Investment Horizon</option>
+        <option value="short-term">Short-term</option>
+        <option value="long-term">Long-term</option>
+      </select>
+      
       <button type="submit">Send</button>
     </form>
   </div>
@@ -115,39 +122,46 @@
     const form = document.getElementById("inputForm");
     const chatbox = document.getElementById("chatbox");
     const questionInput = document.getElementById("question");
+    const horizonInput = document.getElementById("investment-horizon");
     
     form.addEventListener("submit", function(e) {
       e.preventDefault();
       const question = questionInput.value.trim();
-      if (!question) return;
-      
+      const horizon = horizonInput.value;  // Get the selected investment horizon
+      if (!question || !horizon) return;  // Ensure both question and horizon are provided
+
       // Append user message and clear the input immediately
       appendMessage("user", question);
       questionInput.value = "";
-      
+      horizonInput.value = "";  // Clear the dropdown after submission
+
       // Disable input while waiting and show a loading message
       questionInput.disabled = true;
+      horizonInput.disabled = true;
       const loadingMessage = appendMessage("bot", "Loading...", true);
-      
+
+      // Send both question (ticker symbol) and horizon to the backend
       fetch("/ask", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: question })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question: question, horizon: horizon })  // Send both values
       })
       .then(response => response.json())
       .then(data => {
-        loadingMessage.remove();
-        appendMessage("bot", data.answer);
+          loadingMessage.remove();
+          appendMessage("bot", data.answer);
       })
       .catch(error => {
-        loadingMessage.remove();
-        appendMessage("bot", "Error: " + error);
+          loadingMessage.remove();
+          appendMessage("bot", "Error: " + error);
       })
       .finally(() => {
-        questionInput.disabled = false;
-        chatbox.scrollTop = chatbox.scrollHeight;
+          questionInput.disabled = false;
+          horizonInput.disabled = false;
+          chatbox.scrollTop = chatbox.scrollHeight;
       });
     });
+
     
     function appendMessage(sender, text, returnElement = false) {
       const messageDiv = document.createElement("div");
