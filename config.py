@@ -1,3 +1,9 @@
-OPENAI_API_KEY = "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"
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+ESG_API_TOKEN = os.getenv("ESG_API_TOKEN")
+
 DEFAULT_PERIOD = "1y"
-ESG_API_TOKEN = "lE9omFBenoAcm8mfkR4zOw"

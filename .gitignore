@@ -17,3 +17,6 @@ __pycache__/
 
 # Other log or temporary files (if any)
 *.log
+
+# Telegram session
+coleincidence.session
