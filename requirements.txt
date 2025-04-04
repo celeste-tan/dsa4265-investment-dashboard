@@ -6,3 +6,16 @@ matplotlib==3.6.2
 ipywidgets==8.0.4
 Werkzeug==2.2.3
 crawlbase==1.0.0
+emoji==2.14.1
+Telethon==1.39.0
+configparser==7.2.0
+nest-asyncio==1.6.0
+contractions==0.1.73
+DateTime==5.5
+regex==2024.11.6
+jsonpatch==1.33
+jsonpickle==4.0.2
+jsonpointer==3.0.0
+jsonschema==4.23.0
+jsonschema-specifications==2024.10.1
+python-dotenv==1.1.0

@@ -2,9 +2,12 @@ from flask import Flask, render_template, request, jsonify
 from config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
 from utils.stock_history import get_stock_recommendation
 import openai
-from utils.stock_history import get_stock_recommendation
+import asyncio
 from utils.esg_analysis import get_esg_report, fetch_esg_data
-openai.api_key = OPENAI_API_KEY
+from utils.media_sentiment_analysis import get_stock_summary
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -32,12 +35,16 @@ def ask():
         controversy_value = esg_data.get("Controversy Level", {}).get("Value", "N/A")
         controversy_description = esg_data.get("Controversy Level", {}).get("Description", "N/A")
 
+        # Get news headlines analysis
+        news_summary = asyncio.run(get_stock_summary(ticker, OPENAI_API_KEY))
+
+
         holistic_report = (
             f"Holistic Recommendation for {ticker}:\n\n"
             f"Technical Analysis (Stock History):\n{stock_rec}\n\n"
             f"ESG Analysis:\n{esg_analysis}\n\n"
             "Financial Analysis: [Pending]\n"
-            "News Analysis: [Pending]\n\n"
+            f"News Analysis: \n{news_summary}\n\n"
             "Final Decision: Based solely on technical analysis, a recommendation has been provided."
         )
 
