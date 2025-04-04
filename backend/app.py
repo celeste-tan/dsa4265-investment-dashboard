@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
+from backend.config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
 from utils.stock_history import get_stock_recommendation
 import openai
 import asyncio
