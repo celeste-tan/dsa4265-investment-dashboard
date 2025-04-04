@@ -1,0 +1,37 @@
+/* Layout: left column for holistic summary, right grid for measures */
+.dashboard-layout {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  min-height: 70vh;
+}
+
+/* Left column: big holistic summary card */
+.left-card {
+  flex: 1 1 30%;
+  display: grid;
+  grid-auto-rows: 700px;
+}
+
+/* Right grid: 2x2 layout for measures */
+.right-grid {
+  flex: 1 1 70%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  grid-auto-rows: 334px;
+}
+
+/* Card styling */
+.card {
+  background-color: #fff;
+  color: #000;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  min-height: 200px;
+}
+
+.card h2 {
+  margin-bottom: 0.5rem;
+}

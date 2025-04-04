@@ -1,0 +1,65 @@
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #232332; 
+  color: #fff;              
+}
+
+/* Classes for highlighted text */
+.wave-highlight,
+.brand-color {
+  color: #4e73df; 
+}
+
+/* Main container fills the viewport and sets relative positioning for absolute children */
+.app-container {
+  position: relative;
+  overflow: hidden;   /* Hide overflowing elements (waves) */
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;  /* Ensure full viewport height */
+}
+
+/* Top bar for header content */
+.top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.8rem 2rem;
+}
+
+.top-bar h1 {
+  font-size: 1.8rem;
+  padding: 1rem;
+}
+
+/* Main content area centered and layered above the wave */
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* Center horizontally */
+  padding: 0 2rem 2rem;
+  z-index: 1;              /* Ensure content appears above the wave */
+}
+
+/* Wave container positioned at the bottom */
+.wave-container {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 320px;   /* Match the SVG viewBox height */
+  z-index: 0;      /* Wave is behind the main content */
+  overflow: hidden;
+}
+
+.waves {
+  width: 100%;
+  height: 100%;
+}
