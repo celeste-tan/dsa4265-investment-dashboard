@@ -102,6 +102,7 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app)
 
+# ESG ANALYSIS
 @app.route("/api/esg-scores", methods=["POST"])
 def get_esg_scores():
     """New route that returns only the individual ESG scores."""
@@ -144,6 +145,21 @@ def get_esg():
     report = get_esg_report(ticker, ESG_API_TOKEN, OPENAI_API_KEY)
     print(f"Generated ESG Report: {report}")
     return jsonify({"report": report})
+
+
+# MEDIA SENTIMENT ANALYSIS
+@app.route("/api/media-sentiment-summary", methods=["POST"])
+def get_media_summary():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    print(f"Received ticker: {ticker}")
+
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+    
+    summary = asyncio.run(get_stock_summary(ticker, OPENAI_API_KEY))
+    print(summary)
+    return jsonify({"summary": summary})
 
 if __name__ == "__main__":
     app.run(debug=True)
