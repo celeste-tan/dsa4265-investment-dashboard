@@ -14,80 +14,12 @@ from dateutil.relativedelta import relativedelta
 from contractions import fix
 from dotenv import load_dotenv
 import os
+import yfinance as yf
 
 # Load environment variable from .env file
 load_dotenv()
 
-### Helper Functions ###
-# Mapping of ticker to company names
-ticker_to_name = {
-    # Tech companies
-    "AAPL": "Apple",
-    "MSFT": "Microsoft",
-    "TSLA": "Tesla",
-    "GOOGL": "Google",
-    "GOOG": "Google",
-    "AMZN": "Amazon",
-    "META": "Meta",
-    "NVDA": "Nvidia",
-    "AMD": "AMD",
-    "INTC": "Intel",
-    "ORCL": "Oracle",
-    "IBM": "IBM",
-    "CSCO": "Cisco",
-    "ADBE": "Adobe",
-    "CRM": "Salesforce",
-    "SAP": "SAP",
-    "UBER": "Uber",
-    "LYFT": "Lyft",
-    "SQ": "Block",
-    "PYPL": "PayPal",
-
-    # Financials
-    "JPM": "JPMorgan",
-    "GS": "Goldman Sachs",
-    "BAC": "Bank of America",
-    "C": "Citigroup",
-    "MS": "Morgan Stanley",
-    "WFC": "Wells Fargo",
-    "AXP": "American Express",
-    "V": "Visa",
-    "MA": "Mastercard",
-    
-    # Consumer & Retail
-    "WMT": "Walmart",
-    "TGT": "Target",
-    "COST": "Costco",
-    "HD": "Home Depot",
-    "LOW": "Lowe's",
-    "NKE": "Nike",
-    "LULU": "Lululemon",
-    "SBUX": "Starbucks",
-
-    # European Banks
-    "HSBC": "HSBC",
-    "BARC": "Barclays",
-    "DB": "Deutsche Bank",
-    "CS": "Credit Suisse",
-    "UBS": "UBS",
-    "SAN": "Santander",
-    "ING": "ING Bank",
-    "BNP": "BNP Paribas",
-    
-    # Singapore Banks
-    "DBS": "DBS",
-    "UOB": "United Overseas Bank",
-    "OCBC": "Oversea-Chinese Banking Corporation",
-
-    # Airlines & Travel
-    "AAL": "American Airlines",
-    "DAL": "Delta",
-    "UAL": "United Airlines",
-    "LUV": "Southwest",
-    "ABNB": "Airbnb",
-    "BKNG": "Booking Holdings",
-    "SIA": "Singapore Airlines"
-}
+############ Helper Functions ############
 
 # Function to parse only required attributes
 def filter_message_data(message):
@@ -127,9 +59,26 @@ def split_into_headlines(messages):
     msg['subheadline'] = components[1] if len(components) > 1 else ""
   return messages
 
+# Mapping of ticker to company name
+def ticker_to_shortname(ticker):
+    try:
+        stock = yf.Ticker(ticker)
+        info = stock.info
+        raw_name = info.get('shortName', 'N/A')
+
+        # Clean common suffixes
+        for suffix in ["Inc.", "Incorporated", "Corp.", "Corporation", "Ltd.", "Limited", "PLC", ","]:
+            raw_name = raw_name.replace(suffix, "")
+        clean_name = raw_name.strip()
+        
+        return clean_name
+    except Exception as e:
+        print(f"Error fetching info for {ticker}: {e}")
+        return None
+
 # Filter for stock-specific headlines
 def extract_ticker_specific_headlines(ticker, headlines):
-  company_name = ticker_to_name.get(ticker, None)
+  company_name = ticker_to_shortname(ticker)
   if not company_name:
     print(f"No mapping found for ticker: {ticker}")
     return []
@@ -140,22 +89,19 @@ def extract_ticker_specific_headlines(ticker, headlines):
   ]
   return relevant_headlines
 
-# clean after filtering for stock-specific headlines
+# Clean after filtering for stock-specific headlines
 def clean_text(headlines):
   for msg in headlines:
     if msg:
-        # remove HTML tags
+        # Remove HTML tags
         msg = re.sub(r"<.*?>", "", msg)
-
+        # Remove special characters
         msg = re.sub(r"[^a-zA-Z0-9.,!? ]", "", msg)
-  
-        # remove extra spaces
+        # Remove extra spaces
         msg = msg.strip()
-
-        # expand contractions
+        # Expand contractions
         msg = fix(msg)
-
-        # handle emojis
+        # Handle emojis
         msg = emoji.demojize(msg)
 
   return headlines
@@ -246,10 +192,10 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
     if not headlines:
         return f"No recent headlines found for {ticker}."
 
-    # Step 2: split into headline and subheadline
+    # Step 1: Split into headline and subheadline
     headlines_split = split_into_headlines(headlines)
 
-    # Step 3: Filter headlines mentioning the stock ticker
+    # Step 2: Filter headlines mentioning the stock ticker
     headlines_to_use = extract_ticker_specific_headlines(ticker, headlines_split)
 
     if not headlines_to_use:
@@ -299,5 +245,4 @@ async def get_stock_summary(ticker, openai_api_key):
     # Step 4: Generate stock summary using the scraped headlines
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
 
-    # Print the summary
     return summary
