@@ -85,21 +85,37 @@ def stock_data_summary(data):
 
 def build_stock_prompt(ticker, summary, price, volatility, ma_50, ma_200, ema_50, ema_200, rsi):
     prompt = (
-        f"Stock Performance for {ticker}:\n"
+        f"You are a financial advisor. Based on the following technical data for {ticker}, "
+        f"start with a clear recommendation (Buy, Sell, or Hold) and then explain why in less than 250 words.\n\n"
+
+        f"Give the recommendation in the first sentence clearly.\n\n"
+
+        f"Technical Summary for {ticker}:\n"
         f"{summary}\n"
-        f"Current Price: {price:.2f}, Volatility: {volatility:.2f}, "
-        f"50-day SMA: {ma_50:.2f}, 200-day SMA: {ma_200:.2f}, "
-        f"50-day EMA: {ema_50:.2f}, 200-day EMA: {ema_200:.2f}, RSI: {rsi:.2f}.\n"
-        "Based on the technical analysis above, should I invest in this stock? "
-        "Please provide a recommendation (Buy, Sell, or Hold) with rationale."
+        f"Current Price: {price:.2f}\n"
+        f"Volatility: {volatility:.2f}\n"
+        f"50-day SMA: {ma_50:.2f}, 200-day SMA: {ma_200:.2f}\n"
+        f"50-day EMA: {ema_50:.2f}, 200-day EMA: {ema_200:.2f}\n"
+        f"RSI: {rsi:.2f}\n\n"
+
+        f"Use these indicators to evaluate price trends, momentum, and market sentiment. "
+        f"Then conclude with your rationale behind the recommendation."
     )
     return prompt
 
-def get_stock_recommendation(ticker, period, openai_api_key):
-    # Fetch stock data and compute metrics
+def get_stock_recommendation(ticker, timeframe, openai_api_key):
+    # Determine period based on timeframe type
+    if timeframe == "short-term":
+        period = "1y"
+    elif timeframe == "long-term":
+        period = "15y"  # default to 15y for long-term view; frontend can pass more specific values like '5y', '10y', etc.
+    else:
+        period = timeframe  # assume frontend passed a valid yfinance period
+
     data = fetch_stock_data(ticker, period)
     if data.empty:
         return "No stock data available.", ""
+
     price = data['Close'].iloc[-1]
     volatility = calculate_volatility(data)
     ma_50 = calculate_sma(data, window=50).iloc[-1]
@@ -109,12 +125,11 @@ def get_stock_recommendation(ticker, period, openai_api_key):
     rsi = calculate_rsi(data)
     summary = stock_data_summary(data)
     prompt = build_stock_prompt(ticker, summary, price, volatility, ma_50, ma_200, ema_50, ema_200, rsi)
-    
-    # Call OpenAI's ChatCompletion API
+
     try:
         import openai
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a financial advisor specializing in technical analysis."},
                 {"role": "user", "content": prompt}
@@ -127,4 +142,5 @@ def get_stock_recommendation(ticker, period, openai_api_key):
         recommendation = response.choices[0].message.content.strip()
     except Exception as e:
         recommendation = f"Error calling GenAI API: {e}"
+
     return recommendation, summary

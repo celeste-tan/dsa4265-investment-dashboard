@@ -10,6 +10,7 @@ def fetch_esg_data(ticker, api_token):
     try:
         api = CrawlingAPI({'token': api_token})
         response = api.get(page_url)
+        print("page received")
 
         if response['status_code'] != 200:
             return {"error": f"Failed to fetch ESG data for {ticker}"}
@@ -43,7 +44,7 @@ def fetch_esg_data(ticker, api_token):
                         "Value": int(spans[0].text.strip()),
                         "Description": spans[2].text.strip()
                     }
-
+        print("scraped")
         return esg_data
 
     except Exception as e:
@@ -62,13 +63,13 @@ def generate_esg_assessment(esg_data, openai_api_key):
         f"Governance Risk Score: {esg_data.get('Governance Risk Score', 'N/A')}\n"
         f"Controversy Level: {esg_data.get('Controversy Level', {}).get('Value', 'N/A')} "
         f"({esg_data.get('Controversy Level', {}).get('Description', 'N/A')})\n\n"
-        "Based on the ESG risk scores and controversy level, provide an assessment of the company's sustainability and potential risks."
+        "Based on the ESG risk scores and controversy level, provide an assessment of the company's sustainability and potential risks. Limit the output to 250 words."
     )
 
     try:
         openai.api_key = openai_api_key
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[{"role": "system", "content": "You are an ESG investment analyst."},
                       {"role": "user", "content": prompt}],
             temperature=0.7

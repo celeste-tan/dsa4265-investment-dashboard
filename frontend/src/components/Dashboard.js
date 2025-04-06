@@ -1,227 +1,284 @@
-// import React from 'react';
-// import './Dashboard.css';
-
-// function Dashboard() {
-//   return (
-//     <div className="dashboard-layout">
-//       {/* Left column: Big holistic summary */}
-//       <div className="left-card">
-//         <div className="card">
-//           <h2>At a Glance</h2>
-//         </div>
-//       </div>
-
-//       {/* Right grid: Four breakdown sections */}
-//       <div className="right-grid">
-//         <div className="card">
-//           <h2>Media Sentiment Analysis</h2>
-//         </div>
-//         <div className="card">
-//           <h2>Stock History Performance</h2>
-//         </div>
-//         <div className="card">
-//           <h2>Financial Statements</h2>
-//         </div>
-//         <div className="card">
-//           <h2>ESG Score</h2>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Dashboard;
-
-// import React, { useState, useEffect } from 'react';
-// import './Dashboard.css';
-
-// function Dashboard({ ticker }) {
-//   const [esgReport, setEsgReport] = useState('');
-//   const [loading, setLoading] = useState(false);
-
-//   useEffect(() => {
-//     if (!ticker) return;
-
-//     const fetchESG = async () => {
-//       setLoading(true);
-//       try {
-//         const response = await fetch('http://localhost:5000/api/esg', {
-//           method: 'POST',
-//           headers: { 'Content-Type': 'application/json' },
-//           body: JSON.stringify({ ticker }),
-//         });
-//         const data = await response.json();
-//         setEsgReport(data.report || "No ESG report available.");
-//       } catch (error) {
-//         setEsgReport("Error fetching ESG report.");
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchESG();
-//   }, [ticker]);
-
-//   return (
-//     <div className="dashboard-layout">
-//       {/* Left column */}
-//       <div className="left-card">
-//         <div className="card">
-//           <h2>At a Glance</h2>
-//         </div>
-//       </div>
-
-//       {/* Right grid */}
-//       <div className="right-grid">
-//         <div className="card">
-//           <h2>Media Sentiment Analysis</h2>
-//         </div>
-//         <div className="card">
-//           <h2>Stock History Performance</h2>
-//         </div>
-//         <div className="card">
-//           <h2>Financial Statements</h2>
-//         </div>
-//         <div className="card">
-//           <h2>ESG Score</h2>
-//           {loading ? (
-//             <p>Loading...</p>
-//           ) : (
-//             <pre style={{ whiteSpace: 'pre-wrap' }}>{esgReport}</pre>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default Dashboard;
-
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
-import Modal from 'react-modal';  // Importing Modal
+import Modal from 'react-modal';
+import ReactMarkdown from 'react-markdown';
+import {
+  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
+} from 'recharts';
 
-Modal.setAppElement('#root');
+Modal.setAppElement('#root'); // for accessibility (screen readers)
 
-function Dashboard({ ticker }) {
+// Define chart time ranges
+const SHORT_TERM_PERIODS = ['1d', '5d', '1mo', '3mo', '1y'];
+const LONG_TERM_PERIODS = ['5y', '10y', '15y'];
+
+function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
+  // State hooks for chart and data
+  const [chartData, setChartData] = useState([]);
+  const [chartPeriod, setChartPeriod] = useState('1y');
+  const [loadingChart, setLoadingChart] = useState(false);
+
   const [esgScores, setEsgScores] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showModal, setShowModal] = useState(false);
   const [esgReport, setEsgReport] = useState(null);
+  const [stockHistory, setStockHistory] = useState(null);
+  const [loadingScores, setLoadingScores] = useState(false);
+  const [loadingReport, setLoadingReport] = useState(false);
+  const [loadingStockHistory, setLoadingStockHistory] = useState(false);
 
+  const [showESGModal, setShowESGModal] = useState(false);
+  const [showStockModal, setShowStockModal] = useState(false);
+
+  // Set default chart period based on selected timeframe
+  useEffect(() => {
+    if (!ticker) return;
+    const defaultPeriod = timeframe === 'long-term' ? '5y' : '1y';
+    setChartPeriod(defaultPeriod);
+  }, [ticker, timeframe]);
+
+  // Fetch ESG scores, reports, and stock insights when ticker/timeframe changes
   useEffect(() => {
     if (!ticker) return;
 
-    const fetchESG = async () => {
-      setLoading(true);
+    const fetchDashboardData = async () => {
+      // Set loading states
+      setLoadingScores(true);
+      setLoadingReport(true);
+      setLoadingStockHistory(true);
+
+      // Clear current data
+      setEsgScores(null);
+      setEsgReport(null);
+      setStockHistory(null);
+
+      // Fetch ESG scores
       try {
-        const response = await fetch('http://localhost:5000/api/esg-scores', {
+        const scoresResponse = await fetch('http://127.0.0.1:5000/api/esg-scores', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ticker }),
         });
-        const data = await response.json();
-        setEsgScores(data.esg_scores || "No ESG scores available.");
+        const scoresData = await scoresResponse.json();
+        setEsgScores(scoresData.esg_scores || 'No ESG scores available.');
       } catch (error) {
-        setEsgScores("Error fetching ESG scores.");
+        setEsgScores('Error fetching ESG scores.');
       } finally {
-        setLoading(false);
+        setLoadingScores(false);
+      }
+
+      // Fetch ESG report
+      try {
+        const reportResponse = await fetch('http://127.0.0.1:5000/api/esg-gen-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker }),
+        });
+        const reportData = await reportResponse.json();
+        setEsgReport(reportData.report || 'No ESG report available.');
+      } catch (error) {
+        setEsgReport('Error fetching ESG report.');
+      } finally {
+        setLoadingReport(false);
+      }
+
+      // Fetch stock recommendation
+      try {
+        const historyResponse = await fetch('http://127.0.0.1:5000/api/stock-history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker, timeframe }),
+        });
+        const historyData = await historyResponse.json();
+        setStockHistory(historyData.recommendation || 'No stock history available.');
+      } catch (error) {
+        setStockHistory('Error fetching stock history.');
+      } finally {
+        setLoadingStockHistory(false);
+      }
+
+      // Notify parent (App) that all data is fetched
+      if (onAllDataLoaded) onAllDataLoaded();
+    };
+
+    fetchDashboardData();
+  }, [ticker, timeframe]);
+
+  // Fetch historical stock price chart data
+  useEffect(() => {
+    if (!ticker || !chartPeriod) return;
+
+    const fetchChartData = async () => {
+      setLoadingChart(true);
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/stock-chart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker, period: chartPeriod }),
+        });
+        const data = await response.json();
+        setChartData(data.prices || []);
+      } catch {
+        setChartData([]);
+      } finally {
+        setLoadingChart(false);
       }
     };
 
-    fetchESG();
-  }, [ticker]);
+    fetchChartData();
+  }, [ticker, chartPeriod]);
 
-  const fetchEsgReport = async () => {
-    try {
-      const response = await fetch('http://localhost:5000/api/esg-gen-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ticker }),
-      });
-      const data = await response.json();
-      setEsgReport(data.report);
-    } catch (error) {
-      console.error('Error fetching ESG report:', error);
-    }
-  };
-
-  const handleModalOpen = () => {
-    fetchEsgReport();
-    setShowModal(true);
-  };
-
-  const handleModalClose = () => {
-    setShowModal(false);
-    setEsgReport(null); // Clear the report content when closing
+  // Render short or long term buttons
+  const renderTabs = () => {
+    const periods = timeframe === 'long-term' ? LONG_TERM_PERIODS : SHORT_TERM_PERIODS;
+    return (
+      <div className="range-tabs">
+        {periods.map((p) => (
+          <button
+            key={p}
+            className={chartPeriod === p ? 'active' : ''}
+            onClick={() => setChartPeriod(p)}
+          >
+            {p.toUpperCase()}
+          </button>
+        ))}
+      </div>
+    );
   };
 
   return (
     <div className="dashboard-layout">
-      {/* Left column */}
+      {/* Left summary */}
       <div className="left-card">
         <div className="card">
-          <h2>At a Glance - {ticker}</h2> {/* Dynamically displaying ticker here */}
+          <h2>At a Glance - {ticker}</h2>
         </div>
       </div>
 
-      {/* Right grid */}
+      {/* Right metrics grid */}
       <div className="right-grid">
+        {/* Placeholder for media sentiment */}
         <div className="card">
           <h2>Media Sentiment Analysis</h2>
         </div>
+
+        {/* Stock performance + chart */}
         <div className="card">
-          <h2>Stock History Performance</h2>
-        </div>
-        <div className="card">
-          <h2>Financial Statements</h2>
-        </div>
-        <div className="card">
-          <h2>ESG Score
+          <h2>
+            Stock History Performance
             <button
               className="info-icon"
-              onClick={handleModalOpen}
-              aria-label="Get additional ESG report info"
+              onClick={() => setShowStockModal(true)}
+              disabled={loadingStockHistory || !stockHistory}
+              style={{ marginLeft: '10px', opacity: loadingStockHistory || !stockHistory ? 0.5 : 1 }}
             >
               ℹ️
             </button>
           </h2>
-          {loading ? (
-            <p>Loading...</p>
+          {renderTabs()}
+          {loadingChart ? (
+            <p>Loading chart...</p>
           ) : (
-            <div>
-              {esgScores ? (
-                <ul>
-                  <li><strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}</li>
-                  <li><strong>Environmental Risk Score:</strong> {esgScores["Environmental Risk Score"]}</li>
-                  <li><strong>Social Risk Score:</strong> {esgScores["Social Risk Score"]}</li>
-                  <li><strong>Governance Risk Score:</strong> {esgScores["Governance Risk Score"]}</li>
-                  <li><strong>Controversy Level:</strong> {esgScores["Controversy Value"]}</li>
-                  <li><strong>Controversy Level:</strong> {esgScores["Controversy Description"]}</li>
-                </ul>
-              ) : (
-                <p>No ESG scores available.</p>
-              )}
+            <div style={{ height: 'calc(100% - 100px)', margin: '0 -10px 10px' }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 30 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="date"
+                    interval="preserveStartEnd"
+                    minTickGap={20}
+                    tick={{ fontSize: 12 }}
+                  />
+                  <YAxis
+                    domain={['auto', 'auto']}
+                    tick={{ fontSize: 12 }}
+                    label={{
+                      value: 'Price (USD)',
+                      angle: -90,
+                      position: 'insideLeft',
+                      offset: 10,
+                      style: { textAnchor: 'middle', fill: '#000' },
+                    }}
+                  />
+                  <Tooltip />
+                  <Line type="monotone" dataKey="close" stroke="#4e73df" dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
             </div>
+          )}
+        </div>
+
+        {/* Placeholder card for future use */}
+        <div className="card">
+          <h2>Financial Statements</h2>
+        </div>
+
+        {/* ESG Scores */}
+        <div className="card">
+          <h2>
+            ESG Score
+            <button
+              className="info-icon"
+              onClick={() => setShowESGModal(true)}
+              disabled={loadingReport || !esgReport}
+              style={{ marginLeft: '10px', opacity: loadingReport || !esgReport ? 0.5 : 1 }}
+            >
+              ℹ️
+            </button>
+          </h2>
+          {loadingScores || loadingReport ? (
+            <p>Loading ESG data...</p>
+          ) : (
+            esgScores && esgReport && (
+              <ul>
+                <li><strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}</li>
+                <li><strong>Environmental Risk Score:</strong> {esgScores["Environmental Risk Score"]}</li>
+                <li><strong>Social Risk Score:</strong> {esgScores["Social Risk Score"]}</li>
+                <li><strong>Governance Risk Score:</strong> {esgScores["Governance Risk Score"]}</li>
+                <li><strong>Controversy Level:</strong> {esgScores["Controversy Value"]}</li>
+                <li><strong>Controversy Description:</strong> {esgScores["Controversy Description"]}</li>
+              </ul>
+            )
           )}
         </div>
       </div>
 
-      {/* Modal for detailed ESG Report */}
-      <Modal isOpen={showModal} onRequestClose={handleModalClose} className="modal-content" overlayClassName="modal-overlay">
+      {/* ESG Modal */}
+      <Modal
+        isOpen={showESGModal}
+        onRequestClose={() => setShowESGModal(false)}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+      >
         <h2>ESG Report for {ticker}</h2>
-        
-        {/* Only show the report or a loading message */}
         <div className="esg-report">
-          {esgReport ? (
-            <pre>{esgReport}</pre>
+          {loadingReport ? <p>Loading detailed ESG report...</p> : <pre>{esgReport}</pre>}
+        </div>
+        <button onClick={() => setShowESGModal(false)} className="close-btn">Close</button>
+      </Modal>
+
+      {/* Stock Insight Modal */}
+      <Modal
+        isOpen={showStockModal}
+        onRequestClose={() => setShowStockModal(false)}
+        className="modal-content"
+        overlayClassName="modal-overlay"
+      >
+        <h2>Stock History Insights for {ticker}</h2>
+        <div className="stock-history-report">
+          {loadingStockHistory ? (
+            <p>Loading detailed stock history...</p>
+          ) : stockHistory ? (
+            stockHistory.split('\n\n').map((para, idx) => (
+              <p key={idx} style={{ marginBottom: '1rem' }}>
+                <ReactMarkdown>{para}</ReactMarkdown>
+              </p>
+            ))
           ) : (
-            <p>Loading detailed ESG report...</p>
+            <p>No stock history available.</p>
           )}
         </div>
-
-        {/* Close button will always appear at the bottom after content */}
-        <button onClick={handleModalClose} className="close-btn">Close</button>
+        <button onClick={() => setShowStockModal(false)} className="close-btn">
+          Close
+        </button>
       </Modal>
     </div>
   );
