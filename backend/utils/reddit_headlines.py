@@ -12,8 +12,8 @@ load_dotenv()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 reddit = praw.Reddit(
-    client_id=os.getenv("REDDIT_CLIENT_ID", "your_default_here"),
-    client_secret=os.getenv("REDDIT_CLIENT_SECRET", "your_default_here"),
+    client_id="DigBa8E0LvB9sIKdM54j_A",
+    client_secret="yZJtGdsTrS8xSR6QCRe0Xl9Dw7Mj9g",
     user_agent="financial-news-scraper"
 )
 
