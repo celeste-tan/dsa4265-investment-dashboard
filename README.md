@@ -1,1 +1,1 @@
-# dsa4265-investment-chatbot
+# dsa4265-investment-dashboard
