@@ -1,62 +1,24 @@
 import praw
 import datetime
 import time
-import pandas as pd
 import re
 import os
+import pandas as pd
 from openai import OpenAI
 from dotenv import load_dotenv
 
-
-# OpenAI API Setup
 load_dotenv()
 
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY")) 
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Reddit API Variables
 reddit = praw.Reddit(
-    client_id="DigBa8E0LvB9sIKdM54j_A",
-    client_secret="yZJtGdsTrS8xSR6QCRe0Xl9Dw7Mj9g",
+    client_id=os.getenv("REDDIT_CLIENT_ID", "your_default_here"),
+    client_secret=os.getenv("REDDIT_CLIENT_SECRET", "your_default_here"),
     user_agent="financial-news-scraper"
 )
 
-# === Target Subreddits ===
 subreddits = ["stocks", "investing", "finance", "wallstreetbets", "options"]
 
-# === User Input ===
-def get_user_inputs():
-    tickers_input = input("Enter one or more stock symbols separated by commas (e.g. AAPL, MSFT, TSLA): ")
-    ticker_symbols = [ticker.strip().upper() for ticker in tickers_input.split(",") if ticker.strip()]
-    days_back = 186
-    return ticker_symbols, days_back
-
-# === Scrape Reddit ===
-def scrape_reddit(tickers, days_back):
-    current_time = time.time()
-    time_threshold = current_time - (days_back * 86400)
-    all_posts = []
-
-    for subreddit_name in subreddits:
-        subreddit = reddit.subreddit(subreddit_name)
-        for ticker in tickers:
-            print(f"Scraping r/{subreddit_name} for '{ticker}' mentions (Last {days_back} days)...")
-            search_results = subreddit.search(ticker, sort="new", time_filter="all")
-
-            for post in search_results:
-                if post.created_utc >= time_threshold:
-                    post_date = datetime.datetime.utcfromtimestamp(post.created_utc)
-                    all_posts.append({
-                        "subreddit": subreddit_name,
-                        "ticker": ticker,
-                        "title": post.title,
-                        "url": post.url,
-                        "upvotes": post.score,
-                        "created_on": post_date.strftime("%Y-%m-%d %H:%M:%S"),
-                        "content": post.selftext
-                    })
-    return pd.DataFrame(all_posts)
-
-# === Text Cleaning ===
 def clean_text(text):
     if isinstance(text, str):
         text = re.sub(r'@[A-Za-z0-9]+', '', text)
@@ -91,7 +53,6 @@ def remove_emoji(text):
         return emoji_pattern.sub(r"", text)
     return text
 
-# === Sentiment Classification ===
 def get_openai_sentiment(text, ticker):
     prompt = (
         f"You are a financial sentiment analysis assistant. "
@@ -108,34 +69,37 @@ def get_openai_sentiment(text, ticker):
         return response.choices[0].message.content.strip()
     except Exception as e:
         print(f"OpenAI error: {e}")
-        return "neutral"
+        return "Neutral"
 
-# === Main Pipeline ===
-def main():
-    tickers, days_back = get_user_inputs()
-    print("\nFetching Reddit stock discussions...\n")
+def get_reddit_sentiment(ticker, days_back=186):
+    print(f"\nFetching Reddit stock discussions for {ticker}...\n")
 
-    df = scrape_reddit(tickers, days_back)
-    if df.empty:
-        print("No relevant Reddit posts found.")
-        return
+    current_time = time.time()
+    time_threshold = current_time - (days_back * 86400)
+    posts = []
 
-    # Filter low engagement
-    df = df[df['upvotes'] >= 3]
-    df = df[df['title'].notna() & df['title'].str.strip().ne("")]
+    for subreddit_name in subreddits:
+        print(f"Scraping r/{subreddit_name} for '{ticker}' mentions (Last {days_back} days)...")
+        subreddit = reddit.subreddit(subreddit_name)
+        results = subreddit.search(ticker, sort="new", time_filter="all")
 
-    # Clean text
-    df["title"] = df["title"].apply(clean_text).apply(remove_emoji)
+        for post in results:
+            if post.created_utc >= time_threshold:
+                title = clean_text(remove_emoji(post.title))
+                if title and post.score >= 3:
+                    posts.append({
+                        "title": title,
+                        "upvotes": post.score
+                    })
 
-    # Classify sentiment
-    df["openai_sentiment"] = df.apply(
-        lambda row: get_openai_sentiment(row["title"], row["ticker"]), axis=1
-    )
+    if not posts:
+        print("No relevant posts found.\n")
+        return f"No notable Reddit discussions found for {ticker} in the last {days_back} days."
 
-    print("\nSample processed data:")
-    print(df[["title", "ticker", "openai_sentiment"]].head(10))
+    print(f"\nClassifying {len(posts)} posts using OpenAI...\n")
+    sentiments = [get_openai_sentiment(post["title"], ticker) for post in posts]
+    sentiment_counts = pd.Series(sentiments).value_counts()
 
-    return df
-
-if __name__ == "__main__":
-    cleaned_df = main()
+    summary = ", ".join(f"{k}: {v}" for k, v in sentiment_counts.items())
+    print(f"Done analyzing Reddit sentiment for {ticker}.")
+    return f"Reddit sentiment for {ticker} is distributed as follows — {summary}."
