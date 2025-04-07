@@ -1,6 +1,8 @@
 from datetime import datetime
 from pandas.tseries.offsets import BDay
 import yfinance as yf
+import openai
+from ..database import db
 
 # -----------------------------
 # Stock Data Functions
