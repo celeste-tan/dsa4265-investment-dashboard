@@ -24,24 +24,14 @@ def get_esg_scores():
         return jsonify({"error": "Missing ticker symbol"}), 400
 
     # Fetch ESG data for the ticker
-    esg_data = fetch_esg_data(ticker, ESG_API_TOKEN)
+    esg_data = fetch_esg_data(ticker)
     
     if "error" in esg_data:
         return jsonify({"error": esg_data["error"]}), 400
 
-    # Extract just the scores
-    esg_scores = {
-        "Total ESG Risk Score": esg_data.get("Total ESG Risk Score"),
-        "Environmental Risk Score": esg_data.get("Environmental Risk Score"),
-        "Social Risk Score": esg_data.get("Social Risk Score"),
-        "Governance Risk Score": esg_data.get("Governance Risk Score"),
-        "Controversy Value": esg_data.get("Controversy Level", {}).get("Value", "N/A"),
-        "Controversy Description": esg_data.get("Controversy Level", {}).get("Description", "N/A")
-    }
-
-    print(f"Extracted ESG Scores: {esg_scores}")
+    print(f"Extracted ESG Scores: {esg_data}")
     
-    return jsonify({"esg_scores": esg_scores})
+    return jsonify({"esg_scores": esg_data})
 
 @app.route("/api/esg-gen-report", methods=["POST"])
 def get_esg():
@@ -52,7 +42,7 @@ def get_esg():
     if not ticker:
         return jsonify({"error": "Missing ticker symbol"}), 400
 
-    report = get_esg_report(ticker, ESG_API_TOKEN, OPENAI_API_KEY)
+    report = get_esg_report(ticker, OPENAI_API_KEY)
     print(f"Generated ESG Report: {report}")
     return jsonify({"report": report})
 
