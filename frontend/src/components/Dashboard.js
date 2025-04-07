@@ -173,11 +173,12 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           </Pie>
           <Tooltip />
           <Legend
-            verticalAlign="bottom"
+            verticalAlign="middle"
+            align="right"
             height={36}
-            layout="horizontal"
+            layout="vertical"
             iconType="circle"
-            wrapperStyle={{ lineHeight: '40px' }}
+            wrapperStyle={{ lineHeight: '30px' }}
           />
         </PieChart>
       </ResponsiveContainer>
