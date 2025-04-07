@@ -3,8 +3,9 @@ import './Dashboard.css';
 import Modal from 'react-modal';
 import ReactMarkdown from 'react-markdown';
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer
+  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
+
 
 Modal.setAppElement('#root'); // for accessibility (screen readers)
 
@@ -34,6 +35,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     const defaultPeriod = timeframe === 'long-term' ? '5y' : '1y';
     setChartPeriod(defaultPeriod);
   }, [ticker, timeframe]);
+
 
   // Fetch ESG scores, reports, and stock insights when ticker/timeframe changes
   useEffect(() => {
@@ -144,6 +146,46 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     );
   };
 
+  const ESGPieChart = ({ data }) => {
+    const COLORS = ['#82ca9d', '#8884d8', '#ffc658']; // Env, Social, Gov
+  
+    const pieData = [
+      { name: 'Environmental', value: data["Environmental Risk Score"] },
+      { name: 'Social', value: data["Social Risk Score"] },
+      { name: 'Governance', value: data["Governance Risk Score"] },
+    ];
+  
+    return (
+      <ResponsiveContainer width="100%" height={250}>
+        <PieChart>
+          <Pie
+            data={pieData}
+            dataKey="value"
+            nameKey="name"
+            cx="50%"
+            cy="50%"
+            outerRadius={80}
+            label
+          >
+            {pieData.map((_, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <Tooltip />
+          <Legend
+            verticalAlign="bottom"
+            height={36}
+            layout="horizontal"
+            iconType="circle"
+            wrapperStyle={{ lineHeight: '40px' }}
+          />
+        </PieChart>
+      </ResponsiveContainer>
+    );
+  };
+  
+  
+  
   return (
     <div className="dashboard-layout">
       {/* Left summary */}
@@ -210,7 +252,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         <div className="card">
           <h2>Financial Statements</h2>
         </div>
-
+      
         {/* ESG Scores */}
         <div className="card">
           <h2>
@@ -224,22 +266,36 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
               ℹ️
             </button>
           </h2>
+
           {loadingScores || loadingReport ? (
             <p>Loading ESG data...</p>
           ) : (
             esgScores && esgReport && (
-              <ul>
-                <li><strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}</li>
-                <li><strong>Environmental Risk Score:</strong> {esgScores["Environmental Risk Score"]}</li>
-                <li><strong>Social Risk Score:</strong> {esgScores["Social Risk Score"]}</li>
-                <li><strong>Governance Risk Score:</strong> {esgScores["Governance Risk Score"]}</li>
-                <li><strong>Controversy Level:</strong> {esgScores["Controversy Value"]}</li>
-                <li><strong>Controversy Description:</strong> {esgScores["Controversy Description"]}</li>
-              </ul>
+              <>
+                <ul>
+                  <strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}
+                  {/* <li><strong>Environmental Risk Score:</strong> {esgScores["Environmental Risk Score"]}</li>
+                  <li><strong>Social Risk Score:</strong> {esgScores["Social Risk Score"]}</li>
+                  <li><strong>Governance Risk Score:</strong> {esgScores["Governance Risk Score"]}</li> */}
+                </ul>
+
+                {/* Charts */}
+                <div className="mt-6">
+                  <ESGPieChart data={esgScores} />
+                </div>
+
+                {/* <ul>
+                  <strong>Controversy Level:</strong> {esgScores["Controversy Level"]}
+                  <li><strong>Peer Controversy (Min):</strong> {esgScores["Peer Controversy Min"]}</li>
+                  <li><strong>Peer Controversy (Avg):</strong> {esgScores["Peer Controversy Avg"]}</li>
+                  <li><strong>Peer Controversy (Max):</strong> {esgScores["Peer Controversy Max"]}</li>
+                </ul> */}
+              </>
             )
           )}
         </div>
       </div>
+      
 
       {/* ESG Modal */}
       <Modal
