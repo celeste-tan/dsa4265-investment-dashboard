@@ -9,6 +9,7 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import PeerChannel
+from telethon.sessions import StringSession
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from contractions import fix
@@ -91,28 +92,31 @@ def extract_ticker_specific_headlines(ticker, headlines):
 
 # Clean after filtering for stock-specific headlines
 def clean_text(headlines):
-  for msg in headlines:
-    if msg:
-        # Remove HTML tags
-        msg = re.sub(r"<.*?>", "", msg)
-        # Remove special characters
-        msg = re.sub(r"[^a-zA-Z0-9.,!? ]", "", msg)
-        # Remove extra spaces
-        msg = msg.strip()
-        # Expand contractions
-        msg = fix(msg)
-        # Handle emojis
-        msg = emoji.demojize(msg)
-
-  return headlines
+    for i in range(len(headlines)):
+        msg = headlines[i]
+        if msg:
+            # Remove HTML tags
+            msg = re.sub(r"<.*?>", "", msg)
+            # Remove special characters
+            msg = re.sub(r"[^a-zA-Z0-9.,!? ]", "", msg)
+            # Remove extra spaces
+            msg = msg.strip()
+            # Expand contractions
+            msg = fix(msg)
+            # Handle emojis
+            msg = emoji.demojize(msg)
+            headlines[i] = msg
+        else:
+            headlines[i] = ""
+    return headlines
 
 
 # Initialise and returns telegram client
-def initialise_telegram_client(api_id, api_hash, phone, username):
-  client = TelegramClient(username, api_id, api_hash)
+async def initialise_telegram_client(api_id, api_hash, phone, username):
+    client = TelegramClient(username, api_id, api_hash)
   
-  # Start the client (this may prompt for login if necessary)
-  async def start_client():
+    # Start the client (this may prompt for login if necessary)
+    async def start_client():
       await client.start(phone)
 
       # Check if user is authorized, otherwise log in
@@ -124,9 +128,10 @@ def initialise_telegram_client(api_id, api_hash, phone, username):
               await client.sign_in(password=input('Password: '))
 
     # Run the client setup asynchronously
-  asyncio.run(start_client())
+#   asyncio.run(start_client())
+    await start_client()
 
-  return client
+    return client
 
 async def scrape_telegram_headlines(client):
         """
@@ -206,9 +211,9 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
 
     # Step 4: Generate AI summary
     prompt = (
-        f"Based on the following headlines, generate an accurate summary of {ticker}'s market performance, "
-        "highlighting trends, risks, or positive developments. However, also mention that news headlines alone "
-        "are limited and are not sufficient to determine whether one should invest in the stock.\n\n" +
+        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral.
+        Then, generate an accurate summary of {ticker}'s market performance, "
+        "highlighting trends, risks, or positive developments.\n\n" +
         "\n".join([f"- {headline}" for headline in headlines_to_use]) +
         "\n\nKeep the summary short (2-3 sentences), focused on key insights, and acknowledge the limitations of headlines as investment indicators."
     )
@@ -235,7 +240,7 @@ async def get_stock_summary(ticker, openai_api_key):
     phone = os.getenv("PHONE")
     username = os.getenv("USERNAME")
 
-    client = initialise_telegram_client(api_id, api_hash, phone, username)
+    client = await initialise_telegram_client(api_id, api_hash, phone, username)
 
     # Step 2: Scrape Telegram headlines
     headlines = await scrape_telegram_headlines(client)
@@ -244,5 +249,5 @@ async def get_stock_summary(ticker, openai_api_key):
 
     # Step 4: Generate stock summary using the scraped headlines
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
-
+    await client.disconnect()
     return summary
