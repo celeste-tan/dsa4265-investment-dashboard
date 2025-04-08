@@ -99,6 +99,7 @@ Commentary:
     return response.choices[0].message.content.strip()
 
 # ========== 5. Chart as Base64 Image ==========
+"""
 def plot_financial_trends(df, ticker_symbol):
     plt.figure(figsize=(12, 6))
     plt.plot(df["Quarter"], df["Revenue"], marker='o', label="Revenue")
@@ -118,7 +119,7 @@ def plot_financial_trends(df, ticker_symbol):
     encoded = base64.b64encode(buf.read()).decode("utf-8")
     plt.close()
     return encoded
-
+"""
 # ========== 6. Unified Interface ==========
 def generate_full_financial_summary(ticker, openai_api_key, period="1y"):
     df_all = get_full_quarterly_data(ticker)
