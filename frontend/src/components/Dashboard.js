@@ -22,9 +22,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [esgScores, setEsgScores] = useState(null);
   const [esgReport, setEsgReport] = useState(null);
   const [stockHistory, setStockHistory] = useState(null);
+  const [mediaSentiment, setMediaSentiment] = useState(null);
   const [loadingScores, setLoadingScores] = useState(false);
   const [loadingReport, setLoadingReport] = useState(false);
   const [loadingStockHistory, setLoadingStockHistory] = useState(false);
+  const [loadingMediaSentiment, setLoadingMediaSentiment] = useState(false);
 
   const [showESGModal, setShowESGModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
@@ -46,11 +48,13 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       setLoadingScores(true);
       setLoadingReport(true);
       setLoadingStockHistory(true);
+      setLoadingMediaSentiment(true);
 
       // Clear current data
       setEsgScores(null);
       setEsgReport(null);
       setStockHistory(null);
+      setMediaSentiment(null);
 
       // Fetch ESG scores
       try {
@@ -95,6 +99,22 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         setStockHistory('Error fetching stock history.');
       } finally {
         setLoadingStockHistory(false);
+      }
+
+      // Fetch media headlines & generate summary
+      try {
+        const headlinesResponse = await fetch('http://127.0.0.1:5000/api/media-sentiment-summary',{
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json'},
+          body: JSON.stringify({ ticker }),
+        });
+        const headlinesData = await headlinesResponse.json();
+        // console.log(headlinesData)
+        setMediaSentiment(headlinesData.summary || 'No media headlines available')
+      } catch (error) {
+        setMediaSentiment('Error fetching media data.');
+      } finally {
+        setLoadingMediaSentiment(false);
       }
 
       // Notify parent (App) that all data is fetched
@@ -200,6 +220,13 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         {/* Placeholder for media sentiment */}
         <div className="card">
           <h2>Media Sentiment Analysis</h2>
+          {loadingMediaSentiment ? (
+            <p>Loading media analysis...</p>
+          ) : (
+            <div className="media-summary">
+              <p>{mediaSentiment}</p>
+            </div>
+          )}
         </div>
 
         {/* Stock performance + chart */}

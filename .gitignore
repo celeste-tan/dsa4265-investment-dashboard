@@ -25,6 +25,7 @@ yarn-error.log*
 
 # Telegram session
 coleincidence.session
+coleincidence.session-journal
 
 # Frontend dependencies and build
 /node_modules

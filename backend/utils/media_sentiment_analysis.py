@@ -9,6 +9,7 @@ from telethon import TelegramClient
 from telethon.errors import SessionPasswordNeededError
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.tl.types import PeerChannel
+from telethon.sessions import StringSession
 from datetime import date, datetime
 from dateutil.relativedelta import relativedelta
 from contractions import fix
@@ -108,11 +109,12 @@ def clean_text(headlines):
 
 
 # Initialise and returns telegram client
-def initialise_telegram_client(api_id, api_hash, phone, username):
-  client = TelegramClient(username, api_id, api_hash)
+async def initialise_telegram_client(api_id, api_hash, phone, username):
+    client = TelegramClient(username, api_id, api_hash)
+    # client = TelegramClient("sessions/coleincidence", api_id, api_hash)
   
   # Start the client (this may prompt for login if necessary)
-  async def start_client():
+    async def start_client():
       await client.start(phone)
 
       # Check if user is authorized, otherwise log in
@@ -123,10 +125,12 @@ def initialise_telegram_client(api_id, api_hash, phone, username):
           except SessionPasswordNeededError:
               await client.sign_in(password=input('Password: '))
 
-    # Run the client setup asynchronously
-  asyncio.run(start_client())
-
-  return client
+#     # Run the client setup asynchronously
+#   asyncio.run(start_client())
+              
+    # Await instead of asyncio.run()
+    await start_client()
+    return client
 
 async def scrape_telegram_headlines(client):
         """
@@ -235,7 +239,7 @@ async def get_stock_summary(ticker, openai_api_key):
     phone = os.getenv("PHONE")
     username = os.getenv("USERNAME")
 
-    client = initialise_telegram_client(api_id, api_hash, phone, username)
+    client = await initialise_telegram_client(api_id, api_hash, phone, username)
 
     # Step 2: Scrape Telegram headlines
     headlines = await scrape_telegram_headlines(client)
@@ -245,4 +249,5 @@ async def get_stock_summary(ticker, openai_api_key):
     # Step 4: Generate stock summary using the scraped headlines
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
 
+    await client.disconnect()
     return summary
