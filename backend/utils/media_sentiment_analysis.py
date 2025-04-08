@@ -92,20 +92,24 @@ def extract_ticker_specific_headlines(ticker, headlines):
 
 # Clean after filtering for stock-specific headlines
 def clean_text(headlines):
-  for msg in headlines:
-    if msg:
-        # Remove HTML tags
-        msg = re.sub(r"<.*?>", "", msg)
-        # Remove special characters
-        msg = re.sub(r"[^a-zA-Z0-9.,!? ]", "", msg)
-        # Remove extra spaces
-        msg = msg.strip()
-        # Expand contractions
-        msg = fix(msg)
-        # Handle emojis
-        msg = emoji.demojize(msg)
+    for i in range(len(headlines)):
+        msg = headlines[i]
+        if msg:
+            # Remove HTML tags
+            msg = re.sub(r"<.*?>", "", msg)
+            # Remove special characters
+            msg = re.sub(r"[^a-zA-Z0-9.,!? ]", "", msg)
+            # Remove extra spaces
+            msg = msg.strip()
+            # Expand contractions
+            msg = fix(msg)
+            # Handle emojis
+            msg = emoji.demojize(msg)
+            headlines[i] = msg
+        else:
+            headlines[i] = ""
+    return headlines
 
-  return headlines
 
 
 # Initialise and returns telegram client
