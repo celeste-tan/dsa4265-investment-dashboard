@@ -1,67 +1,148 @@
 import yfinance as yf
+import pandas as pd
+import matplotlib.pyplot as plt
+from openai import OpenAI
+import io
+import base64
 
-def generate_summary(ticker_symbol):
-    import pandas as pd
-
+# ========== 1. Get Quarterly Financial Data ==========
+def get_full_quarterly_data(ticker_symbol):
     ticker = yf.Ticker(ticker_symbol)
+    income = ticker.quarterly_financials.T
+    cashflow = ticker.quarterly_cashflow.T
 
-    # Pull and transpose financials
-    income = ticker.financials.T
-    balance = ticker.balance_sheet.T
-    cashflow = ticker.cashflow.T
-
-    # Helper to get data safely
     def safe_get(df, col):
-        return df[col].dropna().tolist() if col in df.columns else []
+        return df[col] if col in df.columns else pd.Series(dtype='float64')
 
-    # Extract time series data (most recent 3 years)
-    revenue = safe_get(income, "Total Revenue")[:3]
-    net_income = safe_get(income, "Net Income")[:3]
-    gross_profit = safe_get(income, "Gross Profit")[:3]
-    operating_income = safe_get(income, "Operating Income")[:3]
-    cash = safe_get(balance, "Cash And Cash Equivalents")[:3]
-    debt = safe_get(balance, "Total Debt")[:3]
-    equity = safe_get(balance, "Common Stock Equity")[:3]
-    op_cf = safe_get(cashflow, "Operating Cash Flow")[:3]
-    capex = safe_get(cashflow, "Capital Expenditure")[:3]
-    free_cf = [op - cap for op, cap in zip(op_cf, capex)] if op_cf and capex else []
+    def format_dates(index):
+        return [str(date.date()) for date in index]
 
-    # Derived metrics
-    gross_margin = [(gp / rev) * 100 for gp, rev in zip(gross_profit, revenue)] if revenue and gross_profit else []
-    operating_margin = [(oi / rev) * 100 for oi, rev in zip(operating_income, revenue)] if revenue and operating_income else []
+    revenue = safe_get(income, "Total Revenue")
+    net_income = safe_get(income, "Net Income")
+    op_cf = safe_get(cashflow, "Operating Cash Flow")
+    capex = safe_get(cashflow, "Capital Expenditure")
 
-    # Growth calculation helper
-    def pct_change(current, previous):
-        if current is not None and previous is not None and previous != 0:
-            return round(100 * (current - previous) / abs(previous), 2)
-        return None
+    # Compute Free Cash Flow only where both exist
+    free_cf = op_cf.subtract(capex, fill_value=0)
 
-    # Format number
-    def fmt(n):
-        return f"${n/1e9:.1f}B" if n else "N/A"
+    # Align indices — keep only quarters present in all
+    common_index = revenue.index.intersection(net_income.index).intersection(free_cf.index)
+    revenue = revenue[common_index]
+    net_income = net_income[common_index]
+    free_cf = free_cf[common_index]
+    min_len = min(len(revenue), len(net_income), len(free_cf))
+    df = pd.DataFrame({
+        "Quarter": format_dates(revenue.index)[:min_len],
+        "Revenue": revenue.values[:min_len],
+        "Net Income": net_income.values[:min_len],
+        "Free Cash Flow": free_cf.values[:min_len]
+    })
+    print("✅ Final financial chart data:")
+    print(df.head())
 
-    # Generate dynamic trend paragraph
-    def generate_trend_paragraph():
-        if len(revenue) < 2 or len(net_income) < 2:
-            return "Not enough historical data to generate trend analysis."
 
-        rev_growth = pct_change(revenue[0], revenue[1])
-        ni_growth = pct_change(net_income[0], net_income[1])
-        fcf_growth = pct_change(free_cf[0], free_cf[1]) if len(free_cf) >= 2 else None
-        gm_change = pct_change(gross_margin[0], gross_margin[1]) if len(gross_margin) >= 2 else None
-        om_change = pct_change(operating_margin[0], operating_margin[1]) if len(operating_margin) >= 2 else None
 
-        paragraph = f"""
-Over the past year, {ticker_symbol.upper()}’s total revenue {'increased' if rev_growth > 0 else 'declined'} by {abs(rev_growth)}%, 
-from {fmt(revenue[1])} to {fmt(revenue[0])}. Net income {'rose' if ni_growth > 0 else 'fell'} by {abs(ni_growth)}%, 
-reaching {fmt(net_income[0])}. The company’s gross margin {'improved' if gm_change and gm_change > 0 else 'contracted' if gm_change else 'remained stable'}, 
-changing by {abs(gm_change)} percentage points to {round(gross_margin[0], 2)}%, while operating margin {'increased' if om_change and om_change > 0 else 'decreased' if om_change else 'held steady'}, 
-now at {round(operating_margin[0], 2)}%.
+    return df.sort_values(by="Quarter")
 
-{ticker_symbol.upper()} also generated {fmt(free_cf[0])} in free cash flow, a {abs(fcf_growth)}% {'increase' if fcf_growth > 0 else 'decline'} from the prior year. 
-These figures suggest that while {ticker_symbol.upper()} remains highly profitable, its most recent performance reflects {'continued growth' if rev_growth > 0 and ni_growth > 0 else 'some softening in financial momentum'}. 
-Investors should watch for how macroeconomic conditions and product cycles affect future revenue and margin expansion.
+
+# ========== 2. Slice Quarterly Data by Period ==========
+def filter_financial_data_by_period(df, period="1y"):
+    period_map = {
+        "1y": 4,
+        "2y": 8,
+        "5y": 20,
+        "max": len(df)
+    }
+    num_quarters = period_map.get(period, 4)
+    return df.tail(num_quarters)
+
+# ========== 3. Generate Summary ==========
+def generate_financial_summary(df, ticker):
+    if len(df) < 2:
+        return "Not enough data to generate summary."
+    df=df.dropna()
+    start = df.iloc[0]
+    end = df.iloc[-1]
+
+    pct_rev = ((end["Revenue"] - start["Revenue"]) / start["Revenue"]) * 100
+    pct_income = ((end["Net Income"] - start["Net Income"]) / start["Net Income"]) * 100
+    pct_fcf = ((end["Free Cash Flow"] - start["Free Cash Flow"]) / start["Free Cash Flow"]) * 100
+
+    summary = (
+        f"Over the past {len(df)} quarters, {ticker.upper()}’s revenue changed by {pct_rev:.2f}%, "
+        f"net income changed by {pct_income:.2f}%, and free cash flow changed by {pct_fcf:.2f}%.\n\n"
+        f"Latest Quarter Values:\n"
+        f"- Revenue: ${end['Revenue']:,.0f}\n"
+        f"- Net Income: ${end['Net Income']:,.0f}\n"
+        f"- Free Cash Flow: ${end['Free Cash Flow']:,.0f}"
+    )
+    return summary
+
+# ========== 4. AI Commentary ==========
+def generate_ai_investment_commentary(summary_text, api_key):
+    client = OpenAI(api_key=api_key)
+    prompt = f"""
+You are a professional financial analyst. Based on the following quarterly financial summary, write an investment commentary in 3-4 sentences. 
+Provide a Buy, Sell, or Hold recommendation based on the trends in revenue, net income, and free cash flow.
+
+Summary:
+{summary_text}
+
+Commentary:
 """
-        return paragraph.strip()
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=300,
+        temperature=0.7,
+    )
+    return response.choices[0].message.content.strip()
 
-    return generate_trend_paragraph()
+# ========== 5. Chart as Base64 Image ==========
+def plot_financial_trends(df, ticker_symbol):
+    plt.figure(figsize=(12, 6))
+    plt.plot(df["Quarter"], df["Revenue"], marker='o', label="Revenue")
+    plt.plot(df["Quarter"], df["Net Income"], marker='o', label="Net Income")
+    plt.plot(df["Quarter"], df["Free Cash Flow"], marker='o', label="Free Cash Flow")
+    plt.title(f"{ticker_symbol.upper()} Quarterly Financial Trends")
+    plt.xlabel("Quarter")
+    plt.ylabel("Amount (USD)")
+    plt.xticks(rotation=45)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+
+    buf = io.BytesIO()
+    plt.savefig(buf, format="png")
+    buf.seek(0)
+    encoded = base64.b64encode(buf.read()).decode("utf-8")
+    plt.close()
+    return encoded
+
+# ========== 6. Unified Interface ==========
+def generate_full_financial_summary(ticker, openai_api_key, period="1y"):
+    df_all = get_full_quarterly_data(ticker)
+    df = filter_financial_data_by_period(df_all, period)
+
+    if df.empty:
+        raise ValueError("No financial data available.")
+
+    summary = generate_financial_summary(df, ticker)
+    commentary = generate_ai_investment_commentary(summary, openai_api_key)
+    chart_base64 = plot_financial_trends(df, ticker)
+
+    return summary, commentary, chart_base64, df.to_dict(orient="records")
+
+
+def filter_financial_data_by_period(df, period="max"):
+    period_map = {
+        "1y": 4,
+        "2y": 8,
+        "5y": 20,
+        "10y": 40,
+        "15y": 60,
+        "max": len(df)
+    }
+    num_quarters = period_map.get(period, 4)
+    return df.tail(num_quarters)
+
