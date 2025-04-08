@@ -1,11 +1,19 @@
 from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
+import os
+
 from utils.esg_analysis import get_esg_report, fetch_esg_data
 from config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
 from utils.stock_history import get_stock_recommendation, fetch_stock_data
 import openai
 import asyncio
 from utils.media_sentiment_analysis import get_stock_summary
+from utils.financial_summary import (
+    get_full_quarterly_data,
+    generate_financial_summary,
+    generate_ai_investment_commentary,
+    filter_financial_data_by_period 
+)
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -96,6 +104,59 @@ def stock_history():
 
     recommendation, _ = get_stock_recommendation(ticker, timeframe, os.getenv("OPENAI_API_KEY", ""))
     return jsonify({"recommendation": recommendation})
+# Finanical Summary
+# 1 Chart Data
+@app.route("/api/financial-chart", methods=["POST"])
+def financial_chart():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    period = data.get("period", "1y")
+
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
+    try:
+        df_all = get_full_quarterly_data(ticker)
+        df = filter_financial_data_by_period(df_all, period)
+
+        # Drop rows with any NaN values to avoid frontend issues
+        print("✅ Original rows:", len(df))
+        df = df.dropna()
+        print("🧹 Cleaned rows:", len(df))
+
+
+        chart_data = []
+        for _, row in df.iterrows():
+            chart_data.append({
+                "quarter": row["Quarter"],
+                "revenue": row["Revenue"],
+                "net_income": row["Net Income"],
+                "free_cash_flow": row["Free Cash Flow"]
+            })
+
+        return jsonify({"data": chart_data})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# 2️Summary & Commentary
+@app.route("/api/financial-recommendation", methods=["POST"])
+def financial_recommendation():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
+    try:
+        df = get_full_quarterly_data(ticker)
+        summary = generate_financial_summary(df, ticker)
+        commentary = generate_ai_investment_commentary(summary, os.getenv("OPENAI_API_KEY"))
+        return jsonify({
+            "summary": summary,
+            "commentary": commentary
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
