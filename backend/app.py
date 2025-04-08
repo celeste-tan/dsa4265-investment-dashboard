@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+
 from .config import Config
 from .database import db
 from .utils import (
@@ -12,6 +13,22 @@ from .utils import (
 import asyncio
 from datetime import datetime, timedelta
 import os
+from utils.holistic_summary import get_holistic_recommendation
+from utils.esg_analysis import get_esg_report, fetch_esg_data
+from config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
+from utils.stock_history import get_stock_recommendation, fetch_stock_data
+import openai
+import asyncio
+from utils.media_sentiment_analysis import get_stock_summary
+from utils.financial_summary import (
+    get_full_quarterly_data,
+    generate_financial_summary,
+    generate_ai_investment_commentary,
+    filter_financial_data_by_period 
+)
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = Flask(__name__)
 CORS(app)
@@ -31,49 +48,15 @@ def get_esg_scores():
     if not ticker:
         return jsonify({"error": "Missing ticker symbol"}), 400
 
-    # Check cache first (valid for 7 days)
-        latest_date = db.get_latest_financial_metric_date(ticker)  
-        if latest_date and (datetime.now() - datetime.strptime(latest_date, '%Y-%m-%d')).days < 7:
-            metrics = db.get_financial_metrics(ticker)
-        return jsonify({
-            "esg_scores": {
-                "Total": metrics.get("esg_risk_score"),
-                "Environmental": metrics.get("environmental_score"),
-                "Social": metrics.get("social_score"),
-                "Governance": metrics.get("governance_score"),
-                "Controversy": {
-                    "Value": metrics.get("controversy_value", "N/A"),
-                    "Description": metrics.get("controversy_description", "N/A")
-                }
-            }
-        })
-
-    # Fetch fresh data if not in cache
-    esg_data = esg_analysis.fetch_esg_data(ticker, app.config['ESG_API_TOKEN'])
+    # Fetch ESG data for the ticker
+    esg_data = fetch_esg_data(ticker)
+    
     if "error" in esg_data:
         return jsonify({"error": esg_data["error"]}), 400
 
-    # Store in database
-    db.insert_financial_metric(
-        ticker=ticker,
-        date=datetime.now().strftime('%Y-%m-%d'),
-        esg_risk_score=esg_data.get("Total ESG Risk Score"),
-        environmental_score=esg_data.get("Environmental Risk Score"),
-        social_score=esg_data.get("Social Risk Score"),
-        governance_score=esg_data.get("Governance Risk Score"),
-        controversy_value=esg_data.get("Controversy Level", {}).get("Value"),
-        controversy_description=esg_data.get("Controversy Level", {}).get("Description")
-    )
+    print(f"Extracted ESG Scores: {esg_data}")
     
-    return jsonify({
-        "esg_scores": {
-            "Total": esg_data.get("Total ESG Risk Score"),
-            "Environmental": esg_data.get("Environmental Risk Score"),
-            "Social": esg_data.get("Social Risk Score"),
-            "Governance": esg_data.get("Governance Risk Score"),
-            "Controversy": esg_data.get("Controversy Level", {})
-        }
-    })
+    return jsonify({"esg_scores": esg_data})
 
 @app.route("/api/esg-gen-report", methods=["POST"])
 def generate_esg_report():
@@ -175,15 +158,58 @@ def get_stock_recommendation():
     if not ticker:
         return jsonify({"error": "Missing ticker"}), 400
 
+    recommendation, _ = get_stock_recommendation(ticker, timeframe, os.getenv("OPENAI_API_KEY", ""))
+    return jsonify({"recommendation": recommendation})
+# Finanical Summary
+# 1 Chart Data
+@app.route("/api/financial-chart", methods=["POST"])
+def financial_chart():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    period = data.get("period", "1y")
+
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
     try:
-        recommendation, technical_summary = stock_history.get_stock_recommendation(
-            ticker, 
-            timeframe,
-            app.config['OPENAI_API_KEY']
-        )
+        df_all = get_full_quarterly_data(ticker)
+        df = filter_financial_data_by_period(df_all, period)
+
+        # Drop rows with any NaN values to avoid frontend issues
+        print("✅ Original rows:", len(df))
+        df = df.dropna()
+        print("🧹 Cleaned rows:", len(df))
+
+
+        chart_data = []
+        for _, row in df.iterrows():
+            chart_data.append({
+                "quarter": row["Quarter"],
+                "revenue": row["Revenue"],
+                "net_income": row["Net Income"],
+                "free_cash_flow": row["Free Cash Flow"]
+            })
+
+        return jsonify({"data": chart_data})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# 2️Summary & Commentary
+@app.route("/api/financial-recommendation", methods=["POST"])
+def financial_recommendation():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
+    try:
+        df = get_full_quarterly_data(ticker)
+        summary = generate_financial_summary(df, ticker)
+        commentary = generate_ai_investment_commentary(summary, os.getenv("OPENAI_API_KEY"))
         return jsonify({
-            "recommendation": recommendation,
-            "technical_summary": technical_summary
+            "summary": summary,
+            "commentary": commentary
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -227,52 +253,22 @@ def get_media_sentiment():
                 app.config['OPENAI_API_KEY']
             )
         )
+# At A Glance Holistic Summary
+@app.route("/api/holistic-summary", methods=["POST"])
+def holistic_summary():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    timeframe = data.get("timeframe", "short-term")
+
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
+    try:
+        summary = asyncio.run(get_holistic_recommendation(ticker, timeframe))
         return jsonify({"summary": summary})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ==================== HOLISTIC SUMMARY ENDPOINT ====================
-
-@app.route("/api/holistic-summary", methods=["POST"])
-def get_holistic_summary():
-    """Endpoint 6: Combined analysis of all factors"""
-    data = request.json
-    ticker = data.get("ticker", "").upper()
-    
-    if not ticker:
-        return jsonify({"error": "Missing ticker"}), 400
-
-    try:
-        # Get all components
-        stock_resp = get_stock_recommendation()
-        if stock_resp.status_code != 200:
-            return stock_resp
-        stock_data = stock_resp.get_json()
-        
-        esg_resp = generate_esg_report()
-        if esg_resp.status_code != 200:
-            return esg_resp
-        esg_report = esg_resp.get_json()["report"]
-        
-        fin_summary = financial_summary.generate_summary(ticker)
-        
-        news_resp = get_media_sentiment()
-        if news_resp.status_code != 200:
-            return news_resp
-        news_summary = news_resp.get_json()["summary"]
-        
-        # Combine into holistic view
-        report = holistic_summary.get_holistic_recommendation(
-            ticker, 
-            stock_data["recommendation"],
-            esg_report,
-            fin_summary,
-            news_summary
-        )
-        
-        return jsonify({"report": report})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)
