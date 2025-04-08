@@ -210,9 +210,9 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
 
     # Step 4: Generate AI summary
     prompt = (
-        f"Based on the following headlines, generate an accurate summary of {ticker}'s market performance, "
-        "highlighting trends, risks, or positive developments. However, also mention that news headlines alone "
-        "are limited and are not sufficient to determine whether one should invest in the stock.\n\n" +
+        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral.
+        Then, generate an accurate summary of {ticker}'s market performance, "
+        "highlighting trends, risks, or positive developments.\n\n" +
         "\n".join([f"- {headline}" for headline in headlines_to_use]) +
         "\n\nKeep the summary short (2-3 sentences), focused on key insights, and acknowledge the limitations of headlines as investment indicators."
     )
