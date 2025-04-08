@@ -1,7 +1,7 @@
 import nest_asyncio
 import asyncio
 import datetime
-import openai
+from openai import OpenAI
 import emoji
 import json
 import re
@@ -213,8 +213,8 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
         "\n\nKeep the summary short (2-3 sentences), focused on key insights, and acknowledge the limitations of headlines as investment indicators."
     )
 
-    openai.api_key = openai_api_key
-    response = openai.ChatCompletion.create(
+    client = OpenAI(api_key=openai_api_key)
+    response = client.chat.completions.create(
         model="gpt-4o-mini",  # or whatever model you're using
         messages=[
             {"role": "system", "content": "You are a financial analyst."},
@@ -222,7 +222,7 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
         ]
     )
 
-    return response["choices"][0]["message"]["content"]
+    return response.choices[0].message.content.strip()
 
 
 # Main function

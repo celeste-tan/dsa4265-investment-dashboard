@@ -37,8 +37,8 @@ def get_full_quarterly_data(ticker_symbol):
         "Net Income": net_income.values[:min_len],
         "Free Cash Flow": free_cf.values[:min_len]
     })
-    print("✅ Final financial chart data:")
-    print(df.head())
+    #print("✅ Final financial chart data:")
+    #print(df.head())
 
 
 

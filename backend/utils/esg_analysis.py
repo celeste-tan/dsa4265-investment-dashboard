@@ -1,5 +1,5 @@
 import yfinance as yf
-import openai
+from openai import OpenAI
 
 def fetch_esg_data(ticker):
     """Fetch ESG scores using yfinance for a given stock ticker."""
@@ -57,8 +57,8 @@ def generate_esg_assessment(esg_data, openai_api_key):
     )
 
     try:
-        openai.api_key = openai_api_key
-        response = openai.ChatCompletion.create(
+        client = OpenAI(api_key=openai_api_key)
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are an ESG investment analyst."},

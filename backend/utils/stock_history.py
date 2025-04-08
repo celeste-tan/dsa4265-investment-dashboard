@@ -1,6 +1,7 @@
 from datetime import datetime
 from pandas.tseries.offsets import BDay
 import yfinance as yf
+from openai import OpenAI
 
 # -----------------------------
 # Stock Data Functions
@@ -127,8 +128,8 @@ def get_stock_recommendation(ticker, timeframe, openai_api_key):
     prompt = build_stock_prompt(ticker, summary, price, volatility, ma_50, ma_200, ema_50, ema_200, rsi)
 
     try:
-        import openai
-        response = openai.ChatCompletion.create(
+        client = OpenAI(api_key=openai_api_key)
+        response = client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a financial advisor specializing in technical analysis."},
