@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import os
 
+from utils.holistic_summary import get_holistic_recommendation
 from utils.esg_analysis import get_esg_report, fetch_esg_data
 from config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
 from utils.stock_history import get_stock_recommendation, fetch_stock_data
@@ -157,6 +158,23 @@ def financial_recommendation():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+# At A Glance Holistic Summary
+@app.route("/api/holistic-summary", methods=["POST"])
+def holistic_summary():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    timeframe = data.get("timeframe", "short-term")
+
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
+    try:
+        summary = asyncio.run(get_holistic_recommendation(ticker, timeframe))
+        return jsonify({"summary": summary})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)

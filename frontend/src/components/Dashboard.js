@@ -12,6 +12,9 @@ const SHORT_TERM_PERIODS = ['1d', '5d', '1mo', '3mo', '1y'];
 const LONG_TERM_PERIODS = ['5y', '10y', '15y'];
 
 function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
+  const [holisticSummary, setHolisticSummary] = useState('');
+  const [loadingHolistic, setLoadingHolistic] = useState(false);
+
   const [chartData, setChartData] = useState([]);
   const [chartPeriod, setChartPeriod] = useState('1y');
   const [loadingChart, setLoadingChart] = useState(false);
@@ -45,9 +48,10 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       setLoadingScores(true);
       setLoadingReport(true);
       setLoadingStockHistory(true);
+      setLoadingHolistic(true);
 
       try {
-        const [scoresRes, reportRes, historyRes] = await Promise.all([
+        const [scoresRes, reportRes, historyRes, holisticRes] = await Promise.all([
           fetch('http://127.0.0.1:5000/api/esg-scores', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -63,23 +67,32 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker, timeframe }),
           }),
+          fetch('http://127.0.0.1:5000/api/holistic-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker, timeframe }),
+          }),
         ]);
 
         const scoresData = await scoresRes.json();
         const reportData = await reportRes.json();
         const historyData = await historyRes.json();
+        const holisticData = await holisticRes.json();
 
         setEsgScores(scoresData.esg_scores || {});
         setEsgReport(reportData.report || 'No ESG report available.');
         setStockHistory(historyData.recommendation || 'No stock history available.');
+        setHolisticSummary(holisticData.summary || 'No summary available.');
       } catch {
         setEsgScores(null);
         setEsgReport('Error loading ESG report.');
         setStockHistory('Error loading stock history.');
+        setHolisticSummary('Error loading holistic summary.');
       } finally {
         setLoadingScores(false);
         setLoadingReport(false);
         setLoadingStockHistory(false);
+        setLoadingHolistic(false);
       }
 
       if (onAllDataLoaded) onAllDataLoaded();
@@ -195,6 +208,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       <div className="left-card">
         <div className="card">
           <h2>At a Glance - {ticker}</h2>
+          {loadingHolistic ? (
+          <p>Loading holistic summary...</p>
+          ) : (
+            <ReactMarkdown>{holisticSummary}</ReactMarkdown>
+          )}
         </div>
       </div>
 
