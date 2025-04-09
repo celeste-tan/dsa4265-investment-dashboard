@@ -7,9 +7,9 @@ from asyncio.log import logger
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 
-from .config import Config
-from .database import db
-from .utils import (
+from config import Config
+from database import db
+from utils import (
     esg_analysis,
     stock_history,
     media_sentiment_analysis,
@@ -20,8 +20,7 @@ from datetime import datetime, timedelta
 import os
 from utils.holistic_summary import get_holistic_recommendation
 from utils.esg_analysis import get_esg_report, fetch_esg_data
-from config import DEFAULT_PERIOD, OPENAI_API_KEY, ESG_API_TOKEN
-from utils.stock_history import get_stock_recommendation, fetch_stock_data
+from utils.stock_history import get_stock_recommendation, fetch_stock_data, get_date_range
 import openai
 import asyncio
 from utils.media_sentiment_analysis import get_stock_summary
@@ -56,20 +55,21 @@ def get_esg_scores():
     try:
         # Check cache first (valid for 7 days)
         latest_date = db.get_latest_financial_metric_date(ticker)
-        if latest_date and (datetime.now() - datetime.strptime(latest_date, '%Y-%m-%d')).days < 7:
-            metrics = db.get_financial_metrics(ticker)
-            return jsonify({
-                "esg_scores": {
-                    "Total": metrics.get("esg_risk_score"),
-                    "Environmental": metrics.get("environmental_score"),
-                    "Social": metrics.get("social_score"),
-                    "Governance": metrics.get("governance_score"),
-                    "Controversy": {
-                        "Value": metrics.get("controversy_value", "N/A"),
-                        "Description": metrics.get("controversy_description", "N/A")
-                    }
-                }
-            })
+        # if latest_date and (datetime.now() - datetime.strptime(latest_date, '%Y-%m-%d')).days < 7:
+        #     metrics = db.get_financial_metrics(ticker)
+        #     logger.info(f"Cached ESG scores: {metrics}")
+        #     return jsonify({
+        #         "esg_scores": {
+        #             "Total": metrics.get("esg_risk_score", "N/A"),
+        #             "Environmental": metrics.get("environmental_score", "N/A"),
+        #             "Social": metrics.get("social_score", "N/A"),
+        #             "Governance": metrics.get("governance_score", "N/A"),
+        #             "Controversy": {
+        #                 "Value": metrics.get("controversy_value", "N/A"),
+        #                 "Description": metrics.get("controversy_description", "N/A")
+        #             }
+        #         }
+        #     }), 200
 
         # Fetch ESG data for the ticker
         esg_data = fetch_esg_data(ticker)
@@ -81,15 +81,15 @@ def get_esg_scores():
         db.insert_financial_metric(
             ticker=ticker,
             date=datetime.now().strftime('%Y-%m-%d'),
-            esg_risk_score=esg_data.get("Total"),
-            environmental_score=esg_data.get("Environmental"),
-            social_score=esg_data.get("Social"),
-            governance_score=esg_data.get("Governance"),
-            controversy_value=esg_data.get("Controversy", {}).get("Value"),
-            controversy_description=esg_data.get("Controversy", {}).get("Description")
+            esg_risk_score=esg_data.get("Total", "N/A"),
+            environmental_score=esg_data.get("Environmental", "N/A"),
+            social_score=esg_data.get("Social", "N/A"),
+            governance_score=esg_data.get("Governance", "N/A"),
+            controversy_value=esg_data.get("Controversy", {}).get("Value", "N/A"),
+            controversy_description=esg_data.get("Controversy", {}).get("Description", "N/A")
         )
         
-        return jsonify({"esg_scores": esg_data})
+        return jsonify({"esg_scores": esg_data}), 200
     
     except Exception as e:
         logger.error(f"ESG scores error: {str(e)}")
@@ -108,9 +108,9 @@ def generate_esg_report():
         return jsonify({"error": "Missing ticker symbol"}), 400
 
     # First get scores (uses cached data if available)
-    esg_response = get_esg_scores()
-    if esg_response.status_code != 200:
-        return esg_response
+    esg_response, status_code = get_esg_scores()
+    if status_code != 200:
+        return esg_response, status_code
     
     esg_data = esg_response.get_json()["esg_scores"]
     
@@ -118,16 +118,16 @@ def generate_esg_report():
     report = esg_analysis.generate_esg_assessment(
         {
             "Stock": ticker,
-            "Total ESG Risk Score": esg_data["Total"],
-            "Environmental Risk Score": esg_data["Environmental"],
-            "Social Risk Score": esg_data["Social"],
-            "Governance Risk Score": esg_data["Governance"],
-            "Controversy Level": esg_data["Controversy"]
+            "Total ESG Risk Score": esg_data.get("Total", "N/A"),
+            "Environmental Risk Score": esg_data.get("Environmental", "N/A"),
+            "Social Risk Score": esg_data.get("Social", "N/A"),
+            "Governance Risk Score": esg_data.get("Governance", "N/A"),
+            "Controversy Level": esg_data.get("Controversy", "N/A")
         },
         app.config['OPENAI_API_KEY']
     )
     
-    return jsonify({"report": report})
+    return jsonify({"report": report}), 200
 
 # ==================== STOCK ENDPOINTS ====================
 
@@ -137,6 +137,7 @@ def stock_chart():
     data = request.json
     ticker = data.get("ticker")
     period = data.get("period", app.config['DEFAULT_PERIOD'])
+    logger.info(f"stock_chart: {ticker} {period}")
 
     if not ticker:
         return jsonify({"error": "Ticker is required"}), 400
@@ -146,44 +147,38 @@ def stock_chart():
         end_date = datetime.now().strftime('%Y-%m-%d')
         if period == "1d":
             start_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif period == "1w":
+        elif period == "5d":
             start_date = (datetime.now() - timedelta(weeks=1)).strftime('%Y-%m-%d')
         elif period == "1mo":
-            start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(weeks=4)).strftime('%Y-%m-%d')
         elif period == "1y":
-            start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(weeks=52)).strftime('%Y-%m-%d')
         else:
-            start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')  # Default to 1 year
+            start_date = (datetime.now() - timedelta(weeks=52)).strftime('%Y-%m-%d')  # Default to 1 year
+        # start_date, end_date = get_date_range(period)
 
-        # Check database cache first
-        cached_prices = db.get_stock_prices(ticker, start_date, end_date)
-        
-        if cached_prices and len(cached_prices) > 10:  # Use cache if sufficient data exists
-            prices = [{
-                "date": price['date'],
-                "close": round(float(price['close']), 2)
-            } for price in cached_prices]
-        else:
-            # Fetch fresh data if cache is insufficient
-            df = stock_history.fetch_stock_data(ticker, period)
-            prices = []
-            for index, row in df.iterrows():
-                date_str = index.strftime('%Y-%m-%d')
-                prices.append({
-                    "date": date_str,
-                    "close": round(row["Close"], 2)
-                })
-                # Store in database
-                db.insert_stock_price(
-                    ticker=ticker,
-                    date=date_str,
-                    open_price=row["Open"],
-                    high=row["High"],
-                    low=row["Low"],
-                    close=row["Close"],
-                    volume=row["Volume"]
-                )
-        
+        # Fetch fresh data and store in db
+        logger.info(f"Getting fresh stock prices for {ticker} ({period}) from {start_date} to {end_date}...")
+        df = stock_history.fetch_stock_data(ticker, period, start_date, end_date)
+        prices = []
+        for index, row in df.iterrows():
+            date_str = index.strftime('%Y-%m-%d')
+            prices.append({
+                "date": date_str,
+                "close": round(row["Close"], 2)
+            })
+            # Store in database
+            db.insert_stock_price(
+                ticker=ticker,
+                date=date_str,
+                open_price=row["Open"],
+                high=row["High"],
+                low=row["Low"],
+                close=row["Close"],
+                volume=row["Volume"]
+            )
+        if prices:
+            logger.info(f"Data for ticker {ticker}: {prices[0]}, {prices[-1]}")
         return jsonify({"prices": prices})
     except Exception as e:
         logger.error(f"Stock chart error: {str(e)}")
@@ -193,7 +188,7 @@ def stock_chart():
         }), 500
 
 @app.route("/api/stock-history", methods=["POST"])
-def get_stock_recommendation():
+def get_stock_history():
     """Endpoint 4: Get AI-generated stock recommendation"""
     data = request.json
     ticker = data.get("ticker")
@@ -204,6 +199,7 @@ def get_stock_recommendation():
 
     recommendation, _ = get_stock_recommendation(ticker, timeframe, os.getenv("OPENAI_API_KEY", ""))
     return jsonify({"recommendation": recommendation})
+
 # Finanical Summary
 # 1 Chart Data
 @app.route("/api/financial-chart", methods=["POST"])
@@ -280,6 +276,7 @@ def get_media_sentiment():
     try:
         # Check for cached news (last 30 days)
         news_articles = db.get_news_articles(ticker, days=app.config['NEWS_LOOKBACK_DAYS'])
+        logger.info(f"news_articles: {news_articles}")
         
         if not news_articles:
             # Scrape fresh news if none in cache

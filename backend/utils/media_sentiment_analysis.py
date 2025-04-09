@@ -1,7 +1,7 @@
 import nest_asyncio
 import asyncio
 import datetime
-from openai import OpenAI
+import openai
 import emoji
 import json
 import re
@@ -211,21 +211,24 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
 
     # Step 4: Generate AI summary
     prompt = (
-        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral.
-        Then, generate an accurate summary of {ticker}'s market performance, "
+        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral."
+        "Then, generate an accurate summary of {ticker}'s market performance, "
         "highlighting trends, risks, or positive developments.\n\n" +
         "\n".join([f"- {headline}" for headline in headlines_to_use]) +
         "\n\nKeep the summary short (2-3 sentences), focused on key insights, and acknowledge the limitations of headlines as investment indicators."
     )
 
-    client = OpenAI(api_key=openai_api_key)
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",  # or whatever model you're using
-        messages=[
-            {"role": "system", "content": "You are a financial analyst."},
-            {"role": "user", "content": prompt}
-        ]
-    )
+    response = openai.ChatCompletion.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a financial advisor specializing in technical analysis."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
 
     return response.choices[0].message.content.strip()
 

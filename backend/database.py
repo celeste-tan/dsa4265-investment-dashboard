@@ -17,12 +17,12 @@ class InvestmentDB:
     def init_app(self, app):
         self.db_path = app.config['DATABASE_PATH']
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
-        self._initialize_db()
-        app.teardown_appcontext(self.close)
+        with app.app_context():
+            self._initialize_db()
 
     def _initialize_db(self):
         try:
-            self.conn = sqlite3.connect(self.db_path)
+            self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
             cursor = self.conn.cursor()
         
             # Stock prices table
@@ -81,6 +81,7 @@ class InvestmentDB:
             cursor.execute('CREATE INDEX IF NOT EXISTS idx_financial_ticker_date ON financial_metrics(ticker, date)')
         
             self.conn.commit()
+            logger.info(f"Database initialization completed, conn: {self.conn}")
         
         except sqlite3.Error as e:
             logger.error(f"Database initialization failed: {e}")
@@ -123,6 +124,9 @@ class InvestmentDB:
                     for row in cursor.fetchall()]
         except sqlite3.Error as e:
             logger.error(f"Error fetching stock prices: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"Exception: {e}, conn: {self.conn}")
             return []
 
     # News Methods

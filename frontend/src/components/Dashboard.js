@@ -51,7 +51,21 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       setLoadingHolistic(true);
 
       try {
-        const [scoresRes, reportRes, historyRes, holisticRes] = await Promise.all([
+        try {
+          const historyRes = await fetch('http://127.0.0.1:5000/api/stock-history', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker, timeframe }),
+          })
+          const historyData = await historyRes.json();
+          setStockHistory(historyData.recommendation || 'No stock history available.');
+        } catch {
+          setStockHistory('Error loading stock history.');
+        } finally {
+          setLoadingStockHistory(false);
+        }
+
+        const [scoresRes, reportRes, holisticRes] = await Promise.all([
           fetch('http://127.0.0.1:5000/api/esg-scores', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -62,11 +76,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker }),
           }),
-          fetch('http://127.0.0.1:5000/api/stock-history', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker, timeframe }),
-          }),
           fetch('http://127.0.0.1:5000/api/holistic-summary', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -74,27 +83,35 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           }),
         ]);
 
-        const scoresData = await scoresRes.json();
-        const reportData = await reportRes.json();
-        const historyData = await historyRes.json();
-        const holisticData = await holisticRes.json();
+        try {
+          const scoresData = await scoresRes.json();
+          setEsgScores(scoresData.esg_scores || {});
+        } catch {
+          setEsgScores(null);
+        } finally {
+          setLoadingScores(false);
+        }
 
-        setEsgScores(scoresData.esg_scores || {});
-        setEsgReport(reportData.report || 'No ESG report available.');
-        setStockHistory(historyData.recommendation || 'No stock history available.');
-        setHolisticSummary(holisticData.summary || 'No summary available.');
+        try {
+          const reportData = await reportRes.json();
+          setEsgReport(reportData.report || 'No ESG report available.');
+        } catch {
+          setEsgReport('Error loading ESG report.');
+        } finally {
+          setLoadingReport(false);
+        }
+
+        try {
+          const holisticData = await holisticRes.json();
+          setHolisticSummary(holisticData.summary || 'No summary available.');
+        } catch {
+          setHolisticSummary('Error loading holistic summary.');
+        } finally {
+          setLoadingHolistic(false);
+        }
       } catch {
-        setEsgScores(null);
-        setEsgReport('Error loading ESG report.');
-        setStockHistory('Error loading stock history.');
-        setHolisticSummary('Error loading holistic summary.');
-      } finally {
-        setLoadingScores(false);
-        setLoadingReport(false);
-        setLoadingStockHistory(false);
-        setLoadingHolistic(false);
+        
       }
-
       if (onAllDataLoaded) onAllDataLoaded();
     };
 
@@ -291,7 +308,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       <Modal isOpen={showStockModal} onRequestClose={() => setShowStockModal(false)} className="modal-content" overlayClassName="modal-overlay">
         <h2>Stock History Insights for {ticker}</h2>
         <div>
-          {stockHistory ? stockHistory.split('\n\n').map((p, i) => <p key={i}><ReactMarkdown>{p}</ReactMarkdown></p>) : <p>Loading...</p>}
+          {stockHistory
+            ? stockHistory.split('\n\n').map((pt, i) => (
+                <ReactMarkdown key={i}>{pt}</ReactMarkdown>
+              ))
+            : <p>Loading...</p>}
         </div>
         <button onClick={() => setShowStockModal(false)} className="close-btn">Close</button>
       </Modal>
