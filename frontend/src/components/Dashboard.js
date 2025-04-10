@@ -22,9 +22,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [esgScores, setEsgScores] = useState(null);
   const [esgReport, setEsgReport] = useState(null);
   const [stockHistory, setStockHistory] = useState(null);
+  const [mediaSentiment, setMediaSentiment] = useState(null);
   const [loadingScores, setLoadingScores] = useState(false);
   const [loadingReport, setLoadingReport] = useState(false);
   const [loadingStockHistory, setLoadingStockHistory] = useState(false);
+  const [loadingMediaSentiment, setLoadingMediaSentiment] = useState(false);
 
   const [financialData, setFinancialData] = useState([]);
   const [financialSummary, setFinancialSummary] = useState(null);
@@ -48,10 +50,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       setLoadingScores(true);
       setLoadingReport(true);
       setLoadingStockHistory(true);
+      setLoadingMediaSentiment(true);
       setLoadingHolistic(true);
 
       try {
-        try {
+        try { // STOCK HISTORY PART: i think can combine with the ones below to make it neater
           const historyRes = await fetch('http://127.0.0.1:5000/api/stock-history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -65,7 +68,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           setLoadingStockHistory(false);
         }
 
-        const [scoresRes, reportRes, holisticRes] = await Promise.all([
+        const [scoresRes, reportRes, holisticRes, mediaRes] = await Promise.all([
           fetch('http://127.0.0.1:5000/api/esg-scores', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -81,8 +84,14 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker, timeframe }),
           }),
+          fetch('http://127.0.0.1:5000/api/media-sentiment-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker })
+          })
         ]);
 
+        // ESG Scores
         try {
           const scoresData = await scoresRes.json();
           setEsgScores(scoresData.esg_scores || {});
@@ -91,7 +100,8 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         } finally {
           setLoadingScores(false);
         }
-
+        
+        // ESG Report
         try {
           const reportData = await reportRes.json();
           setEsgReport(reportData.report || 'No ESG report available.');
@@ -100,7 +110,8 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         } finally {
           setLoadingReport(false);
         }
-
+        
+        // HOLISTIC SUMMARY
         try {
           const holisticData = await holisticRes.json();
           setHolisticSummary(holisticData.summary || 'No summary available.');
@@ -109,6 +120,18 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         } finally {
           setLoadingHolistic(false);
         }
+
+        // MEDIA SENTIMENT
+        try {
+          const headlinesData = await mediaRes.json();
+          setMediaSentiment(headlinesData.summary || 'No media headlines available.')
+        } catch {
+          setMediaSentiment('Error loading media headlines.');
+        } finally {
+          setLoadingMediaSentiment(false);
+        }
+
+
       } catch {
         
       }
@@ -228,7 +251,9 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           {loadingHolistic ? (
           <p>Loading holistic summary...</p>
           ) : (
-            <ReactMarkdown>{holisticSummary}</ReactMarkdown>
+            <div className='holistic-summary'>
+              <ReactMarkdown>{holisticSummary}</ReactMarkdown>
+            </div>
           )}
         </div>
       </div>
@@ -236,6 +261,13 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       <div className="right-grid">
         <div className="card">
           <h2>Media Sentiment Analysis</h2>
+          {loadingMediaSentiment ? (
+           <p>Loading media analysis...</p>
+          ) : (
+            <div className="media-summary">
+              <p>{mediaSentiment}</p>
+            </div>
+          )}
         </div>
       
 
@@ -321,7 +353,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       </div>
 
       <Modal isOpen={showStockModal} onRequestClose={() => setShowStockModal(false)} className="modal-content" overlayClassName="modal-overlay">
-        <h2>Stock History Insights for {ticker}</h2>
+        <h2>💡 Stock History Commentary</h2>
         <div>
           {stockHistory
             ? stockHistory.split('\n\n').map((pt, i) => (
@@ -345,7 +377,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       </Modal>
 
       <Modal isOpen={showESGModal} onRequestClose={() => setShowESGModal(false)} className="modal-content" overlayClassName="modal-overlay">
-        <h2>ESG Report for {ticker}</h2>
+        <h2>💡 ESG Commentary</h2>
         <div>
           {loadingReport ? <p>Loading...</p> : <pre>{esgReport}</pre>}
         </div>
