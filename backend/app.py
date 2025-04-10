@@ -1,9 +1,21 @@
-import logging
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# from asyncio.log import logger
+# import logging
 
-from asyncio.log import logger
+# # Configure logging
+# logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+
+import logging
+from asyncio.log import logger as asyncio_logger  # Explicit rename
+
+# Your logger (now safe from overwriting)
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
+# Use asyncio's logger separately (if needed)
+asyncio_logger.warning("This comes from asyncio")
+
+
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 

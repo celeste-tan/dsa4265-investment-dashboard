@@ -78,17 +78,17 @@ def ticker_to_shortname(ticker):
         return None
 
 # Filter for stock-specific headlines
-def extract_ticker_specific_headlines(ticker, headlines):
-  company_name = ticker_to_shortname(ticker)
-  if not company_name:
-    print(f"No mapping found for ticker: {ticker}")
-    return []
-  
-  relevant_headlines = [
-      msg.get('headline') for msg in headlines
-      if msg.get('headline') and re.search(rf"\b{company_name}\b", msg['headline'], re.IGNORECASE)
-  ]
-  return relevant_headlines
+# Filter for stock-specific headlines
+def extract_ticker_specific_headlines(company_name, headlines):
+    if not company_name:
+        print(f"No company name provided.")
+        return []
+
+    relevant_headlines = [
+        msg.get('headline') for msg in headlines
+        if msg.get('headline') and re.search(rf"\b{re.escape(company_name)}\b", msg['headline'], re.IGNORECASE)
+    ]
+    return relevant_headlines
 
 # Clean after filtering for stock-specific headlines
 def clean_text(headlines):
@@ -200,25 +200,31 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
     # Step 1: Split into headline and subheadline
     headlines_split = split_into_headlines(headlines)
 
-    # Step 2: Filter headlines mentioning the stock ticker
-    headlines_to_use = extract_ticker_specific_headlines(ticker, headlines_split)
+    # Step 2: Convert ticker to company name once
+    company_name = ticker_to_shortname(ticker)
+    if not company_name:
+        return f"Unable to determine company name for ticker: {ticker}"
+
+    # Step 3: Filter headlines mentioning the company
+    headlines_to_use = extract_ticker_specific_headlines(company_name, headlines_split)
 
     if not headlines_to_use:
-        return f"No relevant headlines found for {ticker} in the Telegram channel."
+        return f"No relevant headlines found for {ticker} ({company_name}) in the Telegram channel."
 
-    # Step 3: Clean headlines
+    # Step 4: Clean headlines
     headlines_to_use = clean_text(headlines_to_use)
 
-    # Step 4: Generate AI summary
+    # Step 5: Generate AI summary
     prompt = (
-        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral."
-        "Then, generate an accurate summary of {ticker}'s market performance, "
+        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral. "
+        f"Then, generate an accurate summary of {ticker}'s market performance, "
         "highlighting trends, risks, or positive developments.\n\n" +
         "\n".join([f"- {headline}" for headline in headlines_to_use]) +
         "\n\nKeep the summary short (2-3 sentences), focused on key insights, and acknowledge the limitations of headlines as investment indicators."
     )
 
-    response = openai.ChatCompletion.create(
+    try:
+        response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a financial advisor specializing in technical analysis."},
@@ -229,9 +235,10 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
             frequency_penalty=0,
             presence_penalty=0
         )
-
-    return response.choices[0].message.content.strip()
-
+        return response.choices[0].message.content.strip()
+    except openai.error.OpenAIError as e:
+        print(f"OpenAI API error: {e}")
+        return "Unable to generate summary at this time due to an API error."
 
 # Main function
 nest_asyncio.apply()
