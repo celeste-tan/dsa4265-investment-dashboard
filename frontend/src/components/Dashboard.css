@@ -1,6 +1,7 @@
 /* Layout: left column for holistic summary, right grid for metrics */
 .dashboard-layout {
   display: flex;
+  font-family: 'Trebuchet MS', sans-serif;
   gap: 2rem;
   width: 100%;
   min-height: 70vh;
