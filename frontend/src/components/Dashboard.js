@@ -251,7 +251,9 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           {loadingHolistic ? (
           <p>Loading holistic summary...</p>
           ) : (
-            <ReactMarkdown>{holisticSummary}</ReactMarkdown>
+            <div className='holistic-summary'>
+              <ReactMarkdown>{holisticSummary}</ReactMarkdown>
+            </div>
           )}
         </div>
       </div>
@@ -351,7 +353,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       </div>
 
       <Modal isOpen={showStockModal} onRequestClose={() => setShowStockModal(false)} className="modal-content" overlayClassName="modal-overlay">
-        <h2>Stock History Insights for {ticker}</h2>
+        <h2>💡 Stock History Commentary</h2>
         <div>
           {stockHistory
             ? stockHistory.split('\n\n').map((pt, i) => (
@@ -375,7 +377,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       </Modal>
 
       <Modal isOpen={showESGModal} onRequestClose={() => setShowESGModal(false)} className="modal-content" overlayClassName="modal-overlay">
-        <h2>ESG Report for {ticker}</h2>
+        <h2>💡 ESG Commentary</h2>
         <div>
           {loadingReport ? <p>Loading...</p> : <pre>{esgReport}</pre>}
         </div>
