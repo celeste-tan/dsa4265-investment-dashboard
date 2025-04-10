@@ -198,7 +198,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   };
 
   const ESGPieChart = ({ data }) => {
-    const COLORS = ['#82ca9d', '#8884d8', '#ffc658'];
+    const COLORS = ['#4460ef', '#f44879', '#32c1a4'];
     const pieData = [
       { name: 'Environmental', value: data["Environmental Risk Score"] },
       { name: 'Social', value: data["Social Risk Score"] },
@@ -206,8 +206,8 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     ];
 
     return (
-      <ResponsiveContainer width="100%" height={250}>
-        <PieChart>
+      <ResponsiveContainer width="100%">
+        <PieChart margin={{ top: 10, right: 10, left: -40, bottom: 30 }}>
           <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
             {pieData.map((_, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -237,10 +237,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         <div className="card">
           <h2>Media Sentiment Analysis</h2>
         </div>
+      
 
         <div className="card">
           <h2>
-            Stock History Performance
+            Stock History Performance (USD)
             <button className="info-icon" onClick={() => setShowStockModal(true)} disabled={loadingStockHistory || !stockHistory}>
               ℹ️
             </button>
@@ -250,12 +251,21 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             <p>Loading chart...</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 30 }}>
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -40, bottom: 30 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="close" stroke="#4e73df" dot={false} />
+                <YAxis 
+                  tick={{ fontSize: 12 }} 
+                  tickFormatter={(value) =>
+                    `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                  }
+                />
+                <Tooltip 
+                  formatter={(value) =>
+                    `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
+                  }
+                />
+                <Line type="monotone" dataKey="close" stroke="#4460ef" strokeWidth={3} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           )}
@@ -263,7 +273,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
 
         <div className="card">
           <h2>
-            Financial Statement Trends
+            Financial Metrics Trends
             <button className="info-icon" onClick={() => setShowFinancialModal(true)} disabled={loadingFinancials || !financialInsight}>
               ℹ️
             </button>
@@ -272,14 +282,19 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             <p>Loading financial chart...</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={financialData} margin={{ top: 10, right: 10, left: 10, bottom: 30 }}>
+              <LineChart data={financialData} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="quarter" tick={{ fontSize: 12 }} />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="revenue" stroke="#4e73df" dot={false} />
-                <Line type="monotone" dataKey="net_income" stroke="#82ca9d" dot={false} />
-                <Line type="monotone" dataKey="free_cash_flow" stroke="#ffc658" dot={false} />
+                <YAxis 
+                  tick={{ fontSize: 12 }} 
+                  tickFormatter={(value) => `${(value / 1_000_000).toLocaleString()}M`}
+                />
+                <Tooltip
+                  formatter={(value) => `${(value / 1_000_000).toLocaleString()}M`} 
+                />
+                <Line type="monotone" dataKey="revenue" stroke="#4460ef" strokeWidth={3} dot={false} />
+                <Line type="monotone" dataKey="net_income" stroke="#f44879" strokeWidth = {3} dot={false} />
+                <Line type="monotone" dataKey="free_cash_flow" stroke="#32c1a4" strokeWidth={3} dot={false} />
               </LineChart>
             </ResponsiveContainer>
           )}

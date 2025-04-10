@@ -13,6 +13,7 @@
   width: 200px;
   outline: none;
   transition: border-color 0.3s ease;
+  font-family: 'Trebuchet MS', sans-serif
 }
 
 .ticker-form input:focus {
@@ -27,6 +28,7 @@
   font-size: 1rem;
   color: #000;
   outline: none;
+  font-family: 'Trebuchet MS', sans-serif;
 }
 
 .ticker-form button {
@@ -38,6 +40,7 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-family: 'Trebuchet MS', sans-serif
 }
 
 .ticker-form button:hover {
