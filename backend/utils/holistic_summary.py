@@ -43,19 +43,41 @@ async def get_holistic_recommendation(ticker, timeframe="short-term"):
         media_summary = f"Error fetching media sentiment: {e}"
 
     # Prompt construction
+    # prompt = (
+    #     f"You are a financial advisor. Summarise the investment outlook for '{ticker}' across different signals:\n\n"
+    #     f"Technical Insight:\n{stock_rec}\n\n"
+    #     f"ESG Insight:\n{esg_analysis}\n\n"
+    #     f"Financial Insight:\n{fin_commentary}\n\n"
+    #     f"Media Sentiment Insight:\n{media_summary}\n\n"
+    #     f"Return output as concise bullet points with signals and a final recommendation:\n"
+    #     f"- Stock: <Signal> — <Short reason>\n"
+    #     f"- ESG: <Signal> — <Short reason>\n"
+    #     f"- Financials: <Signal> — <Short reason>\n"
+    #     f"- Media: <Signal> — <Short reason>\n"
+    #     f"Final Recommendation: <Buy/Hold/Sell> — <Rationale>"
+    # )
+
     prompt = (
-        f"You are a financial advisor. Summarise the investment outlook for '{ticker}' across different signals:\n\n"
-        f"Technical Insight:\n{stock_rec}\n\n"
-        f"ESG Insight:\n{esg_analysis}\n\n"
-        f"Financial Insight:\n{fin_commentary}\n\n"
-        f"Media Sentiment Insight:\n{media_summary}\n\n"
-        f"Return output as concise bullet points with signals and a final recommendation:\n"
-        f"- Stock: <Signal> — <Short reason>\n"
-        f"- ESG: <Signal> — <Short reason>\n"
-        f"- Financials: <Signal> — <Short reason>\n"
-        f"- Media: <Signal> — <Short reason>\n"
-        f"Final Recommendation: <Buy/Hold/Sell> — <Rationale>"
-    )
+    f"You are a financial analyst AI. Given the stock ticker '{ticker}', provide signals and a holistic investment recommendation based on:\n"
+    f"1. 📈 Stock Performance: <Signal> - <Short reason>\n"
+    f"2. 🌱 ESG Insights: <Signal> - <Short reason>\n"
+    f"3. 💰 Financial Health: <Signal> - <Short reason>\n"
+    f"4. 📰 Media Sentiment: <Signal> - <Short reason>\n"
+    f"5. ✅ Final Recommendation: <Buy/Hold/Sell> - <Rationale>\n\n"
+
+    f"""Return your response in this exact format:
+    - Use a **single bullet point per category**, starting with an emoji and **bolded title** (e.g., • 📈 Stock Performance: Hold - ...)
+    - **Bold the <Signal> as well**
+    - After each bullet, leave **one blank line** to separate the sections
+    """
+
+    f"Now generate your holistic analysis based on the following context:\n\n"
+    f"Technical Insight:\n{stock_rec}\n\n"
+    f"ESG Insight:\n{esg_analysis}\n\n"
+    f"Financial Insight:\n{fin_commentary}\n\n"
+    f"Media Sentiment Insight:\n{media_summary}\n\n"
+)
+
 
     try:
         response = openai.ChatCompletion.create(
