@@ -283,7 +283,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             <p>Loading chart...</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -40, bottom: 30 }}>
+              <LineChart data={chartData} margin={{ top: 10, right: 10, left: -40, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" tick={{ fontSize: 12 }} />
                 <YAxis 
@@ -314,7 +314,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             <p>Loading financial chart...</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={financialData} margin={{ top: 10, right: 10, left: -20, bottom: 10 }}>
+              <LineChart data={financialData} margin={{ top: 10, right: 10, left: -20, bottom: -10 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="quarter" tick={{ fontSize: 12 }} />
                 <YAxis 
