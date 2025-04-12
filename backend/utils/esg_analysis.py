@@ -33,9 +33,41 @@ def fetch_esg_data(ticker):
     except Exception as e:
         return {"error": f"Error fetching ESG data for {ticker}: {e}"}
 
+print(fetch_esg_data("AAPL"))
 # ESG Interpretation via LLM 
+# def generate_esg_assessment(esg_data, openai_api_key):
+#     """Summarise ESG profile using OpenAI."""
+#     if "error" in esg_data:
+#         return esg_data["error"]
+
+#     prompt = (
+#         f"ESG Analysis for {esg_data['Stock']}:\n"
+#         f"Total ESG Risk Score: {esg_data.get('Total ESG Risk Score', 'N/A')}\n"
+#         f"Environmental Risk Score: {esg_data.get('Environmental Risk Score', 'N/A')}\n"
+#         f"Social Risk Score: {esg_data.get('Social Risk Score', 'N/A')}\n"
+#         f"Governance Risk Score: {esg_data.get('Governance Risk Score', 'N/A')}\n"
+#         f"Controversy Level: {esg_data.get('Controversy Level', 'N/A')}\n"
+#         f"Peer Controversy Min: {esg_data.get('Peer Controversy Min', 'N/A')}\n"
+#         f"Peer Controversy Avg: {esg_data.get('Peer Controversy Avg', 'N/A')}\n"
+#         f"Peer Controversy Max: {esg_data.get('Peer Controversy Max', 'N/A')}\n\n"
+#         "Provide a 2-3 sentence ESG assessment and potential risks."
+#     )
+
+#     try:
+#         response = openai.ChatCompletion.create(
+#             model="gpt-4o-mini",
+#             messages=[
+#                 {"role": "system", "content": "You are a sustainability analyst."},
+#                 {"role": "user", "content": prompt}
+#             ],
+#             temperature=0.7
+#         )
+#         return response.choices[0].message.content.strip()
+#     except Exception as e:
+#         return f"Error generating ESG assessment: {e}"
+
 def generate_esg_assessment(esg_data, openai_api_key):
-    """Summarise ESG profile using OpenAI."""
+    """Generate an ESG assessment based on extracted ESG scores using OpenAI."""
     if "error" in esg_data:
         return esg_data["error"]
 
@@ -49,22 +81,25 @@ def generate_esg_assessment(esg_data, openai_api_key):
         f"Peer Controversy Min: {esg_data.get('Peer Controversy Min', 'N/A')}\n"
         f"Peer Controversy Avg: {esg_data.get('Peer Controversy Avg', 'N/A')}\n"
         f"Peer Controversy Max: {esg_data.get('Peer Controversy Max', 'N/A')}\n\n"
-        "Provide a 2-3 sentence ESG assessment and potential risks."
+        "Based on the ESG risk scores and controversy level, provide an assessment of the company's sustainability and potential risks. Limit the output to 250 words."
     )
 
     try:
+        openai.api_key = openai_api_key
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a sustainability analyst."},
+                {"role": "system", "content": "You are an ESG investment analyst."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7
         )
         return response.choices[0].message.content.strip()
+
     except Exception as e:
         return f"Error generating ESG assessment: {e}"
 
+print(generate_esg_assessment(fetch_esg_data("AAPL"), "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"))
 # Wrapper
 def get_esg_report(ticker, openai_api_key):
     esg_data = fetch_esg_data(ticker)
