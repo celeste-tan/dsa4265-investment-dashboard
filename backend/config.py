@@ -18,3 +18,4 @@ class Config:
     # Defaults
     DEFAULT_PERIOD = "1y"
     DEFAULT_NEWS_DAYS = 30
+    NEWS_LOOKBACK_DAYS = 30

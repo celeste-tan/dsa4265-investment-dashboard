@@ -42,6 +42,8 @@ from utils.financial_summary import (
     generate_ai_investment_commentary,
     filter_financial_data_by_period 
 )
+from utils.tele_sring_session import get_telegram_client
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -147,20 +149,29 @@ def stock_chart():
         return jsonify({"error": "Ticker is required"}), 400
 
     try:
-        # Check if we already have data in DB
+        # --- 1D special handling ---
+        if period == "1d":
+            df = stock_history.fetch_stock_data(ticker, "1d")
+            prices = []
+            for index, row in df.iterrows():
+                formatted_time = index.strftime('%H:%M')  # minute granularity
+                prices.append({
+                    "date": formatted_time,
+                    "close": round(row["Close"], 2)
+                })
+            return jsonify({"prices": prices})
+
+        # === Regular DB storage for other periods ===
         db_start_date = db.get_earliest_price_date(ticker)
         db_end_date = db.get_latest_price_date(ticker)
 
-        # If no data in DB, fetch full 15 years
         if not db_start_date or not db_end_date:
-            start_date = "2009-10-03"  # computed 15 years ago
+            start_date = "2009-10-03"
         else:
-            # Fetch only from the next day of the latest date stored
             start_date = (datetime.strptime(db_end_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
 
         end_date = datetime.now().strftime("%Y-%m-%d")
 
-        # Fetch and store missing data only
         if start_date <= end_date:
             df = stock_history.fetch_stock_data(ticker, "15y", start_date, end_date)
             for index, row in df.iterrows():
@@ -174,28 +185,19 @@ def stock_chart():
                     volume=row["Volume"]
                 )
 
-        # Slice data according to `period` requested (e.g., 1mo, 1y)
+        # Cut period using calendar-based logic
         period_map = {
-            "1d": 1, "5d": 5, "1mo": 21, "3mo":63, "1y": 252,
-            "5y": 252*5, "10y": 252*10, "15y": 252*15
+            "5d": 7, "1mo": 30, "3mo": 90, "1y": 365,
+            "5y": 365 * 5, "10y": 365 * 10, "15y": 365 * 15
         }
 
-        num_days = period_map.get(period, 252)
+        num_days = period_map.get(period, 365)
         start_cutoff = (datetime.now() - timedelta(days=num_days * 1.5)).strftime("%Y-%m-%d")
-        
         raw_prices = db.get_stock_prices(ticker, start_date=start_cutoff)
 
-        # Format timestamps
         prices = []
         for p in raw_prices:
-            if period == "1d":
-                # Format date as HH:MM for intraday
-                date_obj = datetime.strptime(p["date"], "%Y-%m-%d")
-                formatted_date = date_obj.strftime("%H:%M")
-            else:
-                # Default to YYYY-MM-DD
-                formatted_date = p["date"]
-
+            formatted_date = p["date"]
             prices.append({
                 "date": formatted_date,
                 "close": round(p["close"], 2)
@@ -205,7 +207,10 @@ def stock_chart():
 
     except Exception as e:
         logger.error(f"Stock chart error: {str(e)}")
-        return jsonify({"error": "Failed to get stock data", "details": str(e)}), 500
+        return jsonify({
+            "error": "Failed to get stock data",
+            "details": str(e) if app.config['DEBUG'] else None
+        }), 500
 
 @app.route("/api/stock-history", methods=["POST"])
 def get_stock_history():
@@ -297,12 +302,19 @@ def get_media_sentiment():
         # Check for cached news (last 30 days)
         news_articles = db.get_news_articles(ticker, days=app.config['NEWS_LOOKBACK_DAYS'])
         logger.info(f"news_articles: {news_articles}")
-        
+
         if not news_articles:
-            # Scrape fresh news if none in cache
+            # Set up Telegram client
+            client = get_telegram_client(
+                api_id=app.config['API_ID'],
+                api_hash=app.config['API_HASH'],
+                phone=app.config['PHONE']
+            )
+
             try:
+                # Scrape fresh news using Telegram client
                 news_articles = asyncio.run(
-                    media_sentiment_analysis.scrape_telegram_headlines()
+                    media_sentiment_analysis.scrape_telegram_headlines(client, ticker)
                 )
             except Exception as scrape_error:
                 logger.error(f"Failed to scrape Telegram headlines: {str(scrape_error)}")
@@ -328,14 +340,14 @@ def get_media_sentiment():
                 except Exception as insert_error:
                     logger.error(f"Failed to insert article {article.get('url')}: {str(insert_error)}")
                     continue
-            
+
             if successful_inserts == 0:
                 return jsonify({
                     "error": "Failed to store any news articles",
                     "details": "Database insertion failed for all articles"
                 }), 500
 
-        # Generate summary
+        # Generate summary from cached or freshly scraped news
         try:
             summary = asyncio.run(
                 media_sentiment_analysis.get_stock_summary(
@@ -344,7 +356,7 @@ def get_media_sentiment():
                 )
             )
             return jsonify({"summary": summary})
-            
+
         except Exception as analysis_error:
             logger.error(f"Sentiment analysis failed: {str(analysis_error)}")
             return jsonify({
@@ -358,27 +370,6 @@ def get_media_sentiment():
             "error": "Internal server error",
             "details": "An unexpected error occurred"
         }), 500
-    
-# At A Glance Holistic Summary
-@app.route("/api/holistic-summary", methods=["POST"])
-def holistic_summary():
-    data = request.json
-    ticker = data.get("ticker", "").upper()
-    timeframe = data.get("timeframe", "short-term")
-
-    if not ticker:
-        return jsonify({"error": "Missing ticker symbol"}), 400
-
-    try:
-        summary = asyncio.run(get_holistic_recommendation(ticker, timeframe))
-        return jsonify({"summary": summary})
-    except Exception as e:
-        logger.error(f"Holistic summary failed for {ticker}: {str(e)}")
-        return jsonify({
-            "error": "Failed to generate holistic analysis",
-            "details": str(e) if app.config['DEBUG'] else None
-        }), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True)

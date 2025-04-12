@@ -359,14 +359,14 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         </div>
       </div>
 
-      <Modal
-        isOpen={showStockModal}
-        onRequestClose={() => setShowStockModal(false)}
-        className="modal-content"
-        overlayClassName="modal-overlay"
-      >
+      <Modal isOpen={showStockModal} onRequestClose={() => setShowStockModal(false)} className="modal-content" overlayClassName="modal-overlay">
         <h2>💡 Stock History Commentary</h2>
-        <div className="stock-commentary">
+        
+        <p style={{ fontSize: "14px", fontStyle: "italic", marginTop: "10px", marginBottom: "10px", color: "#ccc" }}>
+          📌 Note: Short-term (ST) insights are based on 1-year data. Long-term (LT) insights are based on 15-year data.
+        </p>
+
+        <div>
           {stockHistory
             ? stockHistory.split('\n\n').map((pt, i) => (
                 <ReactMarkdown key={i}>{pt}</ReactMarkdown>

@@ -92,7 +92,7 @@ async def initialise_telegram_client(api_id, api_hash, string_session):
     await client.start()
     return client
 
-async def scrape_telegram_headlines(client):
+async def scrape_telegram_headlines(client, ticker):
     user_input_channel = '@BizTimes'
     entity = PeerChannel(int(user_input_channel)) if user_input_channel.isdigit() else user_input_channel
     my_channel = await client.get_entity(entity)
