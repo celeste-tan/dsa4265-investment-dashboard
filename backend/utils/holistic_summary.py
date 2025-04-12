@@ -43,7 +43,7 @@ async def get_holistic_recommendation(ticker, timeframe="short-term"):
         media_summary = f"Error fetching media sentiment: {e}"
 
     prompt = (f"""
-    You are a financial analyst AI. Given the stock ticker '{ticker}', provide a concise investment summary across five dimensions. Your response must be no more than 175 words total.
+    You are a financial analyst AI. Given the stock ticker '{ticker}', provide a concise investment summary across five dimensions. Your response must be no more than 135 words total.
 
     Include the following sections in **exactly** this format:
 

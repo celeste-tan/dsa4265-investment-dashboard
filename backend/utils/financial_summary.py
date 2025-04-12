@@ -189,5 +189,5 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
     return all_results
 
 # Example usage
-tickers_to_check = ["TSLA", "NVDA", "AAPL", "SPY", "QQQ", "META", "AMZN", "TQQQ", "AMD", "NFLX"]
-evaluate_financial_commentary_faithfulness(tickers_to_check, "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")
+# tickers_to_check = ["TSLA", "NVDA", "AAPL", "SPY", "QQQ", "META", "AMZN", "TQQQ", "AMD", "NFLX"]
+# evaluate_financial_commentary_faithfulness(tickers_to_check, "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")

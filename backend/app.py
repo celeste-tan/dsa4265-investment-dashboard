@@ -42,7 +42,7 @@ from utils.financial_summary import (
     generate_ai_investment_commentary,
     filter_financial_data_by_period 
 )
-from utils.tele_sring_session import get_telegram_client
+from utils.media_sentiment_analysis import initialise_telegram_client
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -54,6 +54,11 @@ app.config.from_object(Config)
 
 # Initialize database
 db.init_app(app)
+
+# ==================== HEALTH ENDPOINT ====================
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "ok"}), 200
 
 # ==================== ESG ENDPOINTS ====================
 
@@ -291,85 +296,63 @@ def financial_recommendation():
 
 @app.route("/api/media-sentiment-summary", methods=["POST"])
 def get_media_sentiment():
-    """Endpoint 5: Get news sentiment analysis with caching"""
+    from utils import media_sentiment_analysis  # delayed import to avoid circular dependency
+
     data = request.json
     ticker = data.get("ticker", "").upper()
-
     if not ticker:
         return jsonify({"error": "Missing ticker"}), 400
 
     try:
-        # Check for cached news (last 30 days)
+        # Check cached news
         news_articles = db.get_news_articles(ticker, days=app.config['NEWS_LOOKBACK_DAYS'])
-        logger.info(f"news_articles: {news_articles}")
-
         if not news_articles:
-            # Set up Telegram client
-            client = get_telegram_client(
-                api_id=app.config['API_ID'],
-                api_hash=app.config['API_HASH'],
-                phone=app.config['PHONE']
-            )
-
             try:
-                # Scrape fresh news using Telegram client
-                news_articles = asyncio.run(
-                    media_sentiment_analysis.scrape_telegram_headlines(client, ticker)
-                )
-            except Exception as scrape_error:
-                logger.error(f"Failed to scrape Telegram headlines: {str(scrape_error)}")
-                return jsonify({
-                    "error": "Failed to fetch news articles",
-                    "details": str(scrape_error)
-                }), 500
-
-            # Store new articles with individual error handling
-            successful_inserts = 0
-            for article in news_articles:
-                try:
-                    db.insert_news_article(
-                        ticker=ticker,
-                        title=article.get('title'),
-                        source="Telegram",
-                        url=article.get('url'),
-                        published_date=article.get('date'),
-                        content=article.get('content'),
-                        sentiment_score=None
+                summary = asyncio.run(
+                    media_sentiment_analysis.get_stock_summary(
+                        ticker,
+                        app.config['OPENAI_API_KEY']
                     )
-                    successful_inserts += 1
-                except Exception as insert_error:
-                    logger.error(f"Failed to insert article {article.get('url')}: {str(insert_error)}")
-                    continue
-
-            if successful_inserts == 0:
-                return jsonify({
-                    "error": "Failed to store any news articles",
-                    "details": "Database insertion failed for all articles"
-                }), 500
-
-        # Generate summary from cached or freshly scraped news
-        try:
-            summary = asyncio.run(
-                media_sentiment_analysis.get_stock_summary(
-                    ticker,
-                    app.config['OPENAI_API_KEY']
                 )
-            )
-            return jsonify({"summary": summary})
-
-        except Exception as analysis_error:
-            logger.error(f"Sentiment analysis failed: {str(analysis_error)}")
-            return jsonify({
-                "error": "Failed to generate sentiment analysis",
-                "details": str(analysis_error)
-            }), 500
-
+                return jsonify({"summary": summary})
+            except Exception as scrape_err:
+                logger.error(f"Failed to scrape and summarize: {scrape_err}")
+                return jsonify({"error": "Scraping failed", "details": str(scrape_err)}), 500
+        else:
+            try:
+                summary = asyncio.run(
+                    media_sentiment_analysis.get_stock_summary(
+                        ticker,
+                        app.config['OPENAI_API_KEY']
+                    )
+                )
+                return jsonify({"summary": summary})
+            except Exception as e:
+                logger.error(f"Summarization failed: {e}")
+                return jsonify({"error": "Failed to summarize", "details": str(e)}), 500
     except Exception as e:
         logger.error(f"Unexpected error in media sentiment endpoint: {str(e)}")
-        return jsonify({
-            "error": "Internal server error",
-            "details": "An unexpected error occurred"
-        }), 500
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
+# At A Glance Holistic Summary
+@app.route("/api/holistic-summary", methods=["POST"])
+def holistic_summary():
+    data = request.json
+    ticker = data.get("ticker", "").upper()
+    timeframe = data.get("timeframe", "short-term")
+
+    if not ticker:
+        return jsonify({"error": "Missing ticker symbol"}), 400
+
+    try:
+        summary = asyncio.run(get_holistic_recommendation(ticker, timeframe))
+        return jsonify({"summary": summary})
+    except Exception as e:
+        logger.error(f"Holistic summary failed for {ticker}: {str(e)}")
+        return jsonify({
+            "error": "Failed to generate holistic analysis",
+            "details": str(e) if app.config['DEBUG'] else None
+        }), 500
+     
 if __name__ == "__main__":
     app.run(debug=True)
