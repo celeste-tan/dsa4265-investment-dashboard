@@ -11,6 +11,31 @@ Modal.setAppElement('#root');
 const SHORT_TERM_PERIODS = ['1d', '5d', '1mo', '3mo', '1y'];
 const LONG_TERM_PERIODS = ['5y', '10y', '15y'];
 
+// to prevent auto refresh for esg chart
+function ESGPieChart({ data }) {
+  const COLORS = ['#4460ef', '#f44879', '#32c1a4'];
+
+  const pieData = [
+    { name: 'Environmental', value: data["Environmental Risk Score"] },
+    { name: 'Social', value: data["Social Risk Score"] },
+    { name: 'Governance', value: data["Governance Risk Score"] },
+  ];
+
+  return (
+    <ResponsiveContainer width="100%">
+      <PieChart margin={{ top: 10, right: 10, left: -40, bottom: 30 }}>
+        <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
+          {pieData.map((_, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend verticalAlign="middle" align="right" layout="vertical" />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
 function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [holisticSummary, setHolisticSummary] = useState('');
   const [loadingHolistic, setLoadingHolistic] = useState(false);
@@ -220,29 +245,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     );
   };
 
-  const ESGPieChart = ({ data }) => {
-    const COLORS = ['#4460ef', '#f44879', '#32c1a4'];
-    const pieData = [
-      { name: 'Environmental', value: data["Environmental Risk Score"] },
-      { name: 'Social', value: data["Social Risk Score"] },
-      { name: 'Governance', value: data["Governance Risk Score"] },
-    ];
-
-    return (
-      <ResponsiveContainer width="100%">
-        <PieChart margin={{ top: 10, right: 10, left: -40, bottom: 30 }}>
-          <Pie data={pieData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-            {pieData.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-            ))}
-          </Pie>
-          <Tooltip />
-          <Legend verticalAlign="middle" align="right" layout="vertical" />
-        </PieChart>
-      </ResponsiveContainer>
-    );
-  };
-
   return (
     <div className="dashboard-layout">
       <div className="left-card">
@@ -383,7 +385,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
 
       <Modal isOpen={showESGModal} onRequestClose={() => setShowESGModal(false)} className="modal-content" overlayClassName="modal-overlay">
         <h2>💡 ESG Commentary</h2>
-        <div>
+        <div className="esg-report">
           {loadingReport ? <p>Loading...</p> : <pre>{esgReport}</pre>}
         </div>
         <button onClick={() => setShowESGModal(false)} className="close-btn">Close</button>
