@@ -91,7 +91,7 @@ def evaluate_esg_report_faithfulness(tickers, openai_api_key):
     all_results = {}
 
     for ticker in tickers:
-        print(f"Evaluating {ticker}...")
+        #print(f"Evaluating {ticker}...")
 
         esg_data = fetch_esg_data(ticker)
         generated_report = generate_esg_assessment(esg_data, openai_api_key)
@@ -164,7 +164,7 @@ def evaluate_esg_report_faithfulness(tickers, openai_api_key):
     with open(filepath, "w") as f:
         json.dump(all_results, f, indent=4)
 
-    print(f"\nFaithfulness evaluations saved to: {filepath}")
+    #print(f"\nFaithfulness evaluations saved to: {filepath}")
     return all_results
 
 

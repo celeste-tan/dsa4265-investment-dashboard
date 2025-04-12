@@ -61,7 +61,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [showFinancialModal, setShowFinancialModal] = useState(false);
   const [showESGModal, setShowESGModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
-
+  
   useEffect(() => {
     if (!ticker) return;
     const defaultPeriod = timeframe === 'long-term' ? '5y' : '1y';
@@ -287,7 +287,12 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData} margin={{ top: 10, right: 10, left: -40, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                <XAxis
+                  dataKey="date"
+                  tick={{ fontSize: 12 }}
+                  interval="preserveStartEnd"
+                  minTickGap={50}
+                />
                 <YAxis 
                   tick={{ fontSize: 12 }} 
                   tickFormatter={(value) =>

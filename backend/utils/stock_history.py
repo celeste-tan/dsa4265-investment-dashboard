@@ -3,40 +3,65 @@ Handles historical stock data retrieval, computes technical indicators (SMA, EMA
 and generates natural language recommendations via OpenAI.
 """
 
-from datetime import datetime
-from pandas.tseries.offsets import BDay
+from datetime import datetime, timedelta
 import yfinance as yf
 import openai
-
+import pandas_market_calendars as mcal
 
 # -----------------------------
 # Date Utilities
 # -----------------------------
+
+def get_latest_trading_day():
+    nyse = mcal.get_calendar('NYSE')
+    now = datetime.now()
+    schedule = nyse.schedule(start_date=now - timedelta(days=7), end_date=now)
+    if schedule.empty:
+        raise ValueError("No trading days found in the last week.")
+    return schedule.index[-1].strftime('%Y-%m-%d')
+
+
 def get_date_range(period):
-    """Return the start and end dates for a given period using trading days."""
-    today = datetime.today()
+    # Get the latest trading day as the end date
+    end = get_latest_trading_day()
+    end_dt = datetime.strptime(end, '%Y-%m-%d')
+
+    # Period map in calendar days (rough estimate, used to find start date)
     period_map = {
-        "1d": 1, "5d": 5, "1mo": 21, "3mo": 63,
-        "1y": 252, "5y": 252 * 5, "10y": 252 * 10, "15y": 252 * 15
+        "1d": 1, "5d": 7, "1mo": 30, "3mo": 90,
+        "1y": 365, "5y": 365 * 5, "10y": 365 * 10, "15y": 365 * 15
     }
+
     if period not in period_map:
         raise ValueError("Invalid period specified")
-    start = today - BDay(period_map[period])
-    return start.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")
+
+    # Get rough calendar range
+    start_candidate = end_dt - timedelta(days=period_map[period] * 1.5)
+
+    # Filter real trading days between start and end
+    nyse = mcal.get_calendar('NYSE')
+    schedule = nyse.schedule(start_date=start_candidate, end_date=end_dt)
+    if schedule.empty:
+        raise ValueError(f"No trading days found between {start_candidate} and {end_dt}.")
+
+    start = schedule.index[0].strftime('%Y-%m-%d')
+    return start, end
 
 
 # -----------------------------
 # Fetch Historical Data
 # -----------------------------
 def fetch_stock_data(ticker_symbol, period, start_date=None, end_date=None):
-    """Fetch historical stock data for a given ticker and period."""
     ticker = yf.Ticker(ticker_symbol)
+    
+    # For 1-day, request 1-minute interval explicitly
     if period == "1d":
         return ticker.history(period="1d", interval="1m")
+
+    # For everything else, use standard daily data
     if not start_date or not end_date:
         start_date, end_date = get_date_range(period)
     return ticker.history(start=start_date, end=end_date)
-
 
 # -----------------------------
 # Technical Indicators

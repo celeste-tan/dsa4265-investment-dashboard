@@ -115,7 +115,7 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
     all_results = {}
 
     for ticker in tickers:
-        print(f"Evaluating {ticker}...")
+        #print(f"Evaluating {ticker}...")
 
         try:
             df_all = get_full_quarterly_data(ticker)
@@ -138,7 +138,7 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
                 f"Generated Commentary:\n{commentary}"
             )
 
-            print(eval_prompt)
+            #print(eval_prompt)
 
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
@@ -185,7 +185,7 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
     with open(filepath, "w") as f:
         json.dump(all_results, f, indent=4)
 
-    print(f"\nFaithfulness evaluations saved to: {filepath}")
+    #print(f"\nFaithfulness evaluations saved to: {filepath}")
     return all_results
 
 # Example usage

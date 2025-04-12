@@ -139,59 +139,73 @@ def generate_esg_report():
 
 @app.route("/api/stock-chart", methods=["POST"])
 def stock_chart():
-    """Endpoint 3: Get historical price data with caching"""
     data = request.json
     ticker = data.get("ticker")
     period = data.get("period", app.config['DEFAULT_PERIOD'])
-    logger.info(f"stock_chart: {ticker} {period}")
 
     if not ticker:
         return jsonify({"error": "Ticker is required"}), 400
 
     try:
-        # Determine date range
-        end_date = datetime.now().strftime('%Y-%m-%d')
-        if period == "1d":
-            start_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif period == "5d":
-            start_date = (datetime.now() - timedelta(weeks=1)).strftime('%Y-%m-%d')
-        elif period == "1mo":
-            start_date = (datetime.now() - timedelta(weeks=4)).strftime('%Y-%m-%d')
-        elif period == "1y":
-            start_date = (datetime.now() - timedelta(weeks=52)).strftime('%Y-%m-%d')
-        else:
-            start_date = (datetime.now() - timedelta(weeks=52)).strftime('%Y-%m-%d')  # Default to 1 year
-        # start_date, end_date = get_date_range(period)
+        # Check if we already have data in DB
+        db_start_date = db.get_earliest_price_date(ticker)
+        db_end_date = db.get_latest_price_date(ticker)
 
-        # Fetch fresh data and store in db
-        logger.info(f"Getting fresh stock prices for {ticker} ({period}) from {start_date} to {end_date}...")
-        df = stock_history.fetch_stock_data(ticker, period, start_date, end_date)
+        # If no data in DB, fetch full 15 years
+        if not db_start_date or not db_end_date:
+            start_date = "2009-10-03"  # computed 15 years ago
+        else:
+            # Fetch only from the next day of the latest date stored
+            start_date = (datetime.strptime(db_end_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+
+        end_date = datetime.now().strftime("%Y-%m-%d")
+
+        # Fetch and store missing data only
+        if start_date <= end_date:
+            df = stock_history.fetch_stock_data(ticker, "15y", start_date, end_date)
+            for index, row in df.iterrows():
+                db.insert_stock_price(
+                    ticker=ticker,
+                    date=index.strftime('%Y-%m-%d'),
+                    open_price=row["Open"],
+                    high=row["High"],
+                    low=row["Low"],
+                    close=row["Close"],
+                    volume=row["Volume"]
+                )
+
+        # Slice data according to `period` requested (e.g., 1mo, 1y)
+        period_map = {
+            "1d": 1, "5d": 5, "1mo": 21, "3mo":63, "1y": 252,
+            "5y": 252*5, "10y": 252*10, "15y": 252*15
+        }
+
+        num_days = period_map.get(period, 252)
+        start_cutoff = (datetime.now() - timedelta(days=num_days * 1.5)).strftime("%Y-%m-%d")
+        
+        raw_prices = db.get_stock_prices(ticker, start_date=start_cutoff)
+
+        # Format timestamps
         prices = []
-        for index, row in df.iterrows():
-            date_str = index.strftime('%Y-%m-%d')
+        for p in raw_prices:
+            if period == "1d":
+                # Format date as HH:MM for intraday
+                date_obj = datetime.strptime(p["date"], "%Y-%m-%d")
+                formatted_date = date_obj.strftime("%H:%M")
+            else:
+                # Default to YYYY-MM-DD
+                formatted_date = p["date"]
+
             prices.append({
-                "date": date_str,
-                "close": round(row["Close"], 2)
+                "date": formatted_date,
+                "close": round(p["close"], 2)
             })
-            # Store in database
-            db.insert_stock_price(
-                ticker=ticker,
-                date=date_str,
-                open_price=row["Open"],
-                high=row["High"],
-                low=row["Low"],
-                close=row["Close"],
-                volume=row["Volume"]
-            )
-        if prices:
-            logger.info(f"Data for ticker {ticker}: {prices[0]}, {prices[-1]}")
+
         return jsonify({"prices": prices})
+
     except Exception as e:
         logger.error(f"Stock chart error: {str(e)}")
-        return jsonify({
-            "error": "Failed to get stock data",
-            "details": str(e) if app.config['DEBUG'] else None
-        }), 500
+        return jsonify({"error": "Failed to get stock data", "details": str(e)}), 500
 
 @app.route("/api/stock-history", methods=["POST"])
 def get_stock_history():

@@ -21,3 +21,5 @@ jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
 python-dotenv==1.1.0
 flask-cors==5.0.1
+pandas_market_calendars
+
