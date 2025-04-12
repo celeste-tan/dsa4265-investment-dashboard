@@ -32,3 +32,4 @@ coleincidence.session
 .pnp.js
 /coverage
 /build
+backend/data/investment.db
