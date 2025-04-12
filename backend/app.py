@@ -93,14 +93,15 @@ def get_esg_scores():
         db.insert_financial_metric(
             ticker=ticker,
             date=datetime.now().strftime('%Y-%m-%d'),
-            esg_risk_score=esg_data.get("Total", "N/A"),
-            environmental_score=esg_data.get("Environmental", "N/A"),
-            social_score=esg_data.get("Social", "N/A"),
-            governance_score=esg_data.get("Governance", "N/A"),
-            controversy_value=esg_data.get("Controversy", {}).get("Value", "N/A"),
-            controversy_description=esg_data.get("Controversy", {}).get("Description", "N/A")
+            total_esg_risk_score=esg_data.get('Total ESG Risk Score', 'N/A'),
+            environmental_score=esg_data.get('Environmental Risk Score', 'N/A'),
+            social_score=esg_data.get('Social Risk Score', 'N/A'),
+            governance_score=esg_data.get('Governance Risk Score', 'N/A'),
+            controversy_level=esg_data.get('Controversy Level', 'N/A'),
+            peer_controversy_min=esg_data.get('Peer Controversy Min', 'N/A'),
+            peer_controversy_avg=esg_data.get('Peer Controversy Avg', 'N/A'),
+            peer_controversy_max=esg_data.get('Peer Controversy Max', 'N/A')
         )
-        
         return jsonify({"esg_scores": esg_data}), 200
     
     except Exception as e:
@@ -128,14 +129,7 @@ def generate_esg_report():
     
     # Generate AI report
     report = esg_analysis.generate_esg_assessment(
-        {
-            "Stock": ticker,
-            "Total ESG Risk Score": esg_data.get("Total", "N/A"),
-            "Environmental Risk Score": esg_data.get("Environmental", "N/A"),
-            "Social Risk Score": esg_data.get("Social", "N/A"),
-            "Governance Risk Score": esg_data.get("Governance", "N/A"),
-            "Controversy Level": esg_data.get("Controversy", "N/A")
-        },
+        esg_data,
         app.config['OPENAI_API_KEY']
     )
     
