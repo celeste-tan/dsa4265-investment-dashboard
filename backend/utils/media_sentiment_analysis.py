@@ -17,21 +17,17 @@ from dotenv import load_dotenv
 import os
 import yfinance as yf
 
-# Load environment variable from .env file
 load_dotenv()
 
 ############ Helper Functions ############
 
-# Function to parse only required attributes
 def filter_message_data(message):
     return {
         "id": message.get('id'),
         "date": message.get('date').isoformat() if message.get('date') else None,
         "message": message.get('message'),
-        # Add other fields as needed
     }
 
-# DateTimeEncoder to handle custom JSON serialization
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, o):
         if isinstance(o, datetime):
@@ -40,181 +36,119 @@ class DateTimeEncoder(json.JSONEncoder):
             return list(o)
         return json.JSONEncoder.default(self, o)
 
-# Function to get the channel name and use it as file name
 def get_channel(name):
-    # Extract the channel name from URLs like https://t.me/TheStraitsTimes
     match = re.search(r't\.me/([A-Za-z0-9_]+)', name)
     return match.group(1) if match else name
 
-# Only get the headlines portion, because the message will include links which is not helpful in sentiment analysis
 def split_into_headlines(messages):
-  for msg in messages:
-    if not msg.get('message'):  # Check if 'message' is None or missing
-        msg['headline'] = ""
-        msg['subheadline'] = ""
-        continue
+    for msg in messages:
+        if not msg.get('message'):
+            msg['headline'] = ""
+            msg['subheadline'] = ""
+            continue
+        components = msg['message'].split("\n\n", 1)
+        msg['headline'] = components[0]
+        msg['subheadline'] = components[1] if len(components) > 1 else ""
+    return messages
 
-    components = msg['message'].split("\n\n", 1)
-
-    msg['headline'] = components[0]
-    msg['subheadline'] = components[1] if len(components) > 1 else ""
-  return messages
-
-# Mapping of ticker to company name
 def ticker_to_shortname(ticker):
     try:
         stock = yf.Ticker(ticker)
         info = stock.info
         raw_name = info.get('shortName', 'N/A')
-
-        # Clean common suffixes
         for suffix in ["Inc.", "Incorporated", "Corp.", "Corporation", "Ltd.", "Limited", "PLC", ","]:
             raw_name = raw_name.replace(suffix, "")
-        clean_name = raw_name.strip()
-        
-        return clean_name
+        return raw_name.strip()
     except Exception as e:
         print(f"Error fetching info for {ticker}: {e}")
         return None
 
-# Filter for stock-specific headlines
-# Filter for stock-specific headlines
 def extract_ticker_specific_headlines(company_name, headlines):
     if not company_name:
         print(f"No company name provided.")
         return []
-
-    relevant_headlines = [
+    return [
         msg.get('headline') for msg in headlines
         if msg.get('headline') and re.search(rf"\b{re.escape(company_name)}\b", msg['headline'], re.IGNORECASE)
     ]
-    return relevant_headlines
 
-# Clean after filtering for stock-specific headlines
 def clean_text(headlines):
     for i in range(len(headlines)):
         msg = headlines[i]
         if msg:
-            # Remove HTML tags
             msg = re.sub(r"<.*?>", "", msg)
-            # Remove special characters
             msg = re.sub(r"[^a-zA-Z0-9.,!? ]", "", msg)
-            # Remove extra spaces
             msg = msg.strip()
-            # Expand contractions
             msg = fix(msg)
-            # Handle emojis
             msg = emoji.demojize(msg)
             headlines[i] = msg
         else:
             headlines[i] = ""
     return headlines
 
-
-# Initialise and returns telegram client
-async def initialise_telegram_client(api_id, api_hash, phone, username):
-    client = TelegramClient(username, api_id, api_hash)
-  
-    # Start the client (this may prompt for login if necessary)
-    async def start_client():
-      await client.start(phone)
-
-      # Check if user is authorized, otherwise log in
-      if not await client.is_user_authorized():
-          await client.send_code_request(phone)
-          try:
-              await client.sign_in(phone, input('Enter the code: '))
-          except SessionPasswordNeededError:
-              await client.sign_in(password=input('Password: '))
-
-    # Run the client setup asynchronously
-#   asyncio.run(start_client())
-    await start_client()
-
+# ✅ Use StringSession here
+async def initialise_telegram_client(api_id, api_hash, string_session):
+    client = TelegramClient(StringSession(string_session), api_id, api_hash)
+    await client.start()
     return client
 
 async def scrape_telegram_headlines(client):
-        """
-        Scrapes recent messages from a Telegram channel.
-        """
-        user_input_channel = '@BizTimes'
+    user_input_channel = '@BizTimes'
+    entity = PeerChannel(int(user_input_channel)) if user_input_channel.isdigit() else user_input_channel
+    my_channel = await client.get_entity(entity)
 
-        entity = PeerChannel(int(user_input_channel)) if user_input_channel.isdigit() else user_input_channel
-        my_channel = await client.get_entity(entity)
+    offset_id = 0
+    limit = 100
+    all_messages = []
+    today = datetime.today()
+    start_date = today - relativedelta(months=6)
 
-        offset_id = 0
-        limit = 100
-        all_messages = []
+    while True:
+        history = await client(GetHistoryRequest(
+            peer=my_channel,
+            offset_id=offset_id,
+            offset_date=None,
+            add_offset=0,
+            limit=limit,
+            max_id=0,
+            min_id=0,
+            hash=0
+        ))
 
-        # start date: 6 months ago from today
-        today = datetime.today()
-        start_date = today - relativedelta(months=6)
+        if not history.messages:
+            print("No more messages. Stopping scraping...")
+            break
 
-        while True:
-            history = await client(GetHistoryRequest(
-                peer=my_channel,
-                offset_id=offset_id,
-                offset_date=None,
-                add_offset=0,
-                limit=limit,
-                max_id=0,
-                min_id=0,
-                hash=0
-            ))
+        for message in history.messages:
+            filtered_message = filter_message_data(message.to_dict())
+            msg_date_str = filtered_message.get('date')
+            msg_date = datetime.fromisoformat(msg_date_str.replace("Z", "+00:00")).replace(tzinfo=None)
+            if msg_date < start_date:
+                return all_messages
+            all_messages.append(filtered_message)
 
-            if not history.messages:
-                print("No more messages. Stopping scraping...")
-                break
+        offset_id = history.messages[-1].id
 
-            for message in history.messages:
-                filtered_message = filter_message_data(message.to_dict())
+    channel_name = get_channel(user_input_channel)
+    file_name = f'{channel_name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+    with open(file_name, 'w', encoding='utf-8') as outfile:
+        json.dump(all_messages, outfile, cls=DateTimeEncoder, indent=4, ensure_ascii=False)
 
-                msg_date_str = filtered_message.get('date')
-                msg_date = datetime.fromisoformat(msg_date_str.replace("Z", "+00:00")).replace(tzinfo=None)
+    print(f"Messages saved to {file_name}")
+    return all_messages
 
-                if msg_date < start_date:
-                    return all_messages
-
-                all_messages.append(filtered_message)
-
-            offset_id = history.messages[-1].id
-
-        # Save JSON file
-        channel_name = get_channel(user_input_channel)
-        file_name = f'{channel_name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-        with open(file_name, 'w', encoding='utf-8') as outfile:
-            json.dump(all_messages, outfile, cls=DateTimeEncoder, indent=4, ensure_ascii=False)
-
-        print(f"Messages saved to {file_name}")
-        return all_messages
-
-
-# Function to generate stock summary using openAI
 async def generate_stock_summary(ticker, openai_api_key, headlines):
-    """
-    Generates stock summary based on scraped headlines.
-    """
     if not headlines:
         return f"No recent headlines found for {ticker}."
-
-    # Step 1: Split into headline and subheadline
     headlines_split = split_into_headlines(headlines)
-
-    # Step 2: Convert ticker to company name once
     company_name = ticker_to_shortname(ticker)
     if not company_name:
         return f"Unable to determine company name for ticker: {ticker}"
-
-    # Step 3: Filter headlines mentioning the company
     headlines_to_use = extract_ticker_specific_headlines(company_name, headlines_split)
-
     if not headlines_to_use:
         return f"No relevant headlines found for {ticker} ({company_name}) in the Telegram channel."
-
-    # Step 4: Clean headlines
     headlines_to_use = clean_text(headlines_to_use)
 
-    # Step 5: Generate AI summary
     prompt = (
         f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral. "
         f"Then, generate an accurate summary of {ticker}'s market performance, "
@@ -240,24 +174,16 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
         print(f"OpenAI API error: {e}")
         return "Unable to generate summary at this time due to an API error."
 
-# Main function
+# Main Function
 nest_asyncio.apply()
 
 async def get_stock_summary(ticker, openai_api_key):
-    # Step 1: Initialize the Telegram client
     api_id = os.getenv("API_ID")
     api_hash = os.getenv("API_HASH")
-    phone = os.getenv("PHONE")
-    username = os.getenv("USERNAME")
+    string_session = os.getenv("STRING_SESSION")
 
-    client = await initialise_telegram_client(api_id, api_hash, phone, username)
-
-    # Step 2: Scrape Telegram headlines
+    client = await initialise_telegram_client(api_id, api_hash, string_session)
     headlines = await scrape_telegram_headlines(client)
-
-    # Step 3: Get the stock ticker from user input
-
-    # Step 4: Generate stock summary using the scraped headlines
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
     await client.disconnect()
     return summary

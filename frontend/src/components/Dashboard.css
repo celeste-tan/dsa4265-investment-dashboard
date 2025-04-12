@@ -152,14 +152,35 @@
   stroke: #e5e5e5;
 }
 
-/* Adjust spacing of holistic summary */
-.holistic-summary {
-  margin-left: 20px;
-  line-height: 1.4;
-  
+/* Final Recommendation (first paragraph): no indent */
+.holistic-summary > p:first-child {
+  margin-bottom: 0.5rem;
+  padding-left: 0;
+  text-indent: 0;
 }
 
-/* Add spacing between each paragraph (i.e. each bullet point) */
-.holistic-summary p {
-  margin-bottom: 1rem;
+/* Indented bullet points after the final recommendation */
+.holistic-summary > p:not(:first-child) {
+  margin-bottom: 0.5rem;
+  padding-left: 1.5rem;     /* Adds indent */
+  text-indent: -1.3rem;     /* Hangs the bullet slightly left */
+  line-height: 1.5;
 }
+
+/* Add top margin under the header */
+.stock-commentary h2 {
+  margin-bottom: 0.5rem;
+}
+
+/* Align bullets flush with header icon */
+.stock-commentary ul {
+  list-style-position: inside;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+/* Add space between bullet points */
+.stock-commentary li {
+  margin-bottom: 0.5rem;
+}
+
