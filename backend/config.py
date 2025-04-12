@@ -17,4 +17,9 @@ class Config:
     
     # Defaults
     DEFAULT_PERIOD = "1y"
-    DEFAULT_NEWS_DAYS = 30
+    NEWS_LOOKBACK_DAYS = 30
+    DEBUG = os.getenv('FLASK_DEBUG', 'False') == 'True'
+
+    # SQLite
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///investment.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
