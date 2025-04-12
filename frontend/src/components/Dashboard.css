@@ -155,4 +155,11 @@
 /* Adjust spacing of holistic summary */
 .holistic-summary {
   margin-left: 20px;
+  line-height: 1.4;
+  
+}
+
+/* Add spacing between each paragraph (i.e. each bullet point) */
+.holistic-summary p {
+  margin-bottom: 1rem;
 }
