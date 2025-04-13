@@ -53,6 +53,25 @@ class InvestmentDB:
                     last_updated TEXT DEFAULT CURRENT_TIMESTAMP
                 )
             ''')
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS media_sentiment_summary (
+                           ticker TEXT NOT NULL,
+                           summary_date DATETIME NOT NULL,
+                           summary TEXT NOT NULL,
+                           PRIMARY KEY (ticker, summary_date)
+                )
+            ''')
+
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS headlines (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ticker TEXT NOT NULL,
+                    date DATETIME NOT NULL,
+                    message TEXT NOT NULL,
+                    UNIQUE(ticker, date, message)
+                )
+            ''')
         
             # Financial metrics table
             cursor.execute('''
@@ -143,6 +162,63 @@ class InvestmentDB:
         except sqlite3.Error as e:
             logger.error(f"Error inserting news article: {e}")
             return False
+        
+    def get_headlines(self, ticker: str, after: datetime) -> list:
+        try:
+            cursor = self.conn.execute('''
+                SELECT date, message
+                FROM headlines
+                WHERE ticker = ? AND date > ?
+                ORDER BY date ASC
+            ''', (ticker, after))
+            return [dict(zip(['date', 'message'], row))
+                    for row in cursor.fetchall()]
+        except sqlite3.Error as e:
+            logger.error(f"Error fetching headlines: {e}")
+            return []
+        
+    def save_headlines(self, ticker: str, headlines: list) -> None:
+        try:
+            for headline in headlines:
+                self.conn.execute('''
+                    INSERT OR IGNORE INTO headlines
+                    (ticker, date, message)
+                    VALUES (?, ?, ?)
+                ''', (ticker, headline['date'], headline['message']))
+            self.conn.commit()
+            logger.info(f"{len(headlines)} headlines saved for {ticker}")
+        except sqlite3.Error as e:
+            logger.error(f"Error saving headlines: {e}")
+            return None
+        
+    def get_stock_summary(self, ticker: str) -> str:
+        try:
+            today = datetime.today()
+            today = datetime(year=today.year, month=today.month, day=today.day)
+            cursor = self.conn.execute('''
+                SELECT summary 
+                FROM media_sentiment_summary
+                WHERE ticker = ? AND summary_date = ?
+            ''', (ticker, today))
+            return cursor.fetchone()
+        except sqlite3.Error as e:
+            logger.error(f"Error fetching media sentiment summary: {e}")
+            return None
+        
+    def save_stock_summary(self, ticker: str, summary: str) -> None:
+        try:
+            today = datetime.today()
+            today = datetime(year=today.year, month=today.month, day=today.day)
+            self.conn.execute('''
+                INSERT OR REPLACE INTO media_sentiment_summary 
+                (ticker, summary_date, summary)
+                VALUES (?, ?, ?)
+            ''', (ticker, today, summary))
+            self.conn.commit()
+            logger.info(f"media_sentiment_summary saved for {ticker}:{today}")
+        except sqlite3.Error as e:
+            logger.error(f"Error saving media sentiment summary: {e}")
+            return None    
 
     def get_news_articles(self, ticker: str, days: int = 30, limit: int = 10) -> list:
         end_date = datetime.now().strftime('%Y-%m-%d')

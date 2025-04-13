@@ -47,7 +47,6 @@ from utils.media_sentiment_analysis import initialise_telegram_client
 from dotenv import load_dotenv
 load_dotenv()
 
-
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
@@ -304,32 +303,17 @@ def get_media_sentiment():
         return jsonify({"error": "Missing ticker"}), 400
 
     try:
-        # Check cached news
-        news_articles = db.get_news_articles(ticker, days=app.config['NEWS_LOOKBACK_DAYS'])
-        if not news_articles:
-            try:
-                summary = asyncio.run(
-                    media_sentiment_analysis.get_stock_summary(
-                        ticker,
-                        app.config['OPENAI_API_KEY']
-                    )
+        try:
+            summary = asyncio.run(
+                media_sentiment_analysis.get_stock_summary(
+                    ticker,
+                    app.config['OPENAI_API_KEY']
                 )
-                return jsonify({"summary": summary})
-            except Exception as scrape_err:
-                logger.error(f"Failed to scrape and summarize: {scrape_err}")
-                return jsonify({"error": "Scraping failed", "details": str(scrape_err)}), 500
-        else:
-            try:
-                summary = asyncio.run(
-                    media_sentiment_analysis.get_stock_summary(
-                        ticker,
-                        app.config['OPENAI_API_KEY']
-                    )
-                )
-                return jsonify({"summary": summary})
-            except Exception as e:
-                logger.error(f"Summarization failed: {e}")
-                return jsonify({"error": "Failed to summarize", "details": str(e)}), 500
+            )
+            return jsonify({"summary": summary})
+        except Exception as scrape_err:
+            logger.error(f"Failed to scrape and summarize: {scrape_err}")
+            return jsonify({"error": "Scraping failed", "details": str(scrape_err)}), 500
     except Exception as e:
         logger.error(f"Unexpected error in media sentiment endpoint: {str(e)}")
         return jsonify({"error": "Internal server error", "details": str(e)}), 500

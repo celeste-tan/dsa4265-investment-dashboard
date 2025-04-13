@@ -2,8 +2,10 @@
 import os
 import re
 import json
+import logging
 import openai
 import asyncio
+import time
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
@@ -11,8 +13,12 @@ from telethon import TelegramClient
 from telethon.tl.functions.messages import GetHistoryRequest
 from telethon.sessions import StringSession
 from telethon.tl.types import PeerChannel
+from database import db
 
 load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Helper functions
 def clean_headline(text):
@@ -25,7 +31,7 @@ async def initialise_telegram_client(api_id, api_hash, string_session):
     await client.start()
     return client
 
-async def scrape_telegram_headlines(client):
+async def scrape_telegram_headlines(client, days_to_scrape):
     channel_name = '@BizTimes'
     entity = PeerChannel(int(channel_name)) if channel_name.isdigit() else channel_name
     my_channel = await client.get_entity(entity)
@@ -34,7 +40,7 @@ async def scrape_telegram_headlines(client):
     limit = 100
     all_messages = []
     today = datetime.today()
-    start_date = today - relativedelta(months=6)
+    start_date = today - relativedelta(days=days_to_scrape)
 
     while True:
         history = await client(GetHistoryRequest(
@@ -89,8 +95,20 @@ async def get_stock_summary(ticker, openai_api_key):
     api_hash = os.getenv("API_HASH")
     string_session = os.getenv("STRING_SESSION")
 
-    client = await initialise_telegram_client(api_id, api_hash, string_session)
-    headlines = await scrape_telegram_headlines(client)
+    today = datetime.today()
+    headlines = db.get_headlines(ticker, today - relativedelta(months=6))
+    logger.info(f"Found {len(headlines)} headlines for {ticker} in the last 6 months.")
+    last_headlines_date = datetime.fromisoformat(headlines[-1]["date"]).replace(tzinfo=None) if headlines else None
+
+    if not headlines or last_headlines_date <= (today - relativedelta(hours=6)):
+        client = await initialise_telegram_client(api_id, api_hash, string_session)
+        days_to_scrape = (today - last_headlines_date).days + 1 if headlines else 180
+        logger.info(f"Last headlines date: {last_headlines_date}. Scraping {days_to_scrape} days of headlines for {ticker}.")
+        extra = await scrape_telegram_headlines(client, days_to_scrape)
+        logger.info(f"Scraped {len(extra)} new headlines for {ticker} in the last 6 months.")
+        db.save_headlines(ticker, extra)
+        headlines.extend(extra)
+        await client.disconnect()
+
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
-    await client.disconnect()
     return summary

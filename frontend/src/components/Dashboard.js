@@ -79,21 +79,12 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       setLoadingHolistic(true);
 
       try {
-        try { // STOCK HISTORY PART: i think can combine with the ones below to make it neater
-          const historyRes = await fetch('http://127.0.0.1:5000/api/stock-history', {
+        const [historyRes, scoresRes, reportRes, mediaRes] = await Promise.all([
+          fetch('http://127.0.0.1:5000/api/stock-history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker, timeframe }),
-          })
-          const historyData = await historyRes.json();
-          setStockHistory(historyData.recommendation || 'No stock history available.');
-        } catch {
-          setStockHistory('Error loading stock history.');
-        } finally {
-          setLoadingStockHistory(false);
-        }
-
-        const [scoresRes, reportRes, holisticRes, mediaRes] = await Promise.all([
+          }),
           fetch('http://127.0.0.1:5000/api/esg-scores', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -104,17 +95,32 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker }),
           }),
-          fetch('http://127.0.0.1:5000/api/holistic-summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker, timeframe }),
-          }),
           fetch('http://127.0.0.1:5000/api/media-sentiment-summary', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker })
           })
         ]);
+
+        // STOCK HISTORY
+        try {
+          const historyData = await historyRes.json();
+          setStockHistory(historyData.recommendation || 'No stock history available.');
+        } catch {
+          setStockHistory('Error loading stock history.');
+        } finally {
+          setLoadingStockHistory(false);
+        }
+
+        // MEDIA SENTIMENT
+        try {
+          const headlinesData = await mediaRes.json();
+          setMediaSentiment(headlinesData.summary || 'No media headlines available.')
+        } catch {
+          setMediaSentiment('Error loading media headlines.');
+        } finally {
+          setLoadingMediaSentiment(false);
+        }
 
         // ESG Scores
         try {
@@ -138,6 +144,11 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         
         // HOLISTIC SUMMARY
         try {
+          const holisticRes = await fetch('http://127.0.0.1:5000/api/holistic-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker, timeframe }),
+          })
           const holisticData = await holisticRes.json();
           setHolisticSummary(holisticData.summary || 'No summary available.');
         } catch {
@@ -145,18 +156,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
         } finally {
           setLoadingHolistic(false);
         }
-
-        // MEDIA SENTIMENT
-        try {
-          const headlinesData = await mediaRes.json();
-          setMediaSentiment(headlinesData.summary || 'No media headlines available.')
-        } catch {
-          setMediaSentiment('Error loading media headlines.');
-        } finally {
-          setLoadingMediaSentiment(false);
-        }
-
-
       } catch {
         
       }
