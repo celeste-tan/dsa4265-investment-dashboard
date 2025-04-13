@@ -45,6 +45,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [loadingChart, setLoadingChart] = useState(false);
 
   const [esgScores, setEsgScores] = useState(null);
+  const [esgScoresLoaded, setEsgScoresLoaded] = useState(false);
   const [esgReport, setEsgReport] = useState(null);
   const [stockHistory, setStockHistory] = useState(null);
   const [mediaSentiment, setMediaSentiment] = useState(null);
@@ -57,6 +58,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [financialSummary, setFinancialSummary] = useState(null);
   const [financialInsight, setFinancialInsight] = useState(null);
   const [loadingFinancials, setLoadingFinancials] = useState(false);
+  const [loadingFinancialData, setLoadingFinancialData] = useState(false);
 
   const [showFinancialModal, setShowFinancialModal] = useState(false);
   const [showESGModal, setShowESGModal] = useState(false);
@@ -72,23 +74,17 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     if (!ticker) return;
 
     const fetchData = async () => {
-      setLoadingScores(true);
       setLoadingReport(true);
       setLoadingStockHistory(true);
       setLoadingMediaSentiment(true);
       setLoadingHolistic(true);
 
       try {
-        const [historyRes, scoresRes, reportRes, mediaRes] = await Promise.all([
+        const [historyRes, reportRes, mediaRes] = await Promise.all([
           fetch('http://127.0.0.1:5000/api/stock-history', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker, timeframe }),
-          }),
-          fetch('http://127.0.0.1:5000/api/esg-scores', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker }),
           }),
           fetch('http://127.0.0.1:5000/api/esg-gen-report', {
             method: 'POST',
@@ -110,16 +106,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           setStockHistory('Error loading stock history.');
         } finally {
           setLoadingStockHistory(false);
-        }
-
-        // ESG Scores
-        try {
-          const scoresData = await scoresRes.json();
-          setEsgScores(scoresData.esg_scores || {});
-        } catch {
-          setEsgScores(null);
-        } finally {
-          setLoadingScores(false);
         }
 
         // MEDIA SENTIMENT
@@ -166,6 +152,55 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   }, [ticker, timeframe]);
 
   useEffect(() => {
+    if (!ticker) return;
+
+    const fetchMetrics = async () => {
+      setLoadingFinancialData(true);
+      setFinancialData([]);
+      try {
+        const period = timeframe === 'long-term' ? '5y' : '1y';
+        const res = await fetch('http://127.0.0.1:5000/api/financial-chart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker, period }),
+        })
+        const chartData = await res.json();
+        setFinancialData(chartData.data || []);
+      } catch {
+        setFinancialData([]);
+      } finally {
+        setLoadingFinancialData(false);
+      }
+    };
+
+    fetchMetrics();
+  }, [ticker, chartPeriod]);
+
+  useEffect(() => {
+    if (!ticker) return;
+
+    const fetchEsgScores = async () => {
+      setLoadingScores(true);
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/esg-scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker }),
+        })
+        const scoresData = await res.json();
+        setEsgScores(scoresData.esg_scores || {});
+        setEsgScoresLoaded(true);
+      } catch {
+        setEsgScores({});
+      } finally {
+        setLoadingScores(false);
+      }
+    };
+
+    fetchEsgScores();
+  }, [ticker, chartPeriod]);
+
+  useEffect(() => {
     if (!ticker || !chartPeriod) return;
 
     const fetchChartData = async () => {
@@ -200,29 +235,20 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       try {
         const period = timeframe === 'long-term' ? '5y' : '1y';
 
-        const [chartRes, recRes] = await Promise.all([
-          fetch('http://127.0.0.1:5000/api/financial-chart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker, period }),
-          }),
+        const [recRes] = await Promise.all([
           fetch('http://127.0.0.1:5000/api/financial-recommendation', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ticker, period }),
           }),
         ]);
-
-        const chartData = await chartRes.json();
         const recData = await recRes.json();
 
-        setFinancialData(chartData.data || []);
         setFinancialSummary(recData.summary || 'No summary available.');
         setFinancialInsight(recData.commentary || 'No commentary available.');
       } catch {
         setFinancialSummary('Error loading financial summary.');
         setFinancialInsight('Error loading financial insight.');
-        setFinancialData([]);
       } finally {
         setLoadingFinancials(false);
       }
@@ -316,7 +342,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
               ℹ️
             </button>
           </h2>
-          {loadingFinancials ? (
+          {loadingFinancialData ? (
             <p>Loading financial chart...</p>
           ) : (
             <ResponsiveContainer width="100%" height={300}>
@@ -345,16 +371,18 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
               ℹ️
             </button>
           </h2>
-          {loadingScores || loadingReport ? (
-            <p>Loading ESG data...</p>
-          ) : (
-            esgScores && (
+          {!esgScoresLoaded ? (
+            loadingScores ? (
+              <p>Loading ESG data...</p>
+            ) : (
+              <p>No ESG data available.</p>
+            )) : (
               <>
                 <ul><strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}</ul>
                 <ESGPieChart data={esgScores} />
               </>
             )
-          )}
+          }
         </div>
       </div>
 

@@ -220,7 +220,7 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
     logger.info(f"Found {len(headlines)} headlines for {ticker} in the last 6 months.")
     last_headlines_date = datetime.fromisoformat(headlines[-1]["date"]).replace(tzinfo=None) if headlines else None
 
-    if not headlines or last_headlines_date <= (today - relativedelta(hours=12)):
+    if not headlines or last_headlines_date <= (today - relativedelta(hours=6)):
         client = await initialise_telegram_client(api_id, api_hash, phone, username)
         days_to_scrape = (today - last_headlines_date).days + 1 if headlines else 180
         logger.info(f"Last headlines date: {last_headlines_date}. Scraping {days_to_scrape} days of headlines for {ticker}.")
