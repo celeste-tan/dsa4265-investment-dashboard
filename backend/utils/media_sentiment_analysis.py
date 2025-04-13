@@ -221,14 +221,17 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
     last_headlines_date = datetime.fromisoformat(headlines[-1]["date"]).replace(tzinfo=None) if headlines else None
 
     if not headlines or last_headlines_date <= (today - relativedelta(hours=6)):
-        client = await initialise_telegram_client(api_id, api_hash, phone, username)
-        days_to_scrape = (today - last_headlines_date).days + 1 if headlines else 180
-        logger.info(f"Last headlines date: {last_headlines_date}. Scraping {days_to_scrape} days of headlines for {ticker}.")
-        extra = await scrape_telegram_headlines(client, days_to_scrape)
-        logger.info(f"Scraped {len(extra)} new headlines for {ticker} in the last 6 months.")
-        db.save_headlines(ticker, extra)
-        headlines.extend(extra)
-        await client.disconnect()
+        try:
+            client = await initialise_telegram_client(api_id, api_hash, phone, username)
+            days_to_scrape = (today - last_headlines_date).days + 1 if headlines else 180
+            logger.info(f"Last headlines date: {last_headlines_date}. Scraping {days_to_scrape} days of headlines for {ticker}.")
+            extra = await scrape_telegram_headlines(client, days_to_scrape)
+            logger.info(f"Scraped {len(extra)} new headlines for {ticker} in the last 6 months.")
+            db.save_headlines(ticker, extra)
+            headlines.extend(extra)
+            await client.disconnect()
+        except Exception as e:
+            logger.error(f"Error scraping headlines: {e}")
 
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
     
