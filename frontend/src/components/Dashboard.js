@@ -73,87 +73,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   useEffect(() => {
     if (!ticker) return;
 
-    const fetchData = async () => {
-      setLoadingReport(true);
-      setLoadingStockHistory(true);
-      setLoadingMediaSentiment(true);
-      setLoadingHolistic(true);
-
-      try {
-        const [historyRes, reportRes, mediaRes] = await Promise.all([
-          fetch('http://127.0.0.1:5000/api/stock-history', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker, timeframe }),
-          }),
-          fetch('http://127.0.0.1:5000/api/esg-gen-report', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker }),
-          }),
-          fetch('http://127.0.0.1:5000/api/media-sentiment-summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker })
-          })
-        ]);
-
-        // STOCK HISTORY
-        try {
-          const historyData = await historyRes.json();
-          setStockHistory(historyData.recommendation || 'No stock history available.');
-        } catch {
-          setStockHistory('Error loading stock history.');
-        } finally {
-          setLoadingStockHistory(false);
-        }
-
-        // MEDIA SENTIMENT
-        try {
-          const headlinesData = await mediaRes.json();
-          setMediaSentiment(headlinesData.summary || 'No media headlines available.')
-        } catch {
-          setMediaSentiment('Error loading media headlines.');
-        } finally {
-          setLoadingMediaSentiment(false);
-        }
-        
-        // ESG Report
-        try {
-          const reportData = await reportRes.json();
-          setEsgReport(reportData.report || 'No ESG report available.');
-        } catch {
-          setEsgReport('Error loading ESG report.');
-        } finally {
-          setLoadingReport(false);
-        }
-        
-        // HOLISTIC SUMMARY
-        try {
-          const holisticRes = await fetch('http://127.0.0.1:5000/api/holistic-summary', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticker, timeframe }),
-          })
-          const holisticData = await holisticRes.json();
-          setHolisticSummary(holisticData.summary || 'No summary available.');
-        } catch {
-          setHolisticSummary('Error loading holistic summary.');
-        } finally {
-          setLoadingHolistic(false);
-        }
-      } catch {
-        
-      }
-      if (onAllDataLoaded) onAllDataLoaded();
-    };
-
-    fetchData();
-  }, [ticker, timeframe]);
-
-  useEffect(() => {
-    if (!ticker) return;
-
     const fetchMetrics = async () => {
       setLoadingFinancialData(true);
       setFinancialData([]);
@@ -255,6 +174,102 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     };
 
     fetchFinancialData();
+  }, [ticker, timeframe]);
+
+  // STOCK HISTORY
+  useEffect(() => {
+    if (!ticker || !timeframe) return;
+
+    const fetchStockHistory = async () => {
+      setLoadingStockHistory(true);
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/stock-history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker, timeframe }),
+        });
+        const data = await res.json();
+        setStockHistory(data.recommendation || 'No stock history available.');
+      } catch {
+        setStockHistory('Error loading stock history.');
+      } finally {
+        setLoadingStockHistory(false);
+      }
+    };
+
+    fetchStockHistory();
+  }, [ticker, timeframe]);
+
+  // ESG REPORT
+  useEffect(() => {
+    if (!ticker) return;
+
+    const fetchEsgReport = async () => {
+      setLoadingReport(true);
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/esg-gen-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker }),
+        });
+        const data = await res.json();
+        setEsgReport(data.report || 'No ESG report available.');
+      } catch {
+        setEsgReport('Error loading ESG report.');
+      } finally {
+        setLoadingReport(false);
+      }
+    };
+
+    fetchEsgReport();
+  }, [ticker]);
+
+  // MEDIA SENTIMENT
+  useEffect(() => {
+    if (!ticker) return;
+
+    const fetchMediaSentiment = async () => {
+      setLoadingMediaSentiment(true);
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/media-sentiment-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker }),
+        });
+        const data = await res.json();
+        setMediaSentiment(data.summary || 'No media headlines available.');
+      } catch {
+        setMediaSentiment('Error loading media headlines.');
+      } finally {
+        setLoadingMediaSentiment(false);
+      }
+    };
+
+    fetchMediaSentiment();
+  }, [ticker]);
+
+  // HOLISTIC SUMMARY
+  useEffect(() => {
+    if (!ticker || !timeframe) return;
+
+    const fetchHolisticSummary = async () => {
+      setLoadingHolistic(true);
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/holistic-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker, timeframe }),
+        });
+        const data = await res.json();
+        setHolisticSummary(data.summary || 'No summary available.');
+      } catch {
+        setHolisticSummary('Error loading holistic summary.');
+      } finally {
+        setLoadingHolistic(false);
+      }
+    };
+
+    fetchHolisticSummary();
   }, [ticker, timeframe]);
 
   const renderTabs = () => {
