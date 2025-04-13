@@ -81,31 +81,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   useEffect(() => {
     if (!ticker) return;
 
-    const fetchMetrics = async () => {
-      setLoadingFinancialData(true);
-      setFinancialData([]);
-      try {
-        const period = timeframe === 'long-term' ? '5y' : '1y';
-        const res = await fetch('http://127.0.0.1:5000/api/financial-chart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ticker, period }),
-        })
-        const chartData = await res.json();
-        setFinancialData(chartData.data || []);
-      } catch {
-        setFinancialData([]);
-      } finally {
-        setLoadingFinancialData(false);
-      }
-    };
-
-    fetchMetrics();
-  }, [ticker, chartPeriod]);
-
-  useEffect(() => {
-    if (!ticker) return;
-
     const fetchEsgScores = async () => {
       setLoadingScores(true);
       try {
@@ -151,11 +126,35 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   }, [ticker, chartPeriod]);
 
   useEffect(() => {
+    if (!ticker) return;
+
+    const fetchMetrics = async () => {
+      setLoadingFinancialData(true);
+      setFinancialData([]);
+      try {
+        const period = timeframe === 'long-term' ? '5y' : '1y';
+        const res = await fetch('http://127.0.0.1:5000/api/financial-chart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ticker, period }),
+        })
+        const chartData = await res.json();
+        setFinancialData(chartData.data || []);
+      } catch {
+        setFinancialData([]);
+      } finally {
+        setLoadingFinancialData(false);
+      }
+    };
+
+    fetchMetrics();
+  }, [ticker, chartPeriod]);
+
+  useEffect(() => {
     if (!ticker || !financialView) return;
 
     const fetchFinancialData = async () => {
       setLoadingFinancials(true);
-      setFinancialData([]);
       setFinancialInsight(null);
       setFinancialSummary(null);
 
@@ -450,7 +449,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
 )}
 </div>
 
-        <div className="card">
+        {/* <div className="card">
           <h2>
             Financial Metrics Trends
             <button className="info-icon" onClick={() => setShowFinancialModal(true)} disabled={loadingFinancials || !financialInsight}>
@@ -477,7 +476,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
               </LineChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </div> */}
 
         <div className="card">
           <h2>
