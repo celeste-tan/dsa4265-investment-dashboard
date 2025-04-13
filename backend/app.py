@@ -42,6 +42,8 @@ from utils.financial_summary import (
     generate_ai_investment_commentary,
     filter_financial_data_by_period 
 )
+from utils.media_sentiment_analysis import initialise_telegram_client
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -52,6 +54,11 @@ app.config.from_object(Config)
 
 # Initialize database
 db.init_app(app)
+
+# ==================== HEALTH ENDPOINT ====================
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "ok"}), 200
 
 # ==================== ESG ENDPOINTS ====================
 
@@ -139,53 +146,70 @@ def generate_esg_report():
 
 @app.route("/api/stock-chart", methods=["POST"])
 def stock_chart():
-    """Endpoint 3: Get historical price data with caching"""
     data = request.json
     ticker = data.get("ticker")
     period = data.get("period", app.config['DEFAULT_PERIOD'])
-    logger.info(f"stock_chart: {ticker} {period}")
 
     if not ticker:
         return jsonify({"error": "Ticker is required"}), 400
 
     try:
-        # Determine date range
-        end_date = datetime.now().strftime('%Y-%m-%d')
+        # --- 1D special handling ---
         if period == "1d":
-            start_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-        elif period == "5d":
-            start_date = (datetime.now() - timedelta(weeks=1)).strftime('%Y-%m-%d')
-        elif period == "1mo":
-            start_date = (datetime.now() - timedelta(weeks=4)).strftime('%Y-%m-%d')
-        elif period == "1y":
-            start_date = (datetime.now() - timedelta(weeks=52)).strftime('%Y-%m-%d')
-        else:
-            start_date = (datetime.now() - timedelta(weeks=52)).strftime('%Y-%m-%d')  # Default to 1 year
-        # start_date, end_date = get_date_range(period)
+            df = stock_history.fetch_stock_data(ticker, "1d")
+            prices = []
+            for index, row in df.iterrows():
+                formatted_time = index.strftime('%H:%M')  # minute granularity
+                prices.append({
+                    "date": formatted_time,
+                    "close": round(row["Close"], 2)
+                })
+            return jsonify({"prices": prices})
 
-        # Fetch fresh data and store in db
-        logger.info(f"Getting fresh stock prices for {ticker} ({period}) from {start_date} to {end_date}...")
-        df = stock_history.fetch_stock_data(ticker, period, start_date, end_date)
+        # === Regular DB storage for other periods ===
+        db_start_date = db.get_earliest_price_date(ticker)
+        db_end_date = db.get_latest_price_date(ticker)
+
+        if not db_start_date or not db_end_date:
+            start_date = "2009-10-03"
+        else:
+            start_date = (datetime.strptime(db_end_date, "%Y-%m-%d") + timedelta(days=1)).strftime("%Y-%m-%d")
+
+        end_date = datetime.now().strftime("%Y-%m-%d")
+
+        if start_date <= end_date:
+            df = stock_history.fetch_stock_data(ticker, "15y", start_date, end_date)
+            for index, row in df.iterrows():
+                db.insert_stock_price(
+                    ticker=ticker,
+                    date=index.strftime('%Y-%m-%d'),
+                    open_price=row["Open"],
+                    high=row["High"],
+                    low=row["Low"],
+                    close=row["Close"],
+                    volume=row["Volume"]
+                )
+
+        # Cut period using calendar-based logic
+        period_map = {
+            "5d": 7, "1mo": 30, "3mo": 90, "1y": 365,
+            "5y": 365 * 5, "10y": 365 * 10, "15y": 365 * 15
+        }
+
+        num_days = period_map.get(period, 365)
+        start_cutoff = (datetime.now() - timedelta(days=num_days * 1.5)).strftime("%Y-%m-%d")
+        raw_prices = db.get_stock_prices(ticker, start_date=start_cutoff)
+
         prices = []
-        for index, row in df.iterrows():
-            date_str = index.strftime('%Y-%m-%d')
+        for p in raw_prices:
+            formatted_date = p["date"]
             prices.append({
-                "date": date_str,
-                "close": round(row["Close"], 2)
+                "date": formatted_date,
+                "close": round(p["close"], 2)
             })
-            # Store in database
-            db.insert_stock_price(
-                ticker=ticker,
-                date=date_str,
-                open_price=row["Open"],
-                high=row["High"],
-                low=row["Low"],
-                close=row["Close"],
-                volume=row["Volume"]
-            )
-        if prices:
-            logger.info(f"Data for ticker {ticker}: {prices[0]}, {prices[-1]}")
+
         return jsonify({"prices": prices})
+
     except Exception as e:
         logger.error(f"Stock chart error: {str(e)}")
         return jsonify({
@@ -272,79 +296,44 @@ def financial_recommendation():
 
 @app.route("/api/media-sentiment-summary", methods=["POST"])
 def get_media_sentiment():
-    """Endpoint 5: Get news sentiment analysis with caching"""
+    from utils import media_sentiment_analysis  # delayed import to avoid circular dependency
+
     data = request.json
     ticker = data.get("ticker", "").upper()
-
     if not ticker:
         return jsonify({"error": "Missing ticker"}), 400
 
     try:
-        # Check for cached news (last 30 days)
+        # Check cached news
         news_articles = db.get_news_articles(ticker, days=app.config['NEWS_LOOKBACK_DAYS'])
-        logger.info(f"news_articles: {news_articles}")
-        
         if not news_articles:
-            # Scrape fresh news if none in cache
             try:
-                news_articles = asyncio.run(
-                    media_sentiment_analysis.scrape_telegram_headlines()
-                )
-            except Exception as scrape_error:
-                logger.error(f"Failed to scrape Telegram headlines: {str(scrape_error)}")
-                return jsonify({
-                    "error": "Failed to fetch news articles",
-                    "details": str(scrape_error)
-                }), 500
-
-            # Store new articles with individual error handling
-            successful_inserts = 0
-            for article in news_articles:
-                try:
-                    db.insert_news_article(
-                        ticker=ticker,
-                        title=article.get('title'),
-                        source="Telegram",
-                        url=article.get('url'),
-                        published_date=article.get('date'),
-                        content=article.get('content'),
-                        sentiment_score=None
+                summary = asyncio.run(
+                    media_sentiment_analysis.get_stock_summary(
+                        ticker,
+                        app.config['OPENAI_API_KEY']
                     )
-                    successful_inserts += 1
-                except Exception as insert_error:
-                    logger.error(f"Failed to insert article {article.get('url')}: {str(insert_error)}")
-                    continue
-            
-            if successful_inserts == 0:
-                return jsonify({
-                    "error": "Failed to store any news articles",
-                    "details": "Database insertion failed for all articles"
-                }), 500
-
-        # Generate summary
-        try:
-            summary = asyncio.run(
-                media_sentiment_analysis.get_stock_summary(
-                    ticker,
-                    app.config['OPENAI_API_KEY']
                 )
-            )
-            return jsonify({"summary": summary})
-            
-        except Exception as analysis_error:
-            logger.error(f"Sentiment analysis failed: {str(analysis_error)}")
-            return jsonify({
-                "error": "Failed to generate sentiment analysis",
-                "details": str(analysis_error)
-            }), 500
-
+                return jsonify({"summary": summary})
+            except Exception as scrape_err:
+                logger.error(f"Failed to scrape and summarize: {scrape_err}")
+                return jsonify({"error": "Scraping failed", "details": str(scrape_err)}), 500
+        else:
+            try:
+                summary = asyncio.run(
+                    media_sentiment_analysis.get_stock_summary(
+                        ticker,
+                        app.config['OPENAI_API_KEY']
+                    )
+                )
+                return jsonify({"summary": summary})
+            except Exception as e:
+                logger.error(f"Summarization failed: {e}")
+                return jsonify({"error": "Failed to summarize", "details": str(e)}), 500
     except Exception as e:
         logger.error(f"Unexpected error in media sentiment endpoint: {str(e)}")
-        return jsonify({
-            "error": "Internal server error",
-            "details": "An unexpected error occurred"
-        }), 500
-    
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+
 # At A Glance Holistic Summary
 @app.route("/api/holistic-summary", methods=["POST"])
 def holistic_summary():
@@ -364,7 +353,6 @@ def holistic_summary():
             "error": "Failed to generate holistic analysis",
             "details": str(e) if app.config['DEBUG'] else None
         }), 500
-
-
+     
 if __name__ == "__main__":
     app.run(debug=True)

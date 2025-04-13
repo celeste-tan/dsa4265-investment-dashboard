@@ -11,10 +11,11 @@ class Config:
     # API Keys
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
     ESG_API_TOKEN = os.getenv("ESG_API_TOKEN")
-    TELEGRAM_API_ID = os.getenv("TELEGRAM_API_ID")
-    TELEGRAM_API_HASH = os.getenv("TELEGRAM_API_HASH")
-    TELEGRAM_PHONE = os.getenv("TELEGRAM_PHONE")
+    API_ID = os.getenv("API_ID")
+    API_HASH = os.getenv("API_HASH")
+    PHONE = os.getenv("PHONE")
     
     # Defaults
     DEFAULT_PERIOD = "1y"
     DEFAULT_NEWS_DAYS = 30
+    NEWS_LOOKBACK_DAYS = 30

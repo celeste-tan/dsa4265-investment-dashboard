@@ -219,6 +219,31 @@ class InvestmentDB:
         except sqlite3.Error as e:
             logger.error(f"Error getting latest financial date: {e}")
             return None
+    def get_earliest_price_date(self, ticker: str) -> str:
+        """Return the earliest date for which stock price is stored for a given ticker."""
+        try:
+            cursor = self.conn.execute(
+                '''SELECT MIN(date) FROM stock_prices WHERE ticker = ?''',
+                (ticker,)
+            )
+            result = cursor.fetchone()[0]
+            return result if result else None
+        except sqlite3.Error as e:
+            logger.error(f"Error getting earliest price date for {ticker}: {e}")
+            return None
+
+    def get_latest_price_date(self, ticker: str) -> str:
+        """Return the latest date for which stock price is stored for a given ticker."""
+        try:
+            cursor = self.conn.execute(
+                '''SELECT MAX(date) FROM stock_prices WHERE ticker = ?''',
+                (ticker,)
+            )
+            result = cursor.fetchone()[0]
+            return result if result else None
+        except sqlite3.Error as e:
+            logger.error(f"Error getting latest price date for {ticker}: {e}")
+            return None
 
     def close(self, exception=None):
         if self.conn:
