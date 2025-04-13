@@ -1,0 +1,9 @@
+{
+    "Ticker": "QQQ",
+    "Generated Analysis": "No recent headlines found for QQQ.",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation": {
+        "Score": 0.0,
+        "Explanation": "The generated report states that there are no recent headlines found for QQQ, but it does not provide any context or reference to support this claim. Additionally, without any actual reference headlines to assess, the report lacks grounding in data and fails to accurately reflect the situation regarding QQQ. Therefore, it is not faithful to the expected reporting standards."
+    }
+}

@@ -42,7 +42,9 @@ from utils.financial_summary import (
     generate_ai_investment_commentary,
     filter_financial_data_by_period 
 )
+from utils.financial_summary import get_full_annual_data 
 from utils.media_sentiment_analysis import initialise_telegram_client
+import yfinance as yf
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -231,41 +233,73 @@ def get_stock_history():
 
 # Finanical Summary
 # 1 Chart Data
-@app.route("/api/financial-chart", methods=["POST"])
-def financial_chart():
-    data = request.json
-    ticker = data.get("ticker", "").upper()
-    period = data.get("period", "1y")
 
-    if not ticker:
-        return jsonify({"error": "Missing ticker symbol"}), 400
+@app.route('/api/financial-chart', methods=['POST'])
+def get_financial_chart():
+    data = request.get_json()
+    ticker = data.get('ticker')
+    period = data.get('period', '5y')
 
     try:
-        df_all = get_full_quarterly_data(ticker)
-        df = filter_financial_data_by_period(df_all, period)
+        yf_ticker = yf.Ticker(ticker)
 
-        # Drop rows with any NaN values to avoid frontend issues
-        print("✅ Original rows:", len(df))
-        df = df.dropna()
-        print("🧹 Cleaned rows:", len(df))
+        # Select annual or quarterly
+        if period in ['5y', '10y', '15y']:
+            df = get_full_annual_data(ticker)
+            return jsonify({
+                "data": [
+                    {
+                        "label": row["Year"],
+                        "revenue": row["Revenue"],
+                        "net_income": row["Net Income"],
+                        "free_cash_flow": row["Free Cash Flow"]
+                    }
+                    for _, row in df.iterrows()
+                ]
+            })
+        else:
+            df = get_full_quarterly_data(ticker)
+            return jsonify({
+                "data": [
+                    {
+                        "label": row["Quarter"],
+                        "revenue": row["Revenue"],
+                        "net_income": row["Net Income"],
+                        "free_cash_flow": row["Free Cash Flow"]
+                    }
+                    for _, row in df.iterrows()
+                ]
+            })
+        # Defensive access
+        def safe_get(df, key):
+            return df[key] if key in df.columns else None
 
+        revenue = safe_get(income, "Total Revenue")
+        net_income = safe_get(income, "Net Income")
+        op_cf = safe_get(cashflow, "Operating Cash Flow")
+        capex = safe_get(cashflow, "Capital Expenditure")
 
-        chart_data = []
-        for _, row in df.iterrows():
-            chart_data.append({
-                "quarter": row["Quarter"],
-                "revenue": row["Revenue"],
-                "net_income": row["Net Income"],
-                "free_cash_flow": row["Free Cash Flow"]
+        if any(x is None for x in [revenue, net_income, op_cf, capex]):
+            return jsonify({ "data": [] })
+
+        free_cf = op_cf.subtract(capex, fill_value=0)
+
+        # Find common date index
+        common_idx = revenue.index.intersection(net_income.index).intersection(free_cf.index)
+
+        results = []
+        for idx in common_idx:
+            results.append({
+                "label": str(idx.date()),
+                "revenue": revenue[idx],
+                "net_income": net_income[idx],
+                "free_cash_flow": free_cf[idx]
             })
 
-        return jsonify({"data": chart_data})
+        return jsonify({ "data": results })
+
     except Exception as e:
-        logger.error(f"Financial chart error for {ticker}: {str(e)}")
-        return jsonify({
-            "error": "Failed to get financial data",
-            "details": str(e) if app.config['DEBUG'] else None
-        }), 500
+        return jsonify({ "error": str(e) }), 500
 
 
 # 2️Summary & Commentary

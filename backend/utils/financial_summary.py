@@ -37,7 +37,39 @@ def get_full_quarterly_data(ticker_symbol):
         "Net Income": net_income.values,
         "Free Cash Flow": free_cf.values
     })
+    df.dropna(subset=["Revenue", "Net Income", "Free Cash Flow"], inplace=True)
+
+
     return df.sort_values(by="Quarter")
+# Download Annual Financial Data
+def get_full_annual_data(ticker_symbol):
+    """Retrieve annual income and cash flow data and compute free cash flow."""
+    ticker = yf.Ticker(ticker_symbol)
+    income = ticker.financials.T  # Annual income statement
+    cashflow = ticker.cashflow.T  # Annual cash flow statement
+
+    def safe_get(df, col):
+        return df[col] if col in df.columns else pd.Series(dtype='float64')
+
+    revenue = safe_get(income, "Total Revenue")
+    net_income = safe_get(income, "Net Income")
+    op_cf = safe_get(cashflow, "Operating Cash Flow")
+    capex = safe_get(cashflow, "Capital Expenditure")
+    free_cf = op_cf.subtract(capex, fill_value=0)
+
+    common_index = revenue.index.intersection(net_income.index).intersection(free_cf.index)
+    revenue, net_income, free_cf = revenue[common_index], net_income[common_index], free_cf[common_index]
+
+    df = pd.DataFrame({
+        "Year": [str(date.year) for date in revenue.index],
+        "Revenue": revenue.values,
+        "Net Income": net_income.values,
+        "Free Cash Flow": free_cf.values
+    })
+    df.dropna(subset=["Revenue", "Net Income", "Free Cash Flow"], inplace=True)
+
+
+    return df.sort_values(by="Year")
 
 # Filter Data by Time Horizon
 def filter_financial_data_by_period(df, period="1y"):
@@ -55,19 +87,41 @@ def generate_financial_summary(df, ticker):
 
     df = df.dropna()
     start, end = df.iloc[0], df.iloc[-1]
+    periods = len(df)
 
     def pct_change(start_val, end_val):
         return ((end_val - start_val) / start_val) * 100 if start_val else 0
 
+    def annualized_change(start_val, end_val, periods):
+        if start_val <= 0 or periods < 2:
+            return 0
+        return ((end_val / start_val) ** (1 / (periods - 1)) - 1) * 100
+
+    rev_change = pct_change(start['Revenue'], end['Revenue'])
+    ni_change = pct_change(start['Net Income'], end['Net Income'])
+    fcf_change = pct_change(start['Free Cash Flow'], end['Free Cash Flow'])
+
+    rev_cagr = annualized_change(start['Revenue'], end['Revenue'], periods)
+    ni_cagr = annualized_change(start['Net Income'], end['Net Income'], periods)
+    fcf_cagr = annualized_change(start['Free Cash Flow'], end['Free Cash Flow'], periods)
+
+    trend = lambda pct: "increased" if pct > 0 else "decreased" if pct < 0 else "remained flat"
+
     summary = (
-        f"Over the past {len(df)} quarters, {ticker.upper()}’s revenue changed by {pct_change(start['Revenue'], end['Revenue']):.2f}%, "
-        f"net income by {pct_change(start['Net Income'], end['Net Income']):.2f}%, and free cash flow by {pct_change(start['Free Cash Flow'], end['Free Cash Flow']):.2f}%\n\n"
-        f"Latest Quarter Values:\n"
-        f"- Revenue: ${end['Revenue']:,.0f}\n"
-        f"- Net Income: ${end['Net Income']:,.0f}\n"
-        f"- Free Cash Flow: ${end['Free Cash Flow']:,.0f}"
+        f"Over the past {periods} periods, {ticker.upper()}’s financials have shown the following trends:\n\n"
+        f"- **Revenue** has {trend(rev_change)} by {abs(rev_change):.2f}%, averaging a CAGR of {rev_cagr:.2f}%.\n"
+        f"- **Net Income** has {trend(ni_change)} by {abs(ni_change):.2f}%, with an annualized change of {ni_cagr:.2f}%.\n"
+        f"- **Free Cash Flow** has {trend(fcf_change)} by {abs(fcf_change):.2f}%, with a CAGR of {fcf_cagr:.2f}%.\n\n"
+        f"📊 **Latest Reported Values:**\n"
+        f"- Revenue: **${end['Revenue']:,.0f}**\n"
+        f"- Net Income: **${end['Net Income']:,.0f}**\n"
+        f"- Free Cash Flow: **${end['Free Cash Flow']:,.0f}**\n\n"
+        f"📈 These trends may suggest {'growth momentum' if rev_cagr > 0 else 'financial headwinds'} in recent periods, "
+        f"but further qualitative analysis (e.g. margin trends or R&D expenses) is recommended."
     )
+
     return summary
+
 
 # Generate AI Commentary
 def generate_ai_investment_commentary(summary_text, api_key):
