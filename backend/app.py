@@ -323,7 +323,8 @@ def get_media_sentiment():
                 summary = asyncio.run(
                     media_sentiment_analysis.get_stock_summary(
                         ticker,
-                        app.config['OPENAI_API_KEY']
+                        app.config['OPENAI_API_KEY'],
+                        evaluate=False
                     )
                 )
                 return jsonify({"summary": summary})

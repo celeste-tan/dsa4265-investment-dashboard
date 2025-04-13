@@ -196,7 +196,7 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
     
 
 # -------------------- INCLUDE EVALUATION FUNCTION IN STOCK SUMARY --------------------
-async def get_stock_summary(ticker, openai_api_key):
+async def get_stock_summary(ticker, openai_api_key, evaluate=False):
     api_id = os.getenv("API_ID")
     api_hash = os.getenv("API_HASH")
     username = os.getenv("USERNAME")
@@ -207,7 +207,7 @@ async def get_stock_summary(ticker, openai_api_key):
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
     
     # Do faithfulness evaluation
-    if isinstance(summary, str) and not summary.lower().startswith("unable"):
+    if evaluate and isinstance(summary, str) and not summary.lower().startswith("unable"):
 
         cleaned_headlines = clean_text([
             msg.get('message') for msg in headlines if msg.get('message')
