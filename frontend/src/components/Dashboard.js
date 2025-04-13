@@ -67,10 +67,10 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
 
   useEffect(() => {
     // if all the loading states are false, call the onAllDataLoaded function
-    if (holisticSummary != '') {
+    if (holisticSummary !== '') {
       onAllDataLoaded();
     }
-  }, [holisticSummary]);
+  }, [holisticSummary, onAllDataLoaded]);
   
   useEffect(() => {
     if (!ticker) return;
@@ -132,7 +132,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
       setLoadingFinancialData(true);
       setFinancialData([]);
       try {
-        const period = timeframe === 'long-term' ? '5y' : '1y';
+        const period = financialView;
         const res = await fetch('http://127.0.0.1:5000/api/financial-chart', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -148,7 +148,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
     };
 
     fetchMetrics();
-  }, [ticker, chartPeriod]);
+  }, [ticker, chartPeriod, financialView]);
 
   useEffect(() => {
     if (!ticker || !financialView) return;
@@ -448,59 +448,63 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   </div>
 )}
 </div>
-
-        {/* <div className="card">
-          <h2>
-            Financial Metrics Trends
-            <button className="info-icon" onClick={() => setShowFinancialModal(true)} disabled={loadingFinancials || !financialInsight}>
-              ℹ️
-            </button>
-          </h2>
-          {loadingFinancialData ? (
-            <p>Loading financial chart...</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={financialData} margin={{ top: 10, right: 10, left: -20, bottom: -10 }}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="quarter" tick={{ fontSize: 12 }} />
-                <YAxis 
-                  tick={{ fontSize: 12 }} 
-                  tickFormatter={(value) => `${(value / 1_000_000).toLocaleString()}M`}
-                />
-                <Tooltip
-                  formatter={(value) => `${(value / 1_000_000).toLocaleString()}M`} 
-                />
-                <Line type="monotone" dataKey="revenue" stroke="#4460ef" strokeWidth={3} dot={false} />
-                <Line type="monotone" dataKey="net_income" stroke="#f44879" strokeWidth = {3} dot={false} />
-                <Line type="monotone" dataKey="free_cash_flow" stroke="#32c1a4" strokeWidth={3} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </div> */}
-
-        <div className="card">
-          <h2>
-            ESG Score
-            <button className="info-icon" onClick={() => setShowESGModal(true)} disabled={loadingReport || !esgReport}>ℹ️</button>
-          </h2>
-          {!esgScoresLoaded ? (
-            loadingScores ? (
-              <p>Loading ESG data...</p>
-            ) : (
-              <p>No ESG data available.</p>
-            )) : (
-              <>
-                <ul><strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}</ul>
-                <ESGPieChart data={esgScores} />
-              </>
-            )
-          }
-        </div>
-      </div>
-
-      {/* Modals (stock, financial, ESG) */}
-      {/* ...existing modal code stays unchanged... */}
+    <div className="card">
+      <h2>
+        ESG Score
+        <button className="info-icon" onClick={() => setShowESGModal(true)} disabled={loadingReport || !esgReport}>ℹ️</button>
+      </h2>
+      {!esgScoresLoaded ? (
+        loadingScores ? (
+          <p>Loading ESG data...</p>
+        ) : (
+          <p>No ESG data available.</p>
+        )) : (
+          <>
+            <ul><strong>Total ESG Risk Score:</strong> {esgScores["Total ESG Risk Score"]}</ul>
+            <ESGPieChart data={esgScores} />
+          </>
+        )
+      }
     </div>
+  </div>
+
+  <Modal isOpen={showStockModal} onRequestClose={() => setShowStockModal(false)} className="modal-content" overlayClassName="modal-overlay">
+    <h2>💡 Stock History Commentary</h2>
+    
+    <p style={{ fontSize: "14px", fontStyle: "italic", marginTop: "10px", marginBottom: "10px", color: "#ccc" }}>
+      📌 Note: Short-term (ST) insights are based on 1-year data. Long-term (LT) insights are based on 15-year data.
+    </p>
+
+    <div>
+      {stockHistory
+        ? stockHistory.split('\n\n').map((pt, i) => (
+            <ReactMarkdown key={i}>{pt}</ReactMarkdown>
+          ))
+        : <p>Loading...</p>}
+    </div>
+    <button onClick={() => setShowStockModal(false)} className="close-btn">Close</button>
+  </Modal>
+
+  <Modal isOpen={showFinancialModal} onRequestClose={() => setShowFinancialModal(false)} className="modal-content" overlayClassName="modal-overlay">
+    <h2>Financial Summary & AI Commentary</h2>
+    <div>
+      <h3>📊 Summary</h3>
+      <ReactMarkdown>{financialSummary || 'No summary available.'}</ReactMarkdown>
+
+      <h3 style={{ marginTop: '1.5rem' }}>💡 Commentary</h3>
+      <ReactMarkdown>{financialInsight || 'No commentary available.'}</ReactMarkdown>
+    </div>
+    <button onClick={() => setShowFinancialModal(false)} className="close-btn">Close</button>
+  </Modal>
+
+  <Modal isOpen={showESGModal} onRequestClose={() => setShowESGModal(false)} className="modal-content" overlayClassName="modal-overlay">
+    <h2>💡 ESG Commentary</h2>
+    <div className="esg-report">
+      {loadingReport ? <p>Loading...</p> : <pre>{esgReport}</pre>}
+    </div>
+    <button onClick={() => setShowESGModal(false)} className="close-btn">Close</button>
+  </Modal>
+  </div>
   );
 }
 
