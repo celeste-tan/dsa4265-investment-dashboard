@@ -1,0 +1,16 @@
+{
+    "Ticker": "AAPL",
+    "Generated Analysis": "\ud83d\udcc8 **AAPL Market Performance Summary:**\n\nRecently, AAPL has been navigating significant challenges, particularly with tariffs impacting iPhone sales. The company is proactively addressing these issues, such as airlifting devices from India to mitigate risks associated with potential tariff hikes from the U.S. government. However, concerns arise from major investors like Buffett signaling caution, which could affect market sentiment. \u26a0\ufe0f \n\nIt's important to note that while these headlines highlight current trends and risks, they are not definitive indicators of long-term investment performance.",
+    "Reference Headlines": [
+        "Apple airlifts 600 tonnes of iPhones from India to beat Trump tariffs sources",
+        "Apple customers dash to stores to buy iPhones ahead of tariffs",
+        "Apple blasts EU app laws after first porn app comes to iPhones",
+        "Buffetts US277b cash hoard after selling Apple is a warning",
+        "Apple said to offer US100 million to undo Indonesia iPhone 16 ban",
+        "Apple could be a major casualty of Trumps China tariffs"
+    ],
+    "Faithfulness Evaluation": {
+        "Score": 0.9,
+        "Explanation": "The generated report accurately reflects the challenges Apple is facing due to tariffs, particularly mentioning the airlifting of iPhones from India, which aligns with the reference headline about Apple airlifting devices to avoid tariffs. It also correctly notes the caution from major investors like Buffett, which is supported by the reference headline regarding Buffett's cash hoard after selling Apple shares. However, the report could have provided more specific details about the tariffs and their implications, as well as the context of the EU app laws and the Indonesia iPhone ban, which are mentioned in the reference headlines but not addressed in the summary. Overall, the report is quite faithful to the reference headlines but lacks some depth in covering all relevant aspects."
+    }
+}
