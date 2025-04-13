@@ -187,7 +187,7 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
         f"generate an accurate summary of {ticker}'s market performance, "
         "highlighting trends, risks, or positive developments. **Include appropriate emojis as this is for a dashboard.** \n\n" +
         headlines_str +
-        "\n\nKeep the summary short (2-3 sentences), focused on key insights."
+        "\n\nKeep the summary short (3-5 sentences), focused on key insights."
     )
 
     try:
@@ -202,7 +202,10 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
             frequency_penalty=0,
             presence_penalty=0
         )
-        return response.choices[0].message.content.strip()
+        raw_output = response.choices[0].message.content.strip()
+        # Remove any bold/emoji-styled header at the beginning, up to the first real sentence
+        cleaned_output = re.sub(r"^.*?\*\*(.*?)\*\*.*?(?=[A-Z])", "", raw_output, flags=re.DOTALL)
+        return cleaned_output.strip()
     except openai.error.OpenAIError as e:
         print(f"OpenAI API error: {e}")
         return "Unable to generate summary at this time due to an API error."

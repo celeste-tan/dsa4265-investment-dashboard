@@ -108,7 +108,7 @@ def generate_financial_summary(df, ticker):
     trend = lambda pct: "increased" if pct > 0 else "decreased" if pct < 0 else "remained flat"
 
     summary = (
-        f"Over the past {periods} periods, {ticker.upper()}’s financials have shown the following trends:\n\n"
+        f"Over the past {periods} quarters, {ticker.upper()}’s financials have shown the following trends:\n\n"
         f"- **Revenue** has {trend(rev_change)} by {abs(rev_change):.2f}%, averaging a CAGR of {rev_cagr:.2f}%.\n"
         f"- **Net Income** has {trend(ni_change)} by {abs(ni_change):.2f}%, with an annualized change of {ni_cagr:.2f}%.\n"
         f"- **Free Cash Flow** has {trend(fcf_change)} by {abs(fcf_change):.2f}%, with a CAGR of {fcf_cagr:.2f}%.\n\n"
