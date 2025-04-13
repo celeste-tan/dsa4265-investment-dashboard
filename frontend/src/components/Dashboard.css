@@ -137,6 +137,11 @@
   border-color: #4e73df;
 }
 
+.info-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Recharts container fix inside card */
 .card .recharts-responsive-container {
   width: 100% !important;

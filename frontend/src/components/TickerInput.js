@@ -20,7 +20,7 @@ function TickerInput({ onSubmit, loading }) {
       setTicker('');
       setSubmitted(false);
     }
-  }, [loading]);
+  }, [loading, submitted]);
 
   return (
     <form className="ticker-form" onSubmit={handleSubmit}>

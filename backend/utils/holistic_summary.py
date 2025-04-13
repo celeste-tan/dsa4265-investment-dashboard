@@ -64,7 +64,7 @@ async def get_holistic_recommendation(ticker, timeframe="short-term"):
 
     Use natural language and markdown bold formatting as shown. Be concise but informative.
 
-    Now generate your holistic summary based on:
+    Now generate your holistic summary based on the following. If any of them have an error, set them to N/A.
 
     Technical Insight:  
     {stock_rec}
