@@ -28,50 +28,47 @@ def filter_message_data(message):
         "message": message.get('message'),
     }
 
-class DateTimeEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, datetime):
-            return o.isoformat()
-        if isinstance(o, bytes):
-            return list(o)
-        return json.JSONEncoder.default(self, o)
-
-def get_channel(name):
-    match = re.search(r't\.me/([A-Za-z0-9_]+)', name)
-    return match.group(1) if match else name
-
-def split_into_headlines(messages):
-    for msg in messages:
-        if not msg.get('message'):
-            msg['headline'] = ""
-            msg['subheadline'] = ""
-            continue
-        components = msg['message'].split("\n\n", 1)
-        msg['headline'] = components[0]
-        msg['subheadline'] = components[1] if len(components) > 1 else ""
-    return messages
-
 def ticker_to_shortname(ticker):
+
+    # Custom overrides for known tickers (Google)
+    custom_overrides = {
+        "GOOGL": "Google",
+        "GOOG": "Google"
+    }
+
+    if ticker.upper() in custom_overrides:
+        return custom_overrides[ticker.upper()]
+
     try:
         stock = yf.Ticker(ticker)
         info = stock.info
         raw_name = info.get('shortName', 'N/A')
-        for suffix in ["Inc.", "Incorporated", "Corp.", "Corporation", "Ltd.", "Limited", "PLC", ","]:
+        for suffix in ["Inc.", "Incorporated", "Corp.", "Corporation", "Ltd.", "Limited", "PLC", ",", ".com", "Platforms", "Company"]:
             raw_name = raw_name.replace(suffix, "")
         return raw_name.strip()
     except Exception as e:
         print(f"Error fetching info for {ticker}: {e}")
         return None
 
-def extract_ticker_specific_headlines(company_name, headlines):
+def extract_ticker_specific_messages(company_name, headline_dict):
+    # Ensure company name is provided
     if not company_name:
         print(f"No company name provided.")
-        return []
-    return [
-        msg.get('headline') for msg in headlines
-        if msg.get('headline') and re.search(rf"\b{re.escape(company_name)}\b", msg['headline'], re.IGNORECASE)
-    ]
-
+        return {}
+    
+    # Extract the actual message content from the dictionary
+    if headline_dict.get('message'):
+        headline = headline_dict.get('message')
+        first_part = headline.split("\n\n", 1)[0]
+    
+        # Check if the message contains the company name
+        if re.search(rf"\b{re.escape(company_name)}\b", first_part, re.IGNORECASE):
+            # If it's a match, keep only relevant data in the dictionary
+            relevant_data = {key: headline_dict[key] for key in ['date', 'id'] if key in headline_dict}
+            relevant_data['message'] = first_part
+            return relevant_data
+        
+    
 def clean_text(headlines):
     for i in range(len(headlines)):
         msg = headlines[i]
@@ -86,16 +83,35 @@ def clean_text(headlines):
             headlines[i] = ""
     return headlines
 
-# ✅ Use StringSession here
-async def initialise_telegram_client(api_id, api_hash, string_session):
-    client = TelegramClient(StringSession(string_session), api_id, api_hash)
-    await client.start()
+async def initialise_telegram_client(api_id, api_hash, phone, username):
+    client = TelegramClient(username, api_id, api_hash)
+  
+    # Start the client (this may prompt for login if necessary)
+    async def start_client():
+      await client.start(phone)
+
+      # Check if user is authorized, otherwise log in
+      if not await client.is_user_authorized():
+          await client.send_code_request(phone)
+          try:
+              await client.sign_in(phone, input('Enter the code: '))
+          except SessionPasswordNeededError:
+              await client.sign_in(password=input('Password: '))
+
+    # Run the client setup asynchronously
+    await start_client()
+
     return client
 
-async def scrape_telegram_headlines(client):
+async def scrape_telegram_headlines(client, ticker):
+    """
+    Returns a dictionary, with the key being the date in ISO format and the value being the headline
+    """
+
     user_input_channel = '@BizTimes'
     entity = PeerChannel(int(user_input_channel)) if user_input_channel.isdigit() else user_input_channel
     my_channel = await client.get_entity(entity)
+    company_name = ticker_to_shortname(ticker)
 
     offset_id = 0
     limit = 100
@@ -120,41 +136,45 @@ async def scrape_telegram_headlines(client):
             break
 
         for message in history.messages:
-            filtered_message = filter_message_data(message.to_dict())
-            msg_date_str = filtered_message.get('date')
-            msg_date = datetime.fromisoformat(msg_date_str.replace("Z", "+00:00")).replace(tzinfo=None)
-            if msg_date < start_date:
-                return all_messages
-            all_messages.append(filtered_message)
+            message = message.to_dict()
+            filtered_message = filter_message_data(message)
+
+            if not filtered_message:
+                continue
+            ticker_message = extract_ticker_specific_messages(company_name,filtered_message) # returns a dictionary
+            
+            if ticker_message:
+                msg_date_str = ticker_message.get('date')
+                if msg_date_str:
+                    # To make compatible with Python's datetime, not a string anymore
+                    msg_date = datetime.fromisoformat(msg_date_str.replace("Z", "+00:00")).replace(tzinfo=None)
+                    if msg_date < start_date:
+                        return all_messages
+                    # all_messages.append(ticker_message)
+                    all_messages.append({
+                        "date": msg_date.isoformat(),
+                        "message": ticker_message.get("message")
+                    })
 
         offset_id = history.messages[-1].id
 
-    channel_name = get_channel(user_input_channel)
-    file_name = f'{channel_name}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
-    with open(file_name, 'w', encoding='utf-8') as outfile:
-        json.dump(all_messages, outfile, cls=DateTimeEncoder, indent=4, ensure_ascii=False)
-
-    print(f"Messages saved to {file_name}")
     return all_messages
 
 async def generate_stock_summary(ticker, openai_api_key, headlines):
     if not headlines:
         return f"No recent headlines found for {ticker}."
-    headlines_split = split_into_headlines(headlines)
     company_name = ticker_to_shortname(ticker)
     if not company_name:
         return f"Unable to determine company name for ticker: {ticker}"
-    headlines_to_use = extract_ticker_specific_headlines(company_name, headlines_split)
-    if not headlines_to_use:
+    if not headlines:
         return f"No relevant headlines found for {ticker} ({company_name}) in the Telegram channel."
-    headlines_to_use = clean_text(headlines_to_use)
 
     prompt = (
-        f"Based on the following headlines that are arranged from most recent to least recent, assign a sentiment to each headline - either positive, negative or neutral. "
-        f"Then, generate an accurate summary of {ticker}'s market performance, "
-        "highlighting trends, risks, or positive developments.\n\n" +
-        "\n".join([f"- {headline}" for headline in headlines_to_use]) +
-        "\n\nKeep the summary short (2-3 sentences), focused on key insights, and acknowledge the limitations of headlines as investment indicators."
+        f"Based on the following headlines which are the keys of the input dictionary that are arranged from most recent to least recent,"
+        f"generate an accurate summary of {ticker}'s market performance, "
+        "highlighting trends, risks, or positive developments. **Include appropriate emojis as this is for a dashboard.** \n\n" +
+        "\n".join([f"- {headline}" for headline in headlines]) +
+        "\n\nKeep the summary short (2-3 sentences), focused on key insights."
     )
 
     try:
@@ -173,17 +193,86 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
     except openai.error.OpenAIError as e:
         print(f"OpenAI API error: {e}")
         return "Unable to generate summary at this time due to an API error."
+    
 
-# Main Function
-nest_asyncio.apply()
-
+# -------------------- INCLUDE EVALUATION FUNCTION IN STOCK SUMARY --------------------
 async def get_stock_summary(ticker, openai_api_key):
     api_id = os.getenv("API_ID")
     api_hash = os.getenv("API_HASH")
-    string_session = os.getenv("STRING_SESSION")
+    username = os.getenv("USERNAME")
+    phone = os.getenv("PHONE")
 
-    client = await initialise_telegram_client(api_id, api_hash, string_session)
-    headlines = await scrape_telegram_headlines(client)
+    client = await initialise_telegram_client(api_id, api_hash, phone, username)
+    headlines = await scrape_telegram_headlines(client, ticker)
     summary = await generate_stock_summary(ticker, openai_api_key, headlines)
+    
+    # Do faithfulness evaluation
+    if isinstance(summary, str) and not summary.lower().startswith("unable"):
+
+        cleaned_headlines = clean_text([
+            msg.get('message') for msg in headlines if msg.get('message')
+        ])
+
+        evaluation_prompt = (
+            f"Evaluate the faithfulness of the following media analysis or summary based on the provided reference media headlines. "
+            f"Faithfulness means how accurate and grounded the report is in the actual data. "
+            f"Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\n"
+            f"Reference Headlines:\n{cleaned_headlines}\n\n"
+            f"Generated Report:\n{summary}"
+        )
+
+        try:
+            openai.api_key = openai_api_key
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a critical media headlines fact-checker assessing accuracy of media headline summaries."},
+                    {"role": "user", "content": evaluation_prompt}
+                ],
+                temperature=0.3
+            )
+            evaluation_result = response.choices[0].message.content.strip()
+
+            # Try to extract score and explanation
+            score_match = re.search(r"Score\s*[:\-]?\s*([0-1](?:\.\d+)?)", evaluation_result)
+            score = float(score_match.group(1)) if score_match else None
+
+            explanation = re.sub(r"Score\s*[:\-]?\s*[0-1](?:\.\d+)?\s*", "", evaluation_result, count=1, flags=re.IGNORECASE).strip()
+            if explanation.lower().startswith("explanation:"):
+                explanation = explanation[len("explanation:"):].strip()
+
+            # Save to JSON
+            results = {
+                "Ticker": ticker,
+                "Generated Analysis": summary,
+                "Reference Headlines": cleaned_headlines,
+                "Faithfulness Evaluation": {
+                    "Score": score,
+                    "Explanation": explanation
+                }
+            }
+
+            output_dir = os.path.join(os.path.dirname(__file__), "..", "faithfulness_eval")
+            os.makedirs(output_dir, exist_ok=True)
+
+            filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{ticker}_media_eval.json"
+            filepath = os.path.join(output_dir, filename)
+
+            with open(filepath, "w") as f:
+                json.dump(results, f, indent=4)
+
+            # print(f"Faithfulness evaluation saved to {filepath}")
+
+        except Exception as e:
+            print(f"Error evaluating faithfulness: {e}")
+
     await client.disconnect()
     return summary
+
+
+# Commented out by default, only run when evaluation needs to be done
+# if __name__ == "__main__":
+#     import json
+#     openai_api_key = os.getenv("OPENAI_API_KEY")
+#     result = asyncio.run(get_stock_summary("AAPL", openai_api_key))
+#     print(json.dumps(result, indent=2))
