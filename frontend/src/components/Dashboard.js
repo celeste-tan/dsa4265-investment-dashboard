@@ -63,6 +63,13 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
   const [showFinancialModal, setShowFinancialModal] = useState(false);
   const [showESGModal, setShowESGModal] = useState(false);
   const [showStockModal, setShowStockModal] = useState(false);
+
+  useEffect(() => {
+    // if all the loading states are false, call the onAllDataLoaded function
+    if (holisticSummary != '') {
+      onAllDataLoaded();
+    }
+  }, [holisticSummary]);
   
   useEffect(() => {
     if (!ticker) return;
