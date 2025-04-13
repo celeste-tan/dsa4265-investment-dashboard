@@ -112,16 +112,6 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           setLoadingStockHistory(false);
         }
 
-        // MEDIA SENTIMENT
-        try {
-          const headlinesData = await mediaRes.json();
-          setMediaSentiment(headlinesData.summary || 'No media headlines available.')
-        } catch {
-          setMediaSentiment('Error loading media headlines.');
-        } finally {
-          setLoadingMediaSentiment(false);
-        }
-
         // ESG Scores
         try {
           const scoresData = await scoresRes.json();
@@ -130,6 +120,16 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
           setEsgScores(null);
         } finally {
           setLoadingScores(false);
+        }
+
+        // MEDIA SENTIMENT
+        try {
+          const headlinesData = await mediaRes.json();
+          setMediaSentiment(headlinesData.summary || 'No media headlines available.')
+        } catch {
+          setMediaSentiment('Error loading media headlines.');
+        } finally {
+          setLoadingMediaSentiment(false);
         }
         
         // ESG Report

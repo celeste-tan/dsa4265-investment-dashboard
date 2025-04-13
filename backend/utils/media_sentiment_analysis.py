@@ -179,11 +179,14 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
     if not headlines:
         return f"No relevant headlines found for {ticker} ({company_name}) in the Telegram channel."
 
+    headlines_str = "\n".join([f"- {headline}" for headline in headlines])
+    headlines_str = headlines_str[:400_000]
+
     prompt = (
         f"Based on the following headlines which are the keys of the input dictionary that are arranged from most recent to least recent,"
         f"generate an accurate summary of {ticker}'s market performance, "
         "highlighting trends, risks, or positive developments. **Include appropriate emojis as this is for a dashboard.** \n\n" +
-        "\n".join([f"- {headline}" for headline in headlines]) +
+        headlines_str +
         "\n\nKeep the summary short (2-3 sentences), focused on key insights."
     )
 
@@ -288,7 +291,7 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
 
         except Exception as e:
             print(f"Error evaluating faithfulness: {e}")
-            
+
     return summary
 
 
