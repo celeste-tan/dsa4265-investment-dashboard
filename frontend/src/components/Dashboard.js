@@ -494,7 +494,7 @@ function Dashboard({ ticker, timeframe, onAllDataLoaded }) {
             >
                 <h2>💡 ESG Commentary</h2>
                 <div className="esg-report">
-                    {loadingReport ? <p>Loading...</p> : <pre>{esgReport}</pre>}
+                    {loadingReport ? <p>Loading...</p> : <ReactMarkdown>{esgReport}</ReactMarkdown>}
                 </div>
                 <button onClick={() => setShowESGModal(false)} className="close-btn">
                     Close
