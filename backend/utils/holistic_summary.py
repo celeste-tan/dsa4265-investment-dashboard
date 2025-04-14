@@ -12,7 +12,7 @@ import logging
 from utils.stock_history import get_stock_recommendation
 from utils.esg_analysis import get_esg_report
 from utils.financial_summary import generate_full_financial_summary
-from utils.media_sentiment_analysis import get_stock_summary
+from utils.media_analysis import get_stock_summary
 
 # Load environment variable
 load_dotenv()

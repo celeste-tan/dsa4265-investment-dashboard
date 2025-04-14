@@ -24,7 +24,7 @@ from database import db
 from utils import (
     esg_analysis,
     stock_history,
-    media_sentiment_analysis,
+    media_analysis,
     financial_summary,
     holistic_summary
 )
@@ -35,14 +35,14 @@ from utils.esg_analysis import get_esg_report, fetch_esg_data
 from utils.stock_history import get_stock_recommendation, fetch_stock_data, get_date_range
 import openai
 import asyncio
-from utils.media_sentiment_analysis import get_stock_summary
+from utils.media_analysis import get_stock_summary
 from utils.financial_summary import (
     get_full_quarterly_data,
     generate_financial_summary,
     generate_ai_investment_commentary,
 )
 from utils.financial_summary import get_full_annual_data 
-from utils.media_sentiment_analysis import initialise_telegram_client
+from utils.media_analysis import initialise_telegram_client
 import yfinance as yf
 
 from dotenv import load_dotenv
@@ -328,7 +328,7 @@ def financial_recommendation():
 
 @app.route("/api/media-sentiment-summary", methods=["POST"])
 def get_media_sentiment():
-    from utils import media_sentiment_analysis  # delayed import to avoid circular dependency
+    from utils import media_analysis  # delayed import to avoid circular dependency
 
     data = request.json
     ticker = data.get("ticker", "").upper()
@@ -338,7 +338,7 @@ def get_media_sentiment():
     try:
         try:
             summary = asyncio.run(
-                media_sentiment_analysis.get_stock_summary(
+                media_analysis.get_stock_summary(
                     ticker,
                     app.config['OPENAI_API_KEY']
                 )
