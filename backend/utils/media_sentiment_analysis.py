@@ -5,7 +5,7 @@ import json
 import logging
 import openai
 import asyncio
-import time
+import emoji
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from dotenv import load_dotenv
