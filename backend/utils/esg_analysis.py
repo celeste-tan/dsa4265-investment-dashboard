@@ -22,17 +22,35 @@ def fetch_esg_data(ticker):
 
         esg_transposed = esg_df.transpose().reset_index(drop=True)
         peer_controversy = esg_transposed.get("peerHighestControversyPerformance", [None])[0] or {}
+        peer_esg = esg_transposed.get("peerEsgScorePerformance", [None])[0] or {}
+        peer_env = esg_transposed.get("peerEnvironmentPerformance", [None])[0] or {}
+        peer_soc = esg_transposed.get("peerSocialPerformance", [None])[0] or {}
+        peer_gov = esg_transposed.get("peerGovernancePerformance", [None])[0] or {}
+        
 
         return {
             "Stock": ticker,
             "Total ESG Risk Score": esg_transposed.get("totalEsg", [None])[0],
+            "ESG Performance": esg_transposed.get("esgPerformance", [None])[0],
             "Environmental Risk Score": esg_transposed.get("environmentScore", [None])[0],
             "Social Risk Score": esg_transposed.get("socialScore", [None])[0],
             "Governance Risk Score": esg_transposed.get("governanceScore", [None])[0],
             "Controversy Level": esg_transposed.get("highestControversy", [None])[0],
             "Peer Controversy Min": peer_controversy.get("min"),
             "Peer Controversy Avg": peer_controversy.get("avg"),
-            "Peer Controversy Max": peer_controversy.get("max")
+            "Peer Controversy Max": peer_controversy.get("max"),
+            "Peer ESG Min": peer_esg.get("min"),
+            "Peer ESG Avg": peer_esg.get("avg"),
+            "Peer ESG Max": peer_esg.get("max"),
+            "Peer Env Min": peer_env.get("min"),
+            "Peer Env Avg": peer_env.get("avg"),
+            "Peer Env Max": peer_env.get("max"),
+            "Peer Social Min": peer_soc.get("min"),
+            "Peer Social Avg": peer_soc.get("avg"),
+            "Peer Social Max": peer_soc.get("max"),
+            "Peer Gov Min": peer_gov.get("min"),
+            "Peer Gov Avg": peer_gov.get("avg"),
+            "Peer Gov Max": peer_gov.get("max"),
         }
     except Exception as e:
         return {"error": f"Error fetching ESG data for {ticker}: {e}"}
@@ -45,16 +63,36 @@ def generate_esg_assessment(esg_data, openai_api_key):
         return esg_data["error"]
 
     prompt = (
-        f"ESG Analysis for {esg_data['Stock']}:\n"
-        f"Total ESG Risk Score: {esg_data.get('Total ESG Risk Score', 'N/A')}\n"
-        f"Environmental Risk Score: {esg_data.get('Environmental Risk Score', 'N/A')}\n"
-        f"Social Risk Score: {esg_data.get('Social Risk Score', 'N/A')}\n"
-        f"Governance Risk Score: {esg_data.get('Governance Risk Score', 'N/A')}\n"
-        f"Controversy Level: {esg_data.get('Controversy Level', 'N/A')}\n"
-        f"Peer Controversy Min: {esg_data.get('Peer Controversy Min', 'N/A')}\n"
-        f"Peer Controversy Avg: {esg_data.get('Peer Controversy Avg', 'N/A')}\n"
-        f"Peer Controversy Max: {esg_data.get('Peer Controversy Max', 'N/A')}\n\n"
-        "Based on the ESG risk scores and controversy level, provide an assessment of the company's sustainability and potential risks. Limit the output to 250 words."
+    f"ESG Analysis for {esg_data['Stock']}:\n\n"
+
+    "You must structure your response using the following exact section headers and format, without skipping or renaming any part. "
+    "Bold the section titles using Markdown (**like this**), and write the content in full sentences, integrating all relevant data. "
+    "Make sure the entire generated content is under 250 words.\n\n"
+
+    f"1️⃣ **Total ESG Score:**\n\n"
+    f"The company has a total ESG risk score of {esg_data.get('Total ESG Risk Score', 'N/A')}, "
+    f"compared to its peers with a minimum of {esg_data.get('Peer ESG Min', 'N/A')}, "
+    f"an average of {esg_data.get('Peer ESG Avg', 'N/A')}, and a maximum of {esg_data.get('Peer ESG Max', 'N/A')}. "
+    f"The ESG performance is rated as {esg_data.get('ESG Performance', 'N/A')}. Provide a brief analysis, limit to 50 words.\n\n\n"
+
+    f"2️⃣ **Breakdown of ESG Score:**\n\n"
+    f"🌱 **Environment**\n\n"
+    f"The environmental risk score is {esg_data.get('Environmental Risk Score', 'N/A')}, "
+    f"with peers ranging from {esg_data.get('Peer Env Min', 'N/A')} to {esg_data.get('Peer Env Max', 'N/A')} and an average of {esg_data.get('Peer Env Avg', 'N/A')}.\n\n\n"
+
+    f"🤝 **Social**\n\n"
+    f"The social risk score is {esg_data.get('Social Risk Score', 'N/A')}, "
+    f"compared to peer scores ranging from {esg_data.get('Peer Social Min', 'N/A')} to {esg_data.get('Peer Social Max', 'N/A')}, "
+    f"with an average of {esg_data.get('Peer Social Avg', 'N/A')}. Provide a brief analysis.\n\n\n"
+
+    f"🏛️ **Governance**\n\n"
+    f"The governance risk score stands at {esg_data.get('Governance Risk Score', 'N/A')}, "
+    f"while peers have a minimum of {esg_data.get('Peer Gov Min', 'N/A')}, an average of {esg_data.get('Peer Gov Avg', 'N/A')}, and a maximum of {esg_data.get('Peer Gov Max', 'N/A')}. Provide a brief analysis.\n\n\n"
+
+    f"3️⃣ **Controversy Level:**\n\n"
+    f"The company has a controversy level of {esg_data.get('Controversy Level', 'N/A')}, "
+    f"with peers ranging from {esg_data.get('Peer Controversy Min', 'N/A')} to {esg_data.get('Peer Controversy Max', 'N/A')}, "
+    f"and an average of {esg_data.get('Peer Controversy Avg', 'N/A')}. Provide a brief analysis, limit to 50 words.\n\n"
     )
 
     try:
@@ -71,6 +109,7 @@ def generate_esg_assessment(esg_data, openai_api_key):
 
     except Exception as e:
         return f"Error generating ESG assessment: {e}"
+
 
 # print(generate_esg_assessment(fetch_esg_data("AAPL"), "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"))
 

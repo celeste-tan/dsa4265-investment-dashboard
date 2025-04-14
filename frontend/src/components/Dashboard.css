@@ -190,3 +190,7 @@
   margin-bottom: 0.5rem;
 }
 
+.esg-report p {
+  margin-bottom: 0.5rem; /* or whatever spacing you prefer */
+  /* line-height: 1.6; */
+}
