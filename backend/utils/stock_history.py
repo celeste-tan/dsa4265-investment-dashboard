@@ -7,6 +7,9 @@ from datetime import datetime, timedelta
 import yfinance as yf
 import openai
 import pandas_market_calendars as mcal
+import os
+import re
+import json
 
 # -----------------------------
 # Date Utilities
@@ -147,7 +150,7 @@ def build_stock_prompt(ticker, summary, price, volatility, ma_short, ma_long, em
 # -----------------------------
 # Main Recommendation Function
 # -----------------------------
-def get_stock_recommendation(ticker, timeframe, openai_api_key):
+def get_stock_recommendation(ticker, timeframe, openai_api_key, evaluate=False):
     """
     Retrieves stock data, computes technical indicators with appropriate windows based on timeframe,
     and generates GPT-based bullet-point commentary.
@@ -185,6 +188,76 @@ def get_stock_recommendation(ticker, timeframe, openai_api_key):
             ],
             temperature=0.7
         )
-        return response.choices[0].message.content.strip(), summary
+
+        generated_commentary = response.choices[0].message.content.strip()
+
+        # Do faithfulness evaluation
+        if evaluate and not summary.startswith("Error"):
+            """
+            Evaluate the faithfulness of stock history commentary for a ticker by comparing them to the source stock data.
+            Saves results as a JSON file in the 'faithfulness_eval' folder.
+            """
+
+            evaluation_prompt = (
+                f"Evaluate the faithfulness of the following generated commentary based on the provided reference stock metrics."
+                f"Faithfulness means how accurate and grounded the commentary is in the actual data."
+                f"Score it from 0 to 1 (1 bring perfectly faithful), and provide a brief explanation.\n\n"
+                f"Reference Stock Metrics: \n{summary}\n\n"
+                f"Generated Commentary\n{generated_commentary}"
+            )
+
+            try:
+                openai.api_key = openai_api_key
+                response = openai.ChatCompletion.create(
+                    model="gpt-4o-mini",
+                    messages=[
+                        {"role": "system", "content": "You are a critical financial stocks metrics fact-checker assesing accuracy of stock recommendation based on these metrics."},
+                        {"role": "user", "content": evaluation_prompt}
+                    ],
+                    temperature = 0.3
+                )
+                evaluation_result = response.choices[0].message.content.strip()
+
+                # Try to extract score and explanation
+                score_match = re.search(r"Score\s*[:\-]?\s*([0-1](?:\.\d+)?)", evaluation_result)
+                score = float(score_match.group(1)) if score_match else None
+
+                explanation = re.sub(r"Score\s*[:\-]?\s*[0-1](?:\.\d+)?\s*", "", evaluation_result, count=1, flags=re.IGNORECASE).strip()
+                if explanation.lower().startswith("explanation:"):
+                    explanation = explanation[len("explanation:"):].strip()
+                
+                # Save to JSON
+                results = {
+                    "Ticker": ticker,
+                    "Generated Analysis": generated_commentary,
+                    "Reference Stock Data": summary,
+                    "Faithfulness Evaluation": {
+                        "Score": score,
+                        "Explanation": explanation
+                    }
+                }
+
+                output_dir = os.path.join(os.path.dirname(__file__), "..", "faithfulness_eval", "openai_gpt4o_mini")
+                os.makedirs(output_dir, exist_ok=True)
+
+                filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{ticker}_stock_history_openai_eval.json"
+                filepath = os.path.join(output_dir, filename)
+
+                with open(filepath, "w") as f:
+                    json.dump(results, f, indent=4)
+                
+            except Exception as e:
+                print(f"Error evaluating faithfulness: {e}")
+
+        return generated_commentary, summary
+    
     except Exception as e:
         return f"Error calling GenAI API: {e}", summary
+
+# -----------------------------------------
+# Test Evaluation (commented out by default)
+# -----------------------------------------
+# if __name__ == "__main__":
+#     openai_api_key = os.getenv("OPENAI_API_KEY")
+#     result = get_stock_recommendation("TSLA", "long-term", openai_api_key)
+#     print(json.dumps(result, indent=2))
