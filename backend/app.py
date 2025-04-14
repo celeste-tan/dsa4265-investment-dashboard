@@ -40,7 +40,6 @@ from utils.financial_summary import (
     get_full_quarterly_data,
     generate_financial_summary,
     generate_ai_investment_commentary,
-    filter_financial_data_by_period 
 )
 from utils.financial_summary import get_full_annual_data 
 from utils.media_sentiment_analysis import initialise_telegram_client

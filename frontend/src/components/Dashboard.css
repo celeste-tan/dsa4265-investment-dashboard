@@ -59,6 +59,11 @@
   color: #354dc2;
 }
 
+.info-icon:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Modal overlay */
 .modal-overlay {
   background: rgba(0, 0, 0, 0.5);
@@ -137,11 +142,6 @@
   border-color: #4e73df;
 }
 
-.info-icon:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
 /* Recharts container fix inside card */
 .card .recharts-responsive-container {
   width: 100% !important;
@@ -168,29 +168,11 @@
 /* Indented bullet points after the final recommendation */
 .holistic-summary > p:not(:first-child) {
   margin-bottom: 0.5rem;
-  padding-left: 1.5rem;     /* Adds indent */
-  text-indent: -1.3rem;     /* Hangs the bullet slightly left */
+  padding-left: 1.5rem;
+  text-indent: -1.3rem;
   line-height: 1.5;
 }
 
-/* Add top margin under the header */
-.stock-commentary h2 {
-  margin-bottom: 0.5rem;
-}
-
-/* Align bullets flush with header icon */
-.stock-commentary ul {
-  list-style-position: inside;
-  padding-left: 0;
-  margin-left: 0;
-}
-
-/* Add space between bullet points */
-.stock-commentary li {
-  margin-bottom: 0.5rem;
-}
-
 .esg-report p {
-  margin-bottom: 0.5rem; /* or whatever spacing you prefer */
-  /* line-height: 1.6; */
+  margin-bottom: 0.5rem;
 }
