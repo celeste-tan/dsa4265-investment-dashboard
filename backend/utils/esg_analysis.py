@@ -27,7 +27,6 @@ def fetch_esg_data(ticker):
         peer_soc = esg_transposed.get("peerSocialPerformance", [None])[0] or {}
         peer_gov = esg_transposed.get("peerGovernancePerformance", [None])[0] or {}
         
-
         return {
             "Stock": ticker,
             "Total ESG Risk Score": esg_transposed.get("totalEsg", [None])[0],
@@ -54,8 +53,6 @@ def fetch_esg_data(ticker):
         }
     except Exception as e:
         return {"error": f"Error fetching ESG data for {ticker}: {e}"}
-
-# print(fetch_esg_data("AAPL"))
 
 def generate_esg_assessment(esg_data, openai_api_key):
     """Generate an ESG assessment based on extracted ESG scores using OpenAI."""
@@ -110,10 +107,7 @@ def generate_esg_assessment(esg_data, openai_api_key):
     except Exception as e:
         return f"Error generating ESG assessment: {e}"
 
-
-# print(generate_esg_assessment(fetch_esg_data("AAPL"), "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"))
-
-# Wrapper
+# Wrapper function
 def get_esg_report(ticker, openai_api_key):
     esg_data = fetch_esg_data(ticker)
     return generate_esg_assessment(esg_data, openai_api_key)
@@ -130,8 +124,6 @@ def evaluate_esg_report_faithfulness(tickers, openai_api_key):
     all_results = {}
 
     for ticker in tickers:
-        #print(f"Evaluating {ticker}...")
-
         esg_data = fetch_esg_data(ticker)
         generated_report = generate_esg_assessment(esg_data, openai_api_key)
 
@@ -203,10 +195,9 @@ def evaluate_esg_report_faithfulness(tickers, openai_api_key):
     with open(filepath, "w") as f:
         json.dump(all_results, f, indent=4)
 
-    #print(f"\nFaithfulness evaluations saved to: {filepath}")
     return all_results
 
 
-# # Example usage
+# # Uncomment the following lines to get evaluation report using the openai
 # tickers_to_check = ["TSLA", "NVDA", "AAPL", "MSFT", "GOOGL ", "META", "AMZN", "PLTR ", "AMD", "NFLX"]
 # evaluate_esg_report_faithfulness(tickers_to_check, "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")

@@ -74,21 +74,6 @@ def get_esg_scores():
     try:
         # Check cache first (valid for 7 days)
         latest_date = db.get_latest_financial_metric_date(ticker)
-        # if latest_date and (datetime.now() - datetime.strptime(latest_date, '%Y-%m-%d')).days < 7:
-        #     metrics = db.get_financial_metrics(ticker)
-        #     logger.info(f"Cached ESG scores: {metrics}")
-        #     return jsonify({
-        #         "esg_scores": {
-        #             "Total": metrics.get("esg_risk_score", "N/A"),
-        #             "Environmental": metrics.get("environmental_score", "N/A"),
-        #             "Social": metrics.get("social_score", "N/A"),
-        #             "Governance": metrics.get("governance_score", "N/A"),
-        #             "Controversy": {
-        #                 "Value": metrics.get("controversy_value", "N/A"),
-        #                 "Description": metrics.get("controversy_description", "N/A")
-        #             }
-        #         }
-        #     }), 200
 
         # Fetch ESG data for the ticker
         esg_data = fetch_esg_data(ticker)
