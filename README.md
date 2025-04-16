@@ -1,12 +1,83 @@
-# Instructions
+# 💹 WealthWave Investment Dashboard
 
-## Backend
+WealthWave is a full-stack AI-powered dashboard designed to assist retail investors in making holistic, data-driven investment decisions. The platform integrates stock history, financial health, ESG ratings, and media sentiment into an intuitive interface, powered by OpenAI and real-time market data.
 
-- `cd backend`
-- If venv does not exist:
-    - `python -m venv venv`
-    - `source venv/bin/activate`
-    - `pip install -r ../requirements.txt`
-- Else:
-    = `source venv/bin/activate`
-- `python app.py`
+## 🧠 Features
+
+### 📈 Stock History Performance
+- Volatility analysis over selectable periods (1 day to 15 years)
+- AI generated technical indicators (SMA, EMA, RSI) and analysis of what those numbers mean
+
+
+### 💰 Financial Metrics
+- Key metrics visualization (revenue, net income, free cash flow)
+- AI-generated commentary on financial health
+- Historical performance trends
+
+### 🌿 ESG Insights
+- Comprehensive ESG risk scoring
+- Sub-category breakdowns (Environmental, Social, Governance)
+- Controversy tracking and alerts
+- AI generated insights to explain the numbers and their meanings
+
+### 📰 Media Analysis
+- Real-time news headline scraping via Telegram
+- Summary of news headlines over the past 6 months from The Business Times
+
+
+### ✅ Holistic Recommendation
+- GPT-4o-generated buy/hold/sell judgement
+- Multi-dimensional analysis combining all 4 outputs generated from above
+
+## ⚙️ Setup Instructions
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- npm/yarn
+- Telegram account (for news scraping)
+
+## ⚙️ Setup Instructions
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+
+- npm/yarn
+- Telegram account (for news scraping)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/<your-user>/dsa4265-investment-dashboard.git
+cd dsa4265-investment-dashboard
+
+# Set up Python virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Configure environment variables
+# Create a .env file in root folder with these contents:
+OPENAI_API_KEY="your_openai_key"
+ESG_API_TOKEN="your_esg_token"
+API_ID="your_telegram_api_id"
+API_HASH="your_telegram_api_hash"
+PHONE="your_phone_number"
+USERNAME="your_telegram_username"
+STRING_SESSION="your_telegram_string_session"
+
+# Install backend dependencies
+pip install -r requirements.txt
+
+# Start backend server
+cd backend
+python app.py
+# Backend runs at: http://127.0.0.1:5000
+
+# In a new terminal, setup frontend
+cd frontend
+npm install
+npm start
+# Frontend runs at: http://localhost:3000
+
+Note: Contact us to get access to credentials or generate your own using generate_string_session.py.
