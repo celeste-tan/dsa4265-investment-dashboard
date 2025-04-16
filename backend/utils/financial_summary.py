@@ -242,6 +242,9 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
     #print(f"\nFaithfulness evaluations saved to: {filepath}")
     return all_results
 
-# # Example usage
+# -----------------------------------------------------------------------------------------
+# Evaluation Testing (Commented out by default, only run when evaluation needs to be done)
+# -----------------------------------------------------------------------------------------
 # tickers_to_check = ["TSLA", "NVDA", "AAPL", "MSFT", "GOOGL ", "META", "AMZN", "PLTR ", "AMD", "NFLX"]
-# evaluate_financial_commentary_faithfulness(tickers_to_check, "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")
+# openai_api_key = os.getenv("OPENAI_API_KEY")
+# evaluate_financial_commentary_faithfulness(tickers_to_check, openai_api_key)
