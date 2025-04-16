@@ -254,9 +254,9 @@ def get_stock_recommendation(ticker, timeframe, openai_api_key, evaluate=False):
     except Exception as e:
         return f"Error calling GenAI API: {e}", summary
 
-# -----------------------------------------
-# Test Evaluation (commented out by default)
-# -----------------------------------------
+# -----------------------------------------------------------------------------------------
+# Evaluation Testing (Commented out by default, only run when evaluation needs to be done)
+# -----------------------------------------------------------------------------------------
 # if __name__ == "__main__":
 #     openai_api_key = os.getenv("OPENAI_API_KEY")
 #     result = get_stock_recommendation("TSLA", "long-term", openai_api_key)

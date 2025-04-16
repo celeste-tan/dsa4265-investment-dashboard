@@ -4,7 +4,6 @@ import re
 import json
 import logging
 import openai
-import asyncio
 import emoji
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -17,21 +16,26 @@ from database import db
 from telethon.sessions import StringSession
 from contractions import fix
 import yfinance as yf
+load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Helper functions
-def clean_headline(text):
-    text = re.sub(r"<.*?>", "", text)
-    text = re.sub(r"[^a-zA-Z0-9.,!? ]", "", text)
-    return text.strip()
-
-load_dotenv()
-
-############ Helper Functions ############
+# -----------------------------
+# Helper Functions
+# -----------------------------
+# def clean_headline(text):
+#     """
+#     Takes in a text
+#     """
+#     text = re.sub(r"<.*?>", "", text)
+#     text = re.sub(r"[^a-zA-Z0-9.,!? ]", "", text)
+#     return text.strip()
 
 def filter_message_data(message):
+    """
+    Only get the relevant details from a raw scraped Telegram message
+    """
     return {
         "id": message.get('id'),
         "date": message.get('date').isoformat() if message.get('date') else None,
@@ -39,7 +43,15 @@ def filter_message_data(message):
     }
 
 def ticker_to_shortname(ticker):
+    """
+    Takes in a ticker symbol and converts it to its corresponding short name
+    """
 
+    # Ensure company name is provided
+    if not ticker:
+        print("No ticker provided")
+        return None
+    
     # Custom overrides for known tickers (Google)
     custom_overrides = {
         "GOOGL": "Google",
@@ -61,9 +73,14 @@ def ticker_to_shortname(ticker):
         return None
 
 def extract_ticker_specific_messages(company_name, headline_dict):
+    """
+    Takes in the company name (eg. Tesla) and all headlines scraped.
+    Returns only ticker-specific headlines (ie. company name appears in headline)
+    """
+
     # Ensure company name is provided
     if not company_name:
-        print(f"No company name provided.")
+        print("No company name provided.")
         return {}
     
     # Extract the actual message content from the dictionary
@@ -78,8 +95,13 @@ def extract_ticker_specific_messages(company_name, headline_dict):
             relevant_data['message'] = first_part
             return relevant_data
         
-    
+
 def clean_text(headlines):
+    """
+    Takes in a list of headlines and preprocesses them in place.
+    Returns the list of cleaned headlines,
+    """
+    
     for i in range(len(headlines)):
         msg = headlines[i]
         if msg:
@@ -93,6 +115,9 @@ def clean_text(headlines):
             headlines[i] = ""
     return headlines
 
+# -----------------------------
+# Initialise Telegram Client
+# -----------------------------
 async def initialise_telegram_client(api_id, api_hash, phone, username):
     client = TelegramClient(username, api_id, api_hash)
   
@@ -113,6 +138,9 @@ async def initialise_telegram_client(api_id, api_hash, phone, username):
 
     return client
 
+# -----------------------------
+# Scraping Function
+# -----------------------------
 async def scrape_telegram_headlines(client, ticker, days_to_scrape):
     """
     Returns a dictionary, with the key being the date in ISO format and the value being the headline
@@ -160,16 +188,24 @@ async def scrape_telegram_headlines(client, ticker, days_to_scrape):
                     msg_date = datetime.fromisoformat(msg_date_str.replace("Z", "+00:00")).replace(tzinfo=None)
                     if msg_date < start_date:
                         return all_messages
-                    # all_messages.append(ticker_message)
                     all_messages.append({
                         "date": msg_date.isoformat(),
                         "message": ticker_message.get("message")
                     })
 
+                    # Clean headlines
+                    cleaned_messages = clean_text([msg.get('message') for msg in all_messages if msg.get('message')])
+                    for i in range(len(cleaned_messages)):
+                        all_messages[i]["message"] = cleaned_messages[i]
+
+                    
         offset_id = history.messages[-1].id
 
     return all_messages
 
+# -----------------------------
+# Summary Generator
+# -----------------------------
 async def generate_stock_summary(ticker, openai_api_key, headlines):
     if not headlines:
         return f"No recent headlines found for {ticker}."
@@ -203,15 +239,19 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
             presence_penalty=0
         )
         raw_output = response.choices[0].message.content.strip()
+
         # Remove any bold/emoji-styled header at the beginning, up to the first real sentence
         cleaned_output = re.sub(r"^.*?\*\*(.*?)\*\*.*?(?=[A-Z])", "", raw_output, flags=re.DOTALL)
         return cleaned_output.strip()
+    
     except openai.error.OpenAIError as e:
         print(f"OpenAI API error: {e}")
         return "Unable to generate summary at this time due to an API error."
     
 
-# -------------------- INCLUDE EVALUATION FUNCTION IN STOCK SUMARY --------------------
+# --------------------------------------------
+# Main Analysis Function, including evaluation
+# --------------------------------------------
 async def get_stock_summary(ticker, openai_api_key, evaluate=False):
     api_id = os.getenv("API_ID")
     api_hash = os.getenv("API_HASH")
@@ -241,15 +281,11 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
     # Do faithfulness evaluation
     if evaluate and isinstance(summary, str) and not summary.lower().startswith("unable"):
 
-        cleaned_headlines = clean_text([
-            msg.get('message') for msg in headlines if msg.get('message')
-        ])
-
         evaluation_prompt = (
             f"Evaluate the faithfulness of the following media analysis or summary based on the provided reference media headlines. "
             f"Faithfulness means how accurate and grounded the report is in the actual data. "
             f"Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\n"
-            f"Reference Headlines:\n{cleaned_headlines}\n\n"
+            f"Reference Headlines:\n{headlines}\n\n"
             f"Generated Report:\n{summary}"
         )
 
@@ -277,7 +313,7 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
             results = {
                 "Ticker": ticker,
                 "Generated Analysis": summary,
-                "Reference Headlines": cleaned_headlines,
+                "Reference Headlines": headlines,
                 "Faithfulness Evaluation": {
                     "Score": score,
                     "Explanation": explanation
@@ -293,7 +329,6 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
             with open(filepath, "w") as f:
                 json.dump(results, f, indent=4)
 
-            # print(f"Faithfulness evaluation saved to {filepath}")
 
         except Exception as e:
             print(f"Error evaluating faithfulness: {e}")
@@ -301,7 +336,9 @@ async def get_stock_summary(ticker, openai_api_key, evaluate=False):
     return summary
 
 
-# Commented out by default, only run when evaluation needs to be done
+# -----------------------------------------------------------------------------------------
+# Evaluation Testing (Commented out by default, only run when evaluation needs to be done)
+# -----------------------------------------------------------------------------------------
 # if __name__ == "__main__":
 #     import json
 #     openai_api_key = os.getenv("OPENAI_API_KEY")
