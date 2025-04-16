@@ -81,3 +81,40 @@ npm start
 # Frontend runs at: http://localhost:3000
 
 Note: Contact us to get access to credentials or generate your own using generate_string_session.py.
+```
+
+Note: Contact us to get access to credentials or generate your own using `generate_string_session.py`.
+
+## 📁 Folder Structure
+
+```
+dsa4265-investment-dashboard/
+├── backend/                   # FastAPI backend logic
+│   ├── app.py                 # Main entry point for the backend server
+│   └── utils/                 # Core logic for each analysis component
+│       ├── stock_history.py
+│       ├── esg_score.py
+│       ├── financial_metrics.py
+│       ├── media_analysis.py
+│       └── holistic_summary.py
+├── frontend/                  # React frontend interface
+│   ├── public/                # Static assets and index.html
+│   ├── src/
+│   │   └── components/        # React components for UI rendering
+│   │       ├── Dashboard.js         # Calls all 5 components and renders them in the dashboard
+│   │       ├── StockHistory.js
+│   │       ├── ESGScore.js
+│   │       ├── FinancialMetrics.js
+│   │       ├── MediaAnalysis.js
+│   │       └── HolisticSummary.js
+│   ├── App.js                 # Main frontend application
+│   └── index.js               # Entry point for React
+├── requirements.txt           # Python dependencies
+├── package.json               # Frontend dependencies
+├── .env                       # API credentials (excluded from version control)
+└── README.md                  # Project documentation
+```
+
+## ⚠️ Disclaimer
+
+This tool is intended for educational and informational purposes only. It does not constitute financial advice. Always consult a licensed financial advisor before making any investment decisions.
