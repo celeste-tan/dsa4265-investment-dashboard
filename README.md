@@ -34,15 +34,7 @@ WealthWave is a full-stack AI-powered dashboard designed to assist retail invest
 ### Prerequisites
 - Python 3.8+
 - Node.js 16+
-- npm/yarn
-- Telegram account (for news scraping)
-
-## ⚙️ Setup Instructions
-
-### Prerequisites
-- Python 3.8+
-- Node.js 16+
-- npm/yarn
+- npm
 - Telegram account (for news scraping)
 
 ### Installation
