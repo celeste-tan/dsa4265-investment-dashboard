@@ -194,7 +194,10 @@ async def scrape_telegram_headlines(client, ticker, days_to_scrape):
                     })
 
                     # Clean headlines
-                    all_messages = clean_text([msg.get('message') for msg in all_messages if msg.get('message')])
+                    cleaned_messages = clean_text([msg.get('message') for msg in all_messages if msg.get('message')])
+                    for i in range(len(cleaned_messages)):
+                        all_messages[i]["message"] = cleaned_messages[i]
+
                     
         offset_id = history.messages[-1].id
 
@@ -216,8 +219,7 @@ async def generate_stock_summary(ticker, openai_api_key, headlines):
     headlines_str = headlines_str[:400_000]
 
     prompt = (
-        f"Based on the following headlines which are the keys of the input dictionary that are 
-        arranged from most recent to least recent,"
+        f"Based on the following headlines which are the keys of the input dictionary that are arranged from most recent to least recent,"
         f"generate an accurate summary of {ticker}'s market performance, "
         "highlighting trends, risks, or positive developments. **Include appropriate emojis as this is for a dashboard.** \n\n" +
         headlines_str +
