@@ -1,0 +1,312 @@
+{
+    "TSLA": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nTesla has a total ESG risk score of 24.76, indicating a performance that is slightly above the average of its peers. With a score classification of AVG_PERF, it demonstrates moderate sustainability efforts relative to the industry, although improvements are necessary to enhance its overall ESG standing.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nTesla's environmental risk score of 3.04 is significantly lower than the peer average of 7.49, indicating a strong performance in environmental management. This reflects the company\u2019s commitment to sustainable energy solutions, primarily through its electric vehicle production, which contributes positively to its overall ESG profile.\n\n\ud83e\udd1d **Social**\n\nThe social risk score of 14.13 is notably higher than the peer average of 10.80, suggesting that Tesla faces considerable challenges in its social practices. Issues such as labor relations and community impact may be contributing factors, indicating the need for strategic improvements in this area.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nWith a governance risk score of 7.6, Tesla performs slightly above the average of 6.86 among its peers. This score suggests a moderate level of governance practices; however, there is room for enhancement in transparency and accountability to align more closely with best practices in corporate governance.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nTesla's controversy level of 3.0 indicates a relatively high degree of public scrutiny compared to peers, whose levels range from 0.0 to 4.0. This suggests that the company has faced notable challenges and criticisms, which could impact its reputation and stakeholder trust if not addressed effectively.",
+        "Reference ESG Data": {
+            "Stock": "TSLA",
+            "Total ESG Risk Score": 24.76,
+            "ESG Performance": "AVG_PERF",
+            "Environmental Risk Score": 3.04,
+            "Social Risk Score": 14.13,
+            "Governance Risk Score": 7.6,
+            "Controversy Level": 3.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 1.75,
+            "Peer Controversy Max": 4.0,
+            "Peer ESG Min": 8.18,
+            "Peer ESG Avg": 25.433541666666674,
+            "Peer ESG Max": 39.22,
+            "Peer Env Min": 1.46,
+            "Peer Env Avg": 7.485641025641027,
+            "Peer Env Max": 12.91,
+            "Peer Social Min": 3.03,
+            "Peer Social Avg": 10.801538461538463,
+            "Peer Social Max": 17.16,
+            "Peer Gov Min": 3.9,
+            "Peer Gov Avg": 6.862564102564104,
+            "Peer Gov Max": 9.9
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: TSLA\nTotal ESG Risk Score: 24.76\nESG Performance: AVG_PERF\nEnvironmental Risk Score: 3.04\nSocial Risk 4.13\nGovernance Risk Score: 7.6\nControversy Level: 3.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 1.75\nPeer Controversy Max: 4.0\nPeer ESG Min: 8.18\nPeer ESG Avg: 25.433541666666674\nPeer ESG Max: 39.22\nPeer Env Min: 1.46\nPeer Env Avg: 7.485641025641027\nPeer Env Max: 12.91\nPeer Social Min: 3.03\nPeer Social Avg: 10.801538461538463\nPeer Social Max: 17.16\nPeer Gov Min: 3.9\nPeer Gov Avg: 6.862564102564104\nPeer Gov Max: 9.9\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nTesla has a total ESG risk score of 24.76, indicating a performance that is slightly above the average of its peers. With a score classification of AVG_PERF, it demonstrates moderate sustainability efforts relative to the industry, although improvements are necessary to enhance its overall ESG standing.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nTesla's environmental risk score of 3.04 is significantly lower than the peer average of 7.49, indicating a strong performance in environmental management. This reflects the company\u2019s commitment to sustainable energy solutions, primarily through its electric vehicle production, which contributes positively to its overall ESG profile.\n\n\ud83e\udd1d **Social**\n\nThe social risk score of 14.13 is notably higher than the peer average of 10.80, suggesting that Tesla faces considerable challenges in its social practices. Issues such as labor relations and community impact may be contributing factors, indicating the need for strategic improvements in this area.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nWith a governance risk score of 7.6, Tesla performs slightly above the average of 6.86 among its peers. This score suggests a moderate level of governance practices; however, there is room for enhancement in transparency and accountability to align more closely with best practices in corporate governance.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nTesla's controversy level of 3.0 indicates a relatively high degree of public scrutiny compared to peers, whose levels range from 0.0 to 4.0. This suggests that the company has faced notable challenges and criticisms, which could impact its reputation and stakeholder trust if not addressed effectively.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nTesla's peer controversy min of 0.0 indicates a relatively low level of public scrutiny compared to peers, whose levels range from 0.0 to 4.0. This suggests that the company has not faced significant challenges and criticisms, which could impact its reputation and stakeholder trust if not addressed effectively.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nTesla's peer controversy average of 1.75 indicates a relatively high level of public scrutiny compared to peers, whose levels range from 0.0 to 4.0. This suggests that the company has not faced significant challenges and criticisms, which could impact its reputation and stakeholder trust if not addressed effectively.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nTesla's peer controversy max of 4.0 indicates a relatively high level of public scrutiny compared to peers, whose levels range from 0"
+        }
+    },
+    "NVDA": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nNVIDIA (NVDA) has a total ESG risk score of 12.46, significantly lower than the average of 23.42 among its peers, indicating a relatively better ESG performance. However, the rating of LAG_PERF suggests there is room for improvement in its ESG practices and strategies.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**  \nNVIDIA's environmental risk score of 2.73 is commendable, as it falls below the average of 7.94 among peers. This suggests that the company is managing its environmental impact effectively compared to others in the sector.\n\n\ud83e\udd1d **Social**  \nWith a social risk score of 4.08, NVIDIA is slightly above the peer average of 5.81. This indicates that the company faces moderate social risks, which could be an area for further development to enhance its social responsibility initiatives.\n\n\ud83c\udfdb\ufe0f **Governance**  \nNVIDIA's governance risk score of 5.65 is slightly above the peer average of 5.26. This indicates that while the company maintains robust governance practices, it still faces some challenges relative to its competitors, suggesting potential areas for governance enhancement.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nNVIDIA has a controversy level of 2.0, which is higher than the average of 0.56 among peers. This indicates that the company has encountered notable issues that could impact its reputation, highlighting the need for better management of public perception and stakeholder communication.",
+        "Reference ESG Data": {
+            "Stock": "NVDA",
+            "Total ESG Risk Score": 12.46,
+            "ESG Performance": "LAG_PERF",
+            "Environmental Risk Score": 2.73,
+            "Social Risk Score": 4.08,
+            "Governance Risk Score": 5.65,
+            "Controversy Level": 2.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.5583333333333333,
+            "Peer Controversy Max": 3.0,
+            "Peer ESG Min": 8.46,
+            "Peer ESG Avg": 23.422166666666666,
+            "Peer ESG Max": 40.69,
+            "Peer Env Min": 2.6,
+            "Peer Env Avg": 7.940566037735851,
+            "Peer Env Max": 17.23,
+            "Peer Social Min": 2.41,
+            "Peer Social Avg": 5.814905660377359,
+            "Peer Social Max": 10.28,
+            "Peer Gov Min": 2.14,
+            "Peer Gov Avg": 5.258301886792455,
+            "Peer Gov Max": 8.77
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: NVDA\nTotal ESG Risk 2.46\nESG Performance: LAG_PERF\nEnvironmental Risk Score: 2.73\nSocial Risk Score: 4.08\nGovernance Risk Score: 5.65\nControversy Level: 2.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.5583333333333333\nPeer Controversy Max: 3.0\nPeer ESG Min: 8.46\nPeer ESG Avg: 23.422166666666666\nPeer ESG Max: 40.69\nPeer Env Min: 2.6\nPeer Env Avg: 7.940566037735851\nPeer Env Max: 17.23\nPeer Social Min: 2.41\nPeer Social Avg: 5.814905660377359\nPeer Social Max: 10.28\nPeer Gov Min: 2.14\nPeer Gov Avg: 5.258301886792455\nPeer Gov Max: 8.77\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nNVIDIA (NVDA) has a total ESG risk score of 12.46, significantly lower than the average of 23.42 among its peers, indicating a relatively better ESG performance. However, the rating of LAG_PERF suggests there is room for improvement in its ESG practices and strategies.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**  \nNVIDIA's environmental risk score of 2.73 is commendable, as it falls below the average of 7.94 among peers. This suggests that the company is managing its environmental impact effectively compared to others in the sector.\n\n\ud83e\udd1d **Social**  \nWith a social risk score of 4.08, NVIDIA is slightly above the peer average of 5.81. This indicates that the company faces moderate social risks, which could be an area for further development to enhance its social responsibility initiatives.\n\n\ud83c\udfdb\ufe0f **Governance**  \nNVIDIA's governance risk score of 5.65 is slightly above the peer average of 5.26. This indicates that while the company maintains robust governance practices, it still faces some challenges relative to its competitors, suggesting potential areas for governance enhancement.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nNVIDIA has a controversy level of 2.0, which is higher than the average of 0.56 among peers. This indicates that the company has encountered notable issues that could impact its reputation, highlighting the need for better management of public perception and stakeholder communication.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nNVIDIA has a peer controversy min of 0.0, which is lower than the average of 0.0 among peers. This suggests that the company has not faced any significant controversies in the past, which may be an area for improvement.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nNVIDIA has a peer controversy avg of 0.5583333333333333, which is lower than the average of 0.54 among peers. This suggests that the company has not faced any significant controversies in the past, which may be an area for improvement.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nNVIDIA has a peer controversy max of 3.0, which is higher than the average of 0.0 among peers. This suggests that the company has not faced any significant controversies in the past, which may be an area for improvement."
+        }
+    },
+    "AAPL": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nApple Inc. has a total ESG risk score of 18.75, which is above the average score of 16.59 among its peers, indicating a relatively high level of ESG risk. Its classification as LAG_PERF suggests that the company is underperforming in terms of ESG practices compared to its competitors.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nApple's environmental risk score of 2.05 is lower than the peer average of 3.83, reflecting its commitment to sustainability and lower environmental impact. This score indicates that the company is performing better than many of its peers in managing environmental risks, which is a positive sign for environmentally conscious investors.\n\n\ud83e\udd1d **Social**\n\nWith a social risk score of 8.35, Apple is significantly above the peer average of 5.35. This score suggests that the company faces notable social challenges, possibly related to labor practices or product sourcing. Addressing these issues is crucial for enhancing its social responsibility reputation.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nApple's governance risk score is also 8.35, placing it well above the average peer score of 4.86. This indicates potential governance issues that could concern investors, highlighting the need for stronger oversight and accountability measures within the company's management practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nApple's controversy level is at 3.0, matching the upper limit among its peers. This high level of controversy reflects ongoing scrutiny over various issues, suggesting that the company must actively engage in addressing public concerns to mitigate reputational risks and enhance stakeholder trust.",
+        "Reference ESG Data": {
+            "Stock": "AAPL",
+            "Total ESG Risk Score": 18.75,
+            "ESG Performance": "LAG_PERF",
+            "Environmental Risk Score": 2.05,
+            "Social Risk Score": 8.35,
+            "Governance Risk Score": 8.35,
+            "Controversy Level": 3.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.5598290598290598,
+            "Peer Controversy Max": 3.0,
+            "Peer ESG Min": 4.51,
+            "Peer ESG Avg": 16.593888888888877,
+            "Peer ESG Max": 34.19,
+            "Peer Env Min": 0.17,
+            "Peer Env Avg": 3.8297752808988768,
+            "Peer Env Max": 11.83,
+            "Peer Social Min": 1.4,
+            "Peer Social Avg": 5.3459550561797755,
+            "Peer Social Max": 12.56,
+            "Peer Gov Min": 0.76,
+            "Peer Gov Avg": 4.858764044943819,
+            "Peer Gov Max": 9.93
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: AAPL\nTotal ESG Risk 8.75\nESG Performance: LAG_PERF\nEnvironmental Risk Score: 2.05\nSocial Risk Score: 8.35\nGovernance Risk Score: 8.35\nControversy Level: 3.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.5598290598290598\nPeer Controversy Max: 3.0\nPeer ESG Min: 4.51\nPeer ESG Avg: 16.593888888888877\nPeer ESG Max: 34.19\nPeer Env Min: 0.17\nPeer Env Avg: 3.8297752808988768\nPeer Env Max: 11.83\nPeer Social Min: 1.4\nPeer Social Avg: 5.3459550561797755\nPeer Social Max: 12.56\nPeer Gov Min: 0.76\nPeer Gov Avg: 4.858764044943819\nPeer Gov Max: 9.93\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nApple Inc. has a total ESG risk score of 18.75, which is above the average score of 16.59 among its peers, indicating a relatively high level of ESG risk. Its classification as LAG_PERF suggests that the company is underperforming in terms of ESG practices compared to its competitors.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nApple's environmental risk score of 2.05 is lower than the peer average of 3.83, reflecting its commitment to sustainability and lower environmental impact. This score indicates that the company is performing better than many of its peers in managing environmental risks, which is a positive sign for environmentally conscious investors.\n\n\ud83e\udd1d **Social**\n\nWith a social risk score of 8.35, Apple is significantly above the peer average of 5.35. This score suggests that the company faces notable social challenges, possibly related to labor practices or product sourcing. Addressing these issues is crucial for enhancing its social responsibility reputation.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nApple's governance risk score is also 8.35, placing it well above the average peer score of 4.86. This indicates potential governance issues that could concern investors, highlighting the need for stronger oversight and accountability measures within the company's management practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nApple's controversy level is at 3.0, matching the upper limit among its peers. This high level of controversy reflects ongoing scrutiny over various issues, suggesting that the company must actively engage in addressing public concerns to mitigate reputational risks and enhance stakeholder trust.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nApple's peer controversy min score of 0.0 is lower than the peer average of 0.5598290598290598, indicating that the company is not facing significant controversy compared to its peers. This score suggests that the company is not facing significant controversy compared to its peers, which is a positive sign for investors.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nApple's peer controversy average of 0.5598290598290598 is lower than the peer average of 0.5598290598290598, indicating that the company is not facing significant controversy compared to its peers. This score suggests that the company is not facing significant controversy compared to its peers, which is a positive sign for investors.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nApple's peer controversy max score of 3"
+        }
+    },
+    "MSFT": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nMicrosoft (MSFT) has a total ESG risk score of 17.34, which is below the average of its peers at 20.91 but higher than the minimum score of 7.44. The rating of LAG_PERF indicates that while MSFT is relatively better than some peers, it has room for improvement.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**  \nMicrosoft's environmental risk score of 3.56 is slightly above the average of 3.11 among its peers. This suggests that while the company is taking steps toward sustainability, it faces significant environmental challenges that must be addressed to enhance its performance further.\n\n\ud83e\udd1d **Social**  \nWith a social risk score of 8.98, Microsoft is near the average of 9.91 for its peers. This indicates that while the company is making efforts in social responsibility, it still grapples with issues affecting its social performance, necessitating ongoing attention to stakeholder engagement and community impact.\n\n\ud83c\udfdb\ufe0f **Governance**  \nThe governance risk score of 4.8 is below the peer average of 5.65, highlighting that Microsoft maintains relatively strong governance practices. However, there is still a need for vigilance to ensure compliance and ethical standards, particularly given the evolving regulatory landscape.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nMicrosoft has a controversy level of 3.0, which is significantly higher than the peer average of 0.66. This indicates that the company has faced notable controversies, which could impact its reputation and stakeholder trust, necessitating proactive management of public relations and corporate governance.",
+        "Reference ESG Data": {
+            "Stock": "MSFT",
+            "Total ESG Risk Score": 17.34,
+            "ESG Performance": "LAG_PERF",
+            "Environmental Risk Score": 3.56,
+            "Social Risk Score": 8.98,
+            "Governance Risk Score": 4.8,
+            "Controversy Level": 3.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.6598984771573604,
+            "Peer Controversy Max": 4.0,
+            "Peer ESG Min": 7.44,
+            "Peer ESG Avg": 20.91382402707276,
+            "Peer ESG Max": 32.73,
+            "Peer Env Min": 0.05,
+            "Peer Env Avg": 3.1051764705882356,
+            "Peer Env Max": 6.87,
+            "Peer Social Min": 4.49,
+            "Peer Social Avg": 9.910980392156855,
+            "Peer Social Max": 21.64,
+            "Peer Gov Min": 1.34,
+            "Peer Gov Avg": 5.653254901960784,
+            "Peer Gov Max": 10.54
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: MSFT\nTotal ESG Risk 7.34\nESG Performance: LAG_PERF\nEnvironmental Risk Score: 3.56\nSocial Risk Score: 8.98\nGovernance Risk Score: 4.8\nControversy Level: 3.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.6598984771573604\nPeer Controversy Max: 4.0\nPeer ESG Min: 7.44\nPeer ESG Avg: 20.91382402707276\nPeer ESG Max: 32.73\nPeer Env Min: 0.05\nPeer Env Avg: 3.1051764705882356\nPeer Env Max: 6.87\nPeer Social Min: 4.49\nPeer Social Avg: 9.910980392156855\nPeer Social Max: 21.64\nPeer Gov Min: 1.34\nPeer Gov Avg: 5.653254901960784\nPeer Gov Max: 10.54\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nMicrosoft (MSFT) has a total ESG risk score of 17.34, which is below the average of its peers at 20.91 but higher than the minimum score of 7.44. The rating of LAG_PERF indicates that while MSFT is relatively better than some peers, it has room for improvement.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**  \nMicrosoft's environmental risk score of 3.56 is slightly above the average of 3.11 among its peers. This suggests that while the company is taking steps toward sustainability, it faces significant environmental challenges that must be addressed to enhance its performance further.\n\n\ud83e\udd1d **Social**  \nWith a social risk score of 8.98, Microsoft is near the average of 9.91 for its peers. This indicates that while the company is making efforts in social responsibility, it still grapples with issues affecting its social performance, necessitating ongoing attention to stakeholder engagement and community impact.\n\n\ud83c\udfdb\ufe0f **Governance**  \nThe governance risk score of 4.8 is below the peer average of 5.65, highlighting that Microsoft maintains relatively strong governance practices. However, there is still a need for vigilance to ensure compliance and ethical standards, particularly given the evolving regulatory landscape.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nMicrosoft has a controversy level of 3.0, which is significantly higher than the peer average of 0.66. This indicates that the company has faced notable controversies, which could impact its reputation and stakeholder trust, necessitating proactive management of public relations and corporate governance.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nMicrosoft has a peer controversy min of 0.05, which is significantly lower than the peer average of 0.6598984771573604. This indicates that while the company has faced controversies, it has been able to manage them effectively and has not been a major source of concern for its stakeholders.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nMicrosoft has a peer controversy average of 0.6598984771573604, which is significantly higher than the peer average of 0.05. This indicates that while the company has faced controversies, it has been able to manage them effectively and has not been a major source of concern for its stakeholders.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nMicrosoft has a peer controversy max of 4.0, which is significantly higher than the peer average of 0.6598"
+        }
+    },
+    "GOOGL ": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nGOOGL's total ESG risk score of 24.89 indicates a moderate performance relative to its peers, with a score range from 7.44 to 32.73. The average score of 20.91 suggests that while GOOGL is performing adequately, there is room for improvement in its ESG practices.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nGOOGL's environmental risk score of 2.94 is below the average of 3.11 among its peers, indicating a relatively lower environmental impact. This score suggests opportunities for GOOGL to enhance its sustainability initiatives and reduce its ecological footprint further.\n\n\ud83e\udd1d **Social**\n\nWith a social risk score of 11.74, GOOGL exceeds the peer average of 9.91, highlighting significant social challenges or responsibilities. This elevated score may reflect issues related to data privacy, labor practices, or community relations that require ongoing attention and strategic management.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nThe governance risk score of 10.21 is considerably higher than the peer average of 5.65, indicating potential governance concerns within GOOGL. This score points towards possible issues in corporate governance structures, transparency, or shareholder rights that necessitate proactive measures to enhance governance practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nGOOGL's controversy level of 4.0 aligns with the maximum range of peer scores, suggesting that the company is significantly affected by controversies. This high level indicates ongoing scrutiny and potential reputational risks that could impact stakeholder perception and trust.",
+        "Reference ESG Data": {
+            "Stock": "GOOGL ",
+            "Total ESG Risk Score": 24.89,
+            "ESG Performance": "AVG_PERF",
+            "Environmental Risk Score": 2.94,
+            "Social Risk Score": 11.74,
+            "Governance Risk Score": 10.21,
+            "Controversy Level": 4.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.6598984771573604,
+            "Peer Controversy Max": 4.0,
+            "Peer ESG Min": 7.44,
+            "Peer ESG Avg": 20.91382402707276,
+            "Peer ESG Max": 32.73,
+            "Peer Env Min": 0.05,
+            "Peer Env Avg": 3.1051764705882356,
+            "Peer Env Max": 6.87,
+            "Peer Social Min": 4.49,
+            "Peer Social Avg": 9.910980392156855,
+            "Peer Social Max": 21.64,
+            "Peer Gov Min": 1.34,
+            "Peer Gov Avg": 5.653254901960784,
+            "Peer Gov Max": 10.54
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: GOOGL \nTotal ESG Risk Score: 24.89\nESG Performance: AVG_PERF\nEnvironmental Risk Score: 2.94\nSocial Risk 1.74\nGovernance Risk 0.21\nControversy Level: 4.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.6598984771573604\nPeer Controversy Max: 4.0\nPeer ESG Min: 7.44\nPeer ESG Avg: 20.91382402707276\nPeer ESG Max: 32.73\nPeer Env Min: 0.05\nPeer Env Avg: 3.1051764705882356\nPeer Env Max: 6.87\nPeer Social Min: 4.49\nPeer Social Avg: 9.910980392156855\nPeer Social Max: 21.64\nPeer Gov Min: 1.34\nPeer Gov Avg: 5.653254901960784\nPeer Gov Max: 10.54\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nGOOGL's total ESG risk score of 24.89 indicates a moderate performance relative to its peers, with a score range from 7.44 to 32.73. The average score of 20.91 suggests that while GOOGL is performing adequately, there is room for improvement in its ESG practices.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nGOOGL's environmental risk score of 2.94 is below the average of 3.11 among its peers, indicating a relatively lower environmental impact. This score suggests opportunities for GOOGL to enhance its sustainability initiatives and reduce its ecological footprint further.\n\n\ud83e\udd1d **Social**\n\nWith a social risk score of 11.74, GOOGL exceeds the peer average of 9.91, highlighting significant social challenges or responsibilities. This elevated score may reflect issues related to data privacy, labor practices, or community relations that require ongoing attention and strategic management.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nThe governance risk score of 10.21 is considerably higher than the peer average of 5.65, indicating potential governance concerns within GOOGL. This score points towards possible issues in corporate governance structures, transparency, or shareholder rights that necessitate proactive measures to enhance governance practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nGOOGL's controversy level of 4.0 aligns with the maximum range of peer scores, suggesting that the company is significantly affected by controversies. This high level indicates ongoing scrutiny and potential reputational risks that could impact stakeholder perception and trust.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nGOOGL's peer controversy min score of 0.0 is below the peer average of 0.6598984771573604, indicating that GOOGL is not affected by controversies. This Ludwig Maximilian University of Munich, Germany.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nGOOGL's peer controversy avg score of 0.6598984771573604 is above the peer average of 0.5, indicating that GOOGL is not affected by controversies. This score suggests that GOOGL is not a target of controversies, and that its reputation is not significantly affected by controversies.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nGOOGL's peer controversy max score of 4.0 is above the peer average of 2.94, indicating that GOOGL is significantly affected by controversies"
+        }
+    },
+    "META": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nMETA has a total ESG risk score of 32.73, indicating a higher risk compared to its peers. With a minimum of 7.44 and an average of 20.91, the LEAD_PERF rating suggests that while META performs well relative to its industry, significant risks remain.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**  \nMETA's environmental risk score of 2.41 is relatively low, especially compared to peers, whose scores range from 0.05 to 6.87. This indicates that the company manages its environmental impacts effectively, contributing to its overall positive ESG performance.\n\n\ud83e\udd1d **Social**  \nThe social risk score is notably high at 21.64, significantly above the average of 9.91 and the minimum peer score of 4.49. This suggests that META faces substantial social risks, likely related to privacy concerns and misinformation, which could affect its reputation and stakeholder trust.\n\n\ud83c\udfdb\ufe0f **Governance**  \nMETA\u2019s governance risk score of 8.68 is considerably higher than the average peer score of 5.65. This elevated score indicates potential governance challenges, which may include issues related to board diversity and shareholder rights, highlighting areas for improvement in corporate governance practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nMETA's controversy level of 4.0 is at the maximum among its peers, which range from 0.0 to 4.0. This high level of controversy reflects ongoing scrutiny over its business practices, particularly regarding data privacy and regulatory challenges, potentially impacting its brand and investor confidence.",
+        "Reference ESG Data": {
+            "Stock": "META",
+            "Total ESG Risk Score": 32.73,
+            "ESG Performance": "LEAD_PERF",
+            "Environmental Risk Score": 2.41,
+            "Social Risk Score": 21.64,
+            "Governance Risk Score": 8.68,
+            "Controversy Level": 4.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.6598984771573604,
+            "Peer Controversy Max": 4.0,
+            "Peer ESG Min": 7.44,
+            "Peer ESG Avg": 20.91382402707276,
+            "Peer ESG Max": 32.73,
+            "Peer Env Min": 0.05,
+            "Peer Env Avg": 3.1051764705882356,
+            "Peer Env Max": 6.87,
+            "Peer Social Min": 4.49,
+            "Peer Social Avg": 9.910980392156855,
+            "Peer Social Max": 21.64,
+            "Peer Gov Min": 1.34,
+            "Peer Gov Avg": 5.653254901960784,
+            "Peer Gov Max": 10.54
+        },
+        "Faithfulness Evaluation": {
+            "Score": null,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: META\nTotal ESG Risk Score: 32.73\nESG Performance: LEAD_PERF\nEnvironmental Risk Score: 2.41\nSocial Risk Score: 21.64\nGovernance Risk Score: 8.68\nControversy Level: 4.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.6598984771573604\nPeer Controversy Max: 4.0\nPeer ESG Min: 7.44\nPeer ESG Avg: 20.91382402707276\nPeer ESG Max: 32.73\nPeer Env Min: 0.05\nPeer Env Avg: 3.1051764705882356\nPeer Env Max: 6.87\nPeer Social Min: 4.49\nPeer Social Avg: 9.910980392156855\nPeer Social Max: 21.64\nPeer Gov Min: 1.34\nPeer Gov Avg: 5.653254901960784\nPeer Gov Max: 10.54\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nMETA has a total ESG risk score of 32.73, indicating a higher risk compared to its peers. With a minimum of 7.44 and an average of 20.91, the LEAD_PERF rating suggests that while META performs well relative to its industry, significant risks remain.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**  \nMETA's environmental risk score of 2.41 is relatively low, especially compared to peers, whose scores range from 0.05 to 6.87. This indicates that the company manages its environmental impacts effectively, contributing to its overall positive ESG performance.\n\n\ud83e\udd1d **Social**  \nThe social risk score is notably high at 21.64, significantly above the average of 9.91 and the minimum peer score of 4.49. This suggests that META faces substantial social risks, likely related to privacy concerns and misinformation, which could affect its reputation and stakeholder trust.\n\n\ud83c\udfdb\ufe0f **Governance**  \nMETA\u2019s governance risk score of 8.68 is considerably higher than the average peer score of 5.65. This elevated score indicates potential governance challenges, which may include issues related to board diversity and shareholder rights, highlighting areas for improvement in corporate governance practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nMETA's controversy level of 4.0 is at the maximum among its peers, which range from 0.0 to 4.0. This high level of controversy reflects ongoing scrutiny over its business practices, particularly regarding data privacy and regulatory challenges, potentially impacting its brand and investor confidence.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nMETA's peer controversy min score of 0.05 is at the minimum among its peers, which range from 0.0 to 4.0. This suggests that META is not subject to significant peer controversy, which may be a positive indicator of its reputation and investor confidence.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nMETA's peer controversy average score of 0.6598984771573604 is at the minimum among its peers, which range from 0.0 to 4.0. This suggests that META is not subject to significant peer controversy, which may be a positive indicator of its reputation and investor confidence.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nMETA's peer controversy max score of 4.0 is at the maximum among its peers, which range from 0.0 to 4."
+        }
+    },
+    "AMZN": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nAmazon (AMZN) has a total ESG risk score of 26.1, indicating higher risk relative to its peers. With an average score of 18.27, AMZN's average performance rating (AVG_PERF) suggests that while it is not the worst performer, there are significant areas for improvement.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nAmazon's environmental risk score is 8.3, which is notably higher than the peer average of 3.88. This indicates that AMZN faces considerable environmental challenges, necessitating enhanced sustainability initiatives to align more closely with industry best practices.\n\n\ud83e\udd1d **Social**\n\nThe social risk score of 11.05 reflects a moderate risk level, surpassing the peer average of 9.04. This score suggests that while Amazon has made strides in social responsibility, there are ongoing concerns related to labor practices and community impact that need addressing.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nWith a governance risk score of 6.75, Amazon ranks above the peer average of 4.23. This suggests that governance-related issues, perhaps concerning corporate transparency and shareholder rights, require further attention to enhance stakeholder trust and accountability.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nAmazon's controversy level of 3.0 indicates a higher incidence of controversies compared to the peer average of 0.91. This elevates concerns regarding its operational practices and public perception, emphasizing the need for improved stakeholder engagement and reputation management strategies.",
+        "Reference ESG Data": {
+            "Stock": "AMZN",
+            "Total ESG Risk Score": 26.1,
+            "ESG Performance": "AVG_PERF",
+            "Environmental Risk Score": 8.3,
+            "Social Risk Score": 11.05,
+            "Governance Risk Score": 6.75,
+            "Controversy Level": 3.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.9104477611940298,
+            "Peer Controversy Max": 4.0,
+            "Peer ESG Min": 8.0,
+            "Peer ESG Avg": 18.27291044776119,
+            "Peer ESG Max": 35.09,
+            "Peer Env Min": 0.16,
+            "Peer Env Avg": 3.8761344537815123,
+            "Peer Env Max": 13.24,
+            "Peer Social Min": 4.13,
+            "Peer Social Avg": 9.035714285714288,
+            "Peer Social Max": 16.56,
+            "Peer Gov Min": 1.0,
+            "Peer Gov Avg": 4.231680672268907,
+            "Peer Gov Max": 9.16
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: AMZN\nTotal ESG Risk Score: 26.1\nESG Performance: AVG_PERF\nEnvironmental Risk Score: 8.3\nSocial Risk 1.05\nGovernance Risk Score: 6.75\nControversy Level: 3.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.9104477611940298\nPeer Controversy Max: 4.0\nPeer ESG Min: 8.0\nPeer ESG Avg: 18.27291044776119\nPeer ESG Max: 35.09\nPeer Env Min: 0.16\nPeer Env Avg: 3.8761344537815123\nPeer Env Max: 13.24\nPeer Social Min: 4.13\nPeer Social Avg: 9.035714285714288\nPeer Social Max: 16.56\nPeer Gov Min: 1.0\nPeer Gov Avg: 4.231680672268907\nPeer Gov Max: 9.16\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nAmazon (AMZN) has a total ESG risk score of 26.1, indicating higher risk relative to its peers. With an average score of 18.27, AMZN's average performance rating (AVG_PERF) suggests that while it is not the worst performer, there are significant areas for improvement.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nAmazon's environmental risk score is 8.3, which is notably higher than the peer average of 3.88. This indicates that AMZN faces considerable environmental challenges, necessitating enhanced sustainability initiatives to align more closely with industry best practices.\n\n\ud83e\udd1d **Social**\n\nThe social risk score of 11.05 reflects a moderate risk level, surpassing the peer average of 9.04. This score suggests that while Amazon has made strides in social responsibility, there are ongoing concerns related to labor practices and community impact that need addressing.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nWith a governance risk score of 6.75, Amazon ranks above the peer average of 4.23. This suggests that governance-related issues, perhaps concerning corporate transparency and shareholder rights, require further attention to enhance stakeholder trust and accountability.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nAmazon's controversy level of 3.0 indicates a higher incidence of controversies compared to the peer average of 0.91. This elevates concerns regarding its operational practices and public perception, emphasizing the need for improved stakeholder engagement and reputation management strategies."
+        }
+    },
+    "PLTR ": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nPalantir Technologies (PLTR) has a total ESG risk score of 21.7, which is slightly above the average of 20.91 among its peers. This indicates that while PLTR maintains a relatively competitive position, its ESG performance is categorized as average, suggesting room for improvement.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nThe environmental risk score of 6.04 positions PLTR above the average of 3.11 among its peers, indicating that the company may face moderate environmental risks. However, its score is significantly lower than the maximum of 6.87, suggesting potential for enhanced sustainability practices.\n\n\ud83e\udd1d **Social**\n\nWith a social risk score of 9.92, PLTR's performance is at the high end of its peer group, matching the average closely. This suggests that while it faces social challenges similar to those of its peers, it has managed to maintain a favorable standing in this regard.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nPLTR's governance risk score of 5.74 is slightly above the average of 5.65, indicating a relatively sound governance structure. However, there remains a slight gap between PLTR and the maximum peer score of 10.54, highlighting opportunities for better governance practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nPalantir's controversy level is at 1.0, which is higher than the average of 0.66 among peers but still indicates a relatively low level of controversy. This suggests that while the company may encounter some issues, they are not significant enough to pose major risks to its reputation.",
+        "Reference ESG Data": {
+            "Stock": "PLTR ",
+            "Total ESG Risk Score": 21.7,
+            "ESG Performance": "AVG_PERF",
+            "Environmental Risk Score": 6.04,
+            "Social Risk Score": 9.92,
+            "Governance Risk Score": 5.74,
+            "Controversy Level": 1.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.6598984771573604,
+            "Peer Controversy Max": 4.0,
+            "Peer ESG Min": 7.44,
+            "Peer ESG Avg": 20.91382402707276,
+            "Peer ESG Max": 32.73,
+            "Peer Env Min": 0.05,
+            "Peer Env Avg": 3.1051764705882356,
+            "Peer Env Max": 6.87,
+            "Peer Social Min": 4.49,
+            "Peer Social Avg": 9.910980392156855,
+            "Peer Social Max": 21.64,
+            "Peer Gov Min": 1.34,
+            "Peer Gov Avg": 5.653254901960784,
+            "Peer Gov Max": 10.54
+        },
+        "Faithfulness Evaluation": {
+            "Score": null,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: PLTR \nTotal ESG Risk Score: 21.7\nESG Performance: AVG_PERF\nEnvironmental Risk Score: 6.04\nSocial Risk Score: 9.92\nGovernance Risk Score: 5.74\nControversy Level: 1.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.6598984771573604\nPeer Controversy Max: 4.0\nPeer ESG Min: 7.44\nPeer ESG Avg: 20.91382402707276\nPeer ESG Max: 32.73\nPeer Env Min: 0.05\nPeer Env Avg: 3.1051764705882356\nPeer Env Max: 6.87\nPeer Social Min: 4.49\nPeer Social Avg: 9.910980392156855\nPeer Social Max: 21.64\nPeer Gov Min: 1.34\nPeer Gov Avg: 5.653254901960784\nPeer Gov Max: 10.54\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nPalantir Technologies (PLTR) has a total ESG risk score of 21.7, which is slightly above the average of 20.91 among its peers. This indicates that while PLTR maintains a relatively competitive position, its ESG performance is categorized as average, suggesting room for improvement.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nThe environmental risk score of 6.04 positions PLTR above the average of 3.11 among its peers, indicating that the company may face moderate environmental risks. However, its score is significantly lower than the maximum of 6.87, suggesting potential for enhanced sustainability practices.\n\n\ud83e\udd1d **Social**\n\nWith a social risk score of 9.92, PLTR's performance is at the high end of its peer group, matching the average closely. This suggests that while it faces social challenges similar to those of its peers, it has managed to maintain a favorable standing in this regard.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nPLTR's governance risk score of 5.74 is slightly above the average of 5.65, indicating a relatively sound governance structure. However, there remains a slight gap between PLTR and the maximum peer score of 10.54, highlighting opportunities for better governance practices.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nPalantir's controversy level is at 1.0, which is higher than the average of 0.66 among peers but still indicates a relatively low level of controversy. This suggests that while the company may encounter some issues, they are not significant enough to pose major risks to its reputation.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nPalantir's peer controversy min is 0.0, which is lower than the average of 0.65 among its peers. This indicates that while the company may face some controversy, it is unlikely to be significant enough to pose a significant risk to its reputation.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nPalantir's peer controversy average is 0.6598984771573604, which is slightly above the average of 0.65 among its peers. This indicates that while the company may face some controversy, it is unlikely to be significant enough to pose a significant risk to its reputation.\n\n6\ufe0f\u20e3 **Peer Controversy Max:** Dove (DB)\n\n7\ufe0f\u20e3 **Peer ESG Min:**\n\n8\ufe0f\u20e3 **Peer ESG Avg:**"
+        }
+    },
+    "AMD": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nAMD has a total ESG risk score of 12.51, which is notably lower than the average of 23.42 among its peers, indicating relatively better ESG performance. However, the classification as LAG_PERF suggests that there is still significant room for improvement in its ESG initiatives.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nWith an environmental risk score of 3.01, AMD performs better than the average of 7.94 among peers. This score suggests that the company is taking proactive steps to mitigate environmental risks, although it still has opportunities to enhance its sustainability practices.\n\n\ud83e\udd1d **Social**\n\nAMD's social risk score of 4.22 is below the peer average of 5.81, indicating that the company may face moderate social risks. This suggests that there may be areas in workforce management, community engagement, or product responsibility that require further attention.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nThe governance risk score of 5.28 is slightly above the peer average of 5.26, indicating that AMD's governance practices are in line with industry standards. However, it highlights a need for continuous improvement to enhance stakeholder trust and accountability.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nWith a controversy level of 1.0, AMD is positioned well compared to the average peer score of 0.56. This relatively low controversy suggests that the company has effectively managed risks associated with public perception and stakeholder concerns, contributing positively to its overall ESG standing.",
+        "Reference ESG Data": {
+            "Stock": "AMD",
+            "Total ESG Risk Score": 12.51,
+            "ESG Performance": "LAG_PERF",
+            "Environmental Risk Score": 3.01,
+            "Social Risk Score": 4.22,
+            "Governance Risk Score": 5.28,
+            "Controversy Level": 1.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 0.5583333333333333,
+            "Peer Controversy Max": 3.0,
+            "Peer ESG Min": 8.46,
+            "Peer ESG Avg": 23.422166666666666,
+            "Peer ESG Max": 40.69,
+            "Peer Env Min": 2.6,
+            "Peer Env Avg": 7.940566037735851,
+            "Peer Env Max": 17.23,
+            "Peer Social Min": 2.41,
+            "Peer Social Avg": 5.814905660377359,
+            "Peer Social Max": 10.28,
+            "Peer Gov Min": 2.14,
+            "Peer Gov Avg": 5.258301886792455,
+            "Peer Gov Max": 8.77
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: AMD\nTotal ESG Risk 2.51\nESG Performance: LAG_PERF\nEnvironmental Risk Score: 3.01\nSocial Risk Score: 4.22\nGovernance Risk Score: 5.28\nControversy Level: 1.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 0.5583333333333333\nPeer Controversy Max: 3.0\nPeer ESG Min: 8.46\nPeer ESG Avg: 23.422166666666666\nPeer ESG Max: 40.69\nPeer Env Min: 2.6\nPeer Env Avg: 7.940566037735851\nPeer Env Max: 17.23\nPeer Social Min: 2.41\nPeer Social Avg: 5.814905660377359\nPeer Social Max: 10.28\nPeer Gov Min: 2.14\nPeer Gov Avg: 5.258301886792455\nPeer Gov Max: 8.77\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nAMD has a total ESG risk score of 12.51, which is notably lower than the average of 23.42 among its peers, indicating relatively better ESG performance. However, the classification as LAG_PERF suggests that there is still significant room for improvement in its ESG initiatives.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nWith an environmental risk score of 3.01, AMD performs better than the average of 7.94 among peers. This score suggests that the company is taking proactive steps to mitigate environmental risks, although it still has opportunities to enhance its sustainability practices.\n\n\ud83e\udd1d **Social**\n\nAMD's social risk score of 4.22 is below the peer average of 5.81, indicating that the company may face moderate social risks. This suggests that there may be areas in workforce management, community engagement, or product responsibility that require further attention.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nThe governance risk score of 5.28 is slightly above the peer average of 5.26, indicating that AMD's governance practices are in line with industry standards. However, it highlights a need for continuous improvement to enhance stakeholder trust and accountability.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nWith a controversy level of 1.0, AMD is positioned well compared to the average peer score of 0.56. This relatively low controversy suggests that the company has effectively managed risks associated with public perception and stakeholder concerns, contributing positively to its overall ESG standing.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nWith a controversy level of 0.0, AMD is positioned well compared to the average peer score of 0.5583333333333333. This relatively low controversy suggests that the company has effectively managed risks associated with public perception and stakeholder concerns, contributing positively to its overall ESG standing.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nWith a controversy level of 0.0, AMD is positioned well compared to the average peer score of 0.23. This relatively low controversy suggests that the company has effectively managed risks associated with public perception and stakeholder concerns, contributing positively to its overall ESG standing.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nWith a controversy level of 3.0, AMD is positioned well compared to the average peer score of 3.0. This relatively high controversy suggests that the company has effectively"
+        }
+    },
+    "NFLX": {
+        "Generated Report": "1\ufe0f\u20e3 **Total ESG Score:**\n\nThe company has a total ESG risk score of 15.88, indicating it faces higher risks relative to its peers. With an average score of approximately 15.5, NFLX's performance is rated as LAG_PERF, suggesting it may need to improve its ESG practices to align with industry standards.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nThe environmental risk score of 0.16 is relatively low, suggesting that Netflix has a minimal impact on environmental factors compared to peers. This score indicates a commitment to sustainable practices, but there is still room for improvement in enhancing its environmental performance.\n\n\ud83e\udd1d **Social**\n\nThe social risk score of 7.38 places Netflix above the average of 7.33 among its peers, indicating that social factors, such as labor practices and community engagement, may present challenges for the company. Addressing these social risks could enhance its overall ESG standing.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nWith a governance risk score of 8.35, Netflix significantly exceeds the average of 6.12 among its peers. This high score indicates potential governance issues, such as board diversity and executive compensation practices, which could undermine investor confidence and necessitate reforms.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nThe company's controversy level is 2.0, which is above the average of 1.01 among peers. This suggests that Netflix has encountered notable controversies, potentially affecting its reputation. Mitigating these controversies will be essential for improving stakeholder trust and overall ESG performance.",
+        "Reference ESG Data": {
+            "Stock": "NFLX",
+            "Total ESG Risk Score": 15.88,
+            "ESG Performance": "LAG_PERF",
+            "Environmental Risk Score": 0.16,
+            "Social Risk Score": 7.38,
+            "Governance Risk Score": 8.35,
+            "Controversy Level": 2.0,
+            "Peer Controversy Min": 0.0,
+            "Peer Controversy Avg": 1.0070921985815602,
+            "Peer Controversy Max": 3.0,
+            "Peer ESG Min": 6.7,
+            "Peer ESG Avg": 15.504609929078018,
+            "Peer ESG Max": 22.45,
+            "Peer Env Min": 0.0,
+            "Peer Env Avg": 0.4718333333333333,
+            "Peer Env Max": 2.87,
+            "Peer Social Min": 3.72,
+            "Peer Social Avg": 7.332000000000002,
+            "Peer Social Max": 10.44,
+            "Peer Gov Min": 1.59,
+            "Peer Gov Avg": 6.1226666666666665,
+            "Peer Gov Max": 10.86
+        },
+        "Faithfulness Evaluation": {
+            "Score": 1.0,
+            "Explanation": "Evaluate the faithfulness of the following ESG report based on the provided reference ESG data. Faithfulness means how accurate and grounded the report is in the actual data. Score it from 0 to 1 (1 being perfectly faithful), and provide a brief explanation.\n\nReference ESG Data:\nStock: NFLX\nTotal ESG Risk 5.88\nESG Performance: LAG_PERF\nEnvironmental Risk \nSocial Risk Score: 7.38\nGovernance Risk Score: 8.35\nControversy Level: 2.0\nPeer Controversy Min: 0.0\nPeer Controversy Avg: 1.0070921985815602\nPeer Controversy Max: 3.0\nPeer ESG Min: 6.7\nPeer ESG Avg: 15.504609929078018\nPeer ESG Max: 22.45\nPeer Env Min: 0.0\nPeer Env Avg: 0.4718333333333333\nPeer Env Max: 2.87\nPeer Social Min: 3.72\nPeer Social Avg: 7.332000000000002\nPeer Social Max: 10.44\nPeer Gov Min: 1.59\nPeer Gov Avg: 6.1226666666666665\nPeer Gov Max: 10.86\n\nGenerated ESG Report:\n1\ufe0f\u20e3 **Total ESG Score:**\n\nThe company has a total ESG risk score of 15.88, indicating it faces higher risks relative to its peers. With an average score of approximately 15.5, NFLX's performance is rated as LAG_PERF, suggesting it may need to improve its ESG practices to align with industry standards.\n\n2\ufe0f\u20e3 **Breakdown of ESG Score:**\n\n\ud83c\udf31 **Environment**\n\nThe environmental risk score of 0.16 is relatively low, suggesting that Netflix has a minimal impact on environmental factors compared to peers. This score indicates a commitment to sustainable practices, but there is still room for improvement in enhancing its environmental performance.\n\n\ud83e\udd1d **Social**\n\nThe social risk score of 7.38 places Netflix above the average of 7.33 among its peers, indicating that social factors, such as labor practices and community engagement, may present challenges for the company. Addressing these social risks could enhance its overall ESG standing.\n\n\ud83c\udfdb\ufe0f **Governance**\n\nWith a governance risk score of 8.35, Netflix significantly exceeds the average of 6.12 among its peers. This high score indicates potential governance issues, such as board diversity and executive compensation practices, which could undermine investor confidence and necessitate reforms.\n\n3\ufe0f\u20e3 **Controversy Level:**\n\nThe company's controversy level is 2.0, which is above the average of 1.01 among peers. This suggests that Netflix has encountered notable controversies, potentially affecting its reputation. Mitigating these controversies will be essential for improving stakeholder trust and overall ESG performance.\n\n4\ufe0f\u20e3 **Peer Controversy Min:**\n\nThe company's peer controversy min score of 0.0 indicates that Netflix has not faced significant controversies. This indicates that the company has not been involved in any controversies that have negatively affected its reputation.\n\n5\ufe0f\u20e3 **Peer Controversy Avg:**\n\nThe company's peer controversy average score of 1.0070921985815602 indicates that Netflix has not been involved in any controversies that have negatively affected its reputation. This indicates that the company has not been involved in any controversies that have negatively affected its reputation.\n\n6\ufe0f\u20e3 **Peer Controversy Max:**\n\nThe company's peer controversy max score of 3.0 indicates that Netflix has not been involved in any controversies that have negatively affected its reputation. This indicates that the company has not been involved in any controversies that have negatively affected its reputation.\n\n7\ufe0f\u20e3"
+        }
+    }
+}
