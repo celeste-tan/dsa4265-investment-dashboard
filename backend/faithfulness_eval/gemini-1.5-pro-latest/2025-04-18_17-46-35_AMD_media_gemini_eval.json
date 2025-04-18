@@ -1,9 +1,0 @@
-{
-    "Ticker": "AMD",
-    "Generated Analysis": "No recent headlines found for AMD.",
-    "Reference Headlines": [],
-    "Faithfulness Evaluation": {
-        "Score": 1.0,
-        "Explanation": "The generated report accurately reflects the absence of recent headlines for AMD, as indicated by the empty reference headlines provided. Since there are no conflicting or misleading statements, the report is completely faithful to the data."
-    }
-}

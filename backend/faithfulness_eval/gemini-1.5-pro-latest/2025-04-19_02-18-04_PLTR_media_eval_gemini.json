@@ -1,0 +1,9 @@
+{
+    "Ticker": "PLTR",
+    "Generated Analysis": "No recent headlines found for PLTR.",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation (Gemini)": {
+        "Score": 1.0,
+        "Explanation": "Since there are no reference headlines provided, the summary accurately reflects the lack of information.  It is perfectly faithful to the (empty) data provided."
+    }
+}

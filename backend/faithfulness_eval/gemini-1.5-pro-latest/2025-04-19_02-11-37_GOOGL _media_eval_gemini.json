@@ -1,0 +1,9 @@
+{
+    "Ticker": "GOOGL ",
+    "Generated Analysis": "No recent headlines found for GOOGL .",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation (Gemini)": {
+        "Score": 1.0,
+        "Explanation": "With no reference headlines provided, the summary accurately reflects the lack of data.  It's a perfectly faithful representation of the empty input."
+    }
+}
