@@ -1,0 +1,9 @@
+{
+    "Ticker": "GOOGL ",
+    "Generated Analysis": "No recent headlines found for GOOGL .",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation": {
+        "Score": 1.0,
+        "Explanation": "The generated report accurately reflects the absence of recent headlines for GOOGL, as indicated by the provided reference headlines, which are empty. Therefore, the report is completely faithful to the data available."
+    }
+}
