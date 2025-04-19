@@ -1,0 +1,9 @@
+{
+    "Ticker": "PLTR",
+    "Generated Analysis": "No recent headlines found for PLTR.",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation": {
+        "Score": 0.0,
+        "Explanation": "=== Score and Explanation ===\nExplanation: The summary states that no recent headlines were found for PLTR, but the headlines provided are all about PLTR. This is not faithful to the provided headlines."
+    }
+}

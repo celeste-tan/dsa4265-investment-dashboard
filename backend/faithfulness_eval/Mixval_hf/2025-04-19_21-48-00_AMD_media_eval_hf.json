@@ -1,0 +1,9 @@
+{
+    "Ticker": "AMD",
+    "Generated Analysis": "No recent headlines found for AMD.",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation": {
+        "Score": 0.0,
+        "Explanation": "=== Score and Explanation ===\nExplanation: The summary claims that no recent headlines were found for AMD, but the headlines provided are all related to AMD."
+    }
+}
