@@ -1,9 +1,13 @@
 # === financial_summary.py ===
 """
-Downloads quarterly financial data from Yahoo Finance (via yfinance),
-generates a summary of revenue, net income, and free cash flow trends,
-and produces an investment commentary with OpenAI.
+Downloads quarterly and annual financial data from Yahoo Finance (via yfinance),
+generates summaries of revenue, net income, and free cash flow trends,
+and produces an AI-generated investment commentary using OpenAI.
 """
+
+# -----------------------------
+# Imports
+# -----------------------------
 import yfinance as yf
 import pandas as pd
 import openai
@@ -12,9 +16,14 @@ import json
 import re
 from datetime import datetime
 
+# -----------------------------
 # Download Quarterly Financial Data
+# -----------------------------
 def get_full_quarterly_data(ticker_symbol):
-    """Retrieve income and cash flow data and compute free cash flow."""
+    """
+    Retrieve quarterly income and cash flow data, then compute free cash flow.
+    Returns a DataFrame with Revenue, Net Income, and Free Cash Flow.
+    """
     ticker = yf.Ticker(ticker_symbol)
     income = ticker.quarterly_financials.T
     cashflow = ticker.quarterly_cashflow.T
@@ -28,6 +37,7 @@ def get_full_quarterly_data(ticker_symbol):
     capex = safe_get(cashflow, "Capital Expenditure")
     free_cf = op_cf.subtract(capex, fill_value=0)
 
+    # Align all series to common date index
     common_index = revenue.index.intersection(net_income.index).intersection(free_cf.index)
     revenue, net_income, free_cf = revenue[common_index], net_income[common_index], free_cf[common_index]
 
@@ -39,14 +49,20 @@ def get_full_quarterly_data(ticker_symbol):
     })
     df.dropna(subset=["Revenue", "Net Income", "Free Cash Flow"], inplace=True)
 
-
     return df.sort_values(by="Quarter")
+
+
+# -----------------------------
 # Download Annual Financial Data
+# -----------------------------
 def get_full_annual_data(ticker_symbol):
-    """Retrieve annual income and cash flow data and compute free cash flow."""
+    """
+    Retrieve annual income and cash flow data, then compute free cash flow.
+    Returns a DataFrame with Revenue, Net Income, and Free Cash Flow.
+    """
     ticker = yf.Ticker(ticker_symbol)
-    income = ticker.financials.T  # Annual income statement
-    cashflow = ticker.cashflow.T  # Annual cash flow statement
+    income = ticker.financials.T
+    cashflow = ticker.cashflow.T
 
     def safe_get(df, col):
         return df[col] if col in df.columns else pd.Series(dtype='float64')
@@ -57,6 +73,7 @@ def get_full_annual_data(ticker_symbol):
     capex = safe_get(cashflow, "Capital Expenditure")
     free_cf = op_cf.subtract(capex, fill_value=0)
 
+    # Align all series to common date index
     common_index = revenue.index.intersection(net_income.index).intersection(free_cf.index)
     revenue, net_income, free_cf = revenue[common_index], net_income[common_index], free_cf[common_index]
 
@@ -68,11 +85,17 @@ def get_full_annual_data(ticker_symbol):
     })
     df.dropna(subset=["Revenue", "Net Income", "Free Cash Flow"], inplace=True)
 
-
     return df.sort_values(by="Year")
 
+
+# -----------------------------
 # Filter Data by Time Horizon
+# -----------------------------
 def filter_financial_data_by_period(df, period="1y"):
+    """
+    Slice DataFrame by period (1y, 2y, 5y, etc.).
+    Periods are converted to a number of quarters.
+    """
     period_map = {
         "1y": 4, "2y": 8, "5y": 20,
         "10y": 40, "15y": 60, "max": len(df)
@@ -80,8 +103,15 @@ def filter_financial_data_by_period(df, period="1y"):
     num_quarters = period_map.get(period, 4)
     return df.tail(num_quarters)
 
+
+# -----------------------------
 # Generate Human-Readable Summary
+# -----------------------------
 def generate_financial_summary(df, ticker):
+    """
+    Summarise revenue, net income, and free cash flow trends over time.
+    Includes both percentage and CAGR trends.
+    """
     if len(df.dropna()) < 2:
         return "Not enough data to generate summary."
 
@@ -123,8 +153,13 @@ def generate_financial_summary(df, ticker):
     return summary
 
 
+# -----------------------------
 # Generate AI Commentary
+# -----------------------------
 def generate_ai_investment_commentary(summary_text, api_key):
+    """
+    Generate a buy/hold/sell investment commentary using GPT.
+    """
     openai.api_key = api_key
     prompt = (
         "You are a professional financial analyst. Based on the following financial summary, "
@@ -144,8 +179,14 @@ def generate_ai_investment_commentary(summary_text, api_key):
     except Exception as e:
         return f"Error generating commentary: {e}"
 
-# Unified Summary Interface
+
+# -----------------------------
+# Unified Summary + Commentary Interface
+# -----------------------------
 def generate_full_financial_summary(ticker, openai_api_key, period="1y"):
+    """
+    Unified function to return summary, commentary, and raw data records.
+    """
     df_all = get_full_quarterly_data(ticker)
     df = filter_financial_data_by_period(df_all, period)
 
@@ -156,12 +197,14 @@ def generate_full_financial_summary(ticker, openai_api_key, period="1y"):
     commentary = generate_ai_investment_commentary(summary, openai_api_key)
     return summary, commentary, None, df.to_dict(orient="records")
 
-# For faithfulness evaluation
+
+# -----------------------------
+# Faithfulness Evaluation
+# -----------------------------
 def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="1y"):
     """
-    Evaluate the faithfulness of AI investment commentaries for multiple tickers
-    by comparing them to the source financial summaries.
-    Saves results as a JSON file in the 'faithfulness_eval' folder.
+    Evaluate the faithfulness of AI commentaries across multiple tickers.
+    Scores and explanations are saved to a JSON report.
     """
     if isinstance(tickers, str):
         tickers = [tickers]
@@ -169,8 +212,6 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
     all_results = {}
 
     for ticker in tickers:
-        #print(f"Evaluating {ticker}...")
-
         try:
             df_all = get_full_quarterly_data(ticker)
             df = filter_financial_data_by_period(df_all, period)
@@ -192,8 +233,6 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
                 f"Generated Commentary:\n{commentary}"
             )
 
-            #print(eval_prompt)
-
             response = openai.ChatCompletion.create(
                 model="gpt-4o-mini",
                 messages=[
@@ -205,7 +244,7 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
 
             evaluation_result = response.choices[0].message.content.strip()
 
-            # Extract score and explanation
+            # Extract faithfulness score and clean explanation
             score_match = re.search(r"Score\s*[:\-]?\s*([0-1](?:\.\d+)?)", evaluation_result)
             score = float(score_match.group(1)) if score_match else None
             explanation = re.sub(r"Score\s*[:\-]?\s*[0-1](?:\.\d+)?\s*", "", evaluation_result, count=1, flags=re.IGNORECASE).strip()
@@ -229,7 +268,7 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
                 "Faithfulness Evaluation": f"Error evaluating faithfulness: {e}"
             }
 
-    # Save to JSON file
+    # Save results
     output_dir = os.path.join(os.path.dirname(__file__), "..", "faithfulness_eval")
     os.makedirs(output_dir, exist_ok=True)
 
@@ -239,12 +278,12 @@ def evaluate_financial_commentary_faithfulness(tickers, openai_api_key, period="
     with open(filepath, "w") as f:
         json.dump(all_results, f, indent=4)
 
-    #print(f"\nFaithfulness evaluations saved to: {filepath}")
     return all_results
 
-# -----------------------------------------------------------------------------------------
-# Evaluation Testing (Commented out by default, only run when evaluation needs to be done)
-# -----------------------------------------------------------------------------------------
-# tickers_to_check = ["TSLA", "NVDA", "AAPL", "MSFT", "GOOGL ", "META", "AMZN", "PLTR ", "AMD", "NFLX"]
+
+# -----------------------------
+# Optional Evaluation (Disabled by Default)
+# -----------------------------
+# tickers_to_check = ["TSLA", "NVDA", "AAPL", "MSFT", "GOOGL", "META", "AMZN", "PLTR", "AMD", "NFLX"]
 # openai_api_key = os.getenv("OPENAI_API_KEY")
 # evaluate_financial_commentary_faithfulness(tickers_to_check, openai_api_key)

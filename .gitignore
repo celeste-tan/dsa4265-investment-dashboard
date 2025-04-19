@@ -46,6 +46,7 @@ yarn-error.log*
 # Session / misc
 # ========================
 *.session
+*.session-journal
 
 # ========================
 # Project-specific data

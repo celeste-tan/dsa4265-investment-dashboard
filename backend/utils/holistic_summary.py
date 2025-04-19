@@ -3,10 +3,14 @@
 Main orchestration module that aggregates technical, financial,
 ESG, and media signals into a final investment recommendation.
 """
+
+# -----------------------------
+# Imports
+# -----------------------------
 import os
 import openai
-from dotenv import load_dotenv
 import logging
+from dotenv import load_dotenv
 
 # Local analysis modules
 from utils.stock_history import get_stock_recommendation
@@ -14,21 +18,28 @@ from utils.esg_analysis import get_esg_report
 from utils.financial_summary import generate_full_financial_summary
 from utils.media_analysis import get_stock_summary
 
-# Load environment variable
+# -----------------------------
+# Load API Key from Environment
+# -----------------------------
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-# Aggregated Recommendation Generator 
+# -----------------------------
+# Holistic Recommendation Generator
+# -----------------------------
 async def get_holistic_recommendation(ticker, timeframe="short-term"):
     """
-    Generate final recommendation using:
-    - Technical indicators
-    - ESG data
-    - Financials
-    - Media sentiment
+    Generate a final investment recommendation using:
+    - 📈 Technical indicators (SMA/EMA/RSI/volatility)
+    - 🌿 ESG metrics
+    - 💰 Financial summary (revenue, net income, cash flow)
+    - 📰 Media sentiment
+
+    Returns a concise summary with markdown formatting and structured sections.
     """
     logging.info(f"Generating holistic recommendation for {ticker} ({timeframe})")
 
+    # --- Collect individual signals ---
     stock_rec, stock_summary = get_stock_recommendation(ticker, timeframe, openai_api_key)
     esg_analysis = get_esg_report(ticker, openai_api_key)
 
@@ -42,7 +53,8 @@ async def get_holistic_recommendation(ticker, timeframe="short-term"):
     except Exception as e:
         media_summary = f"Error fetching media sentiment: {e}"
 
-    prompt = (f"""
+    # --- Compose holistic summary prompt ---
+    prompt = f"""
     You are a financial analyst AI. Given the stock ticker '{ticker}', provide a concise investment summary across five dimensions. Your response must be no more than 135 words total.
 
     Include the following sections in **exactly** this format:
@@ -78,8 +90,8 @@ async def get_holistic_recommendation(ticker, timeframe="short-term"):
     Media Sentiment Insight:  
     {media_summary}
     """
-    )
-    
+
+    # --- Call OpenAI to generate summary ---
     try:
         response = openai.ChatCompletion.create(
             model="gpt-4o-mini",
