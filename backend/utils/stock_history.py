@@ -99,11 +99,9 @@ def stock_data_summary(data, sma_50, sma_200, ema_50, ema_200, rsi, volatility):
     Builds a textual summary of computed indicators.
     """
     try:
-        start_price = data['Close'].iloc[0]
         end_price = data['Close'].iloc[-1]
-        pct_change = ((end_price - start_price) / start_price) * 100
         return (
-            f"Price change: {pct_change:.2f}%. Volatility: {volatility:.2f}. "
+            f"Price: {end_price:.2f}%, Volatility: {volatility:.2f}. "
             f"50-day SMA: {sma_50:.2f}, 200-day SMA: {sma_200:.2f}, "
             f"EMA-50: {ema_50:.2f}, EMA-200: {ema_200:.2f}, "
             f"RSI: {rsi:.2f}."
