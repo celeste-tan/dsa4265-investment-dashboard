@@ -225,7 +225,7 @@ def evaluate_esg_report_faithfulness(tickers, openai_api_key):
 
 
 # -----------------------------
-# Optional Evaluation (Disabled)
+# Sample Evaluation (OpenAI)
 # -----------------------------
 # tickers_to_check = ["TSLA", "NVDA", "AAPL", "MSFT", "GOOGL ", "META", "AMZN", "PLTR ", "AMD", "NFLX"]
 # openai_api_key = os.getenv("OPENAI_API_KEY")
