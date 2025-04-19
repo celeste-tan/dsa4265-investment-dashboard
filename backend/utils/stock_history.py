@@ -232,7 +232,7 @@ def get_stock_recommendation(ticker, timeframe, openai_api_key, evaluate=False):
                 output_dir = os.path.join(os.path.dirname(__file__), "..", "faithfulness_eval", "openai_gpt4o_mini")
                 os.makedirs(output_dir, exist_ok=True)
 
-                filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{ticker}_stock_history_openai_eval.json"
+                filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{ticker}_stock_history_eval.json"
                 with open(os.path.join(output_dir, filename), "w") as f:
                     json.dump(results, f, indent=4)
 
@@ -251,5 +251,5 @@ def get_stock_recommendation(ticker, timeframe, openai_api_key, evaluate=False):
 #     from dotenv import load_dotenv
 #     load_dotenv()
 #     openai_api_key = os.getenv("OPENAI_API_KEY")
-#     result = get_stock_recommendation("TSLA", "long-term", openai_api_key)
+#     result = get_stock_recommendation("PLTR", "long-term", openai_api_key)
 #     print(json.dumps(result, indent=2))
