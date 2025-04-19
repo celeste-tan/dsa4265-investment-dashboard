@@ -1,0 +1,9 @@
+{
+    "Ticker": "NFLX",
+    "Generated Analysis": "No recent headlines found for NFLX.",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation": {
+        "Score": 1.0,
+        "Explanation": "The generated report accurately reflects the absence of recent headlines for NFLX, as indicated by the empty reference headlines. Since there are no headlines to report on, the summary is completely faithful to the actual data."
+    }
+}

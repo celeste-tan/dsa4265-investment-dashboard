@@ -1,0 +1,9 @@
+{
+    "Ticker": "AMD",
+    "Generated Analysis": "No recent headlines found for AMD.",
+    "Reference Headlines": [],
+    "Faithfulness Evaluation": {
+        "Score": 0.5,
+        "Explanation": "The generated report states that there are \"no recent headlines found for AMD,\" which may be true if there are indeed no recent articles or news updates available. However, without any reference headlines provided to verify this claim, it is difficult to assess the accuracy of the statement fully. The report lacks context and does not provide any insight into why there are no recent headlines, which affects its overall faithfulness. Therefore, it receives a score of 0.5 for being partially accurate but lacking sufficient grounding in data."
+    }
+}
