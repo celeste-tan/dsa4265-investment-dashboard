@@ -1,35 +1,53 @@
-# Python
+# ========================
+# Python (Backend)
+# ========================
 venv/
 __pycache__/
 *.py[cod]
 *$py.class
 
+# ========================
+# Node.js (Frontend)
+# ========================
+**/node_modules/
+**/build/
+**/coverage/
+.pnp
+.pnp.js
+
+# ========================
 # OS-specific files
+# ========================
 .DS_Store
 
+# ========================
 # Editor settings
+# ========================
 .vscode/
 
+# ========================
 # Environment variables
+# ========================
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
+# ========================
 # Logs
+# ========================
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Telegram session
+# ========================
+# Session / misc
+# ========================
 *.session
 
-# Frontend dependencies and build
-/node_modules
-/.pnp
-.pnp.js
-/coverage
-/build
+# ========================
+# Project-specific data
+# ========================
 backend/data/investment.db

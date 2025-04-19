@@ -58,17 +58,15 @@ PHONE="your_phone_number"
 USERNAME="your_telegram_username"
 STRING_SESSION="your_telegram_string_session"
 
-# Install backend dependencies
-pip install -r requirements.txt
-
 # Start backend server
 cd backend
+pip install -r requirements.txt # Install backend dependencies
 python app.py
 # Backend runs at: http://127.0.0.1:5000
 
 # In a new terminal, setup frontend
-cd frontend
-npm install
+cd ../frontend
+npm install # Install frontend dependencies
 npm start
 # Frontend runs at: http://localhost:3000
 
@@ -83,6 +81,7 @@ Note: Contact us to get access to credentials or generate your own using `genera
 dsa4265-investment-dashboard/
 ├── backend/                   # FastAPI backend logic
 │   ├── app.py                 # Main entry point for the backend server
+│   ├── requirements.txt       # Python dependencies
 │   └── utils/                 # Core logic for each analysis component
 │       ├── stock_history.py
 │       ├── esg_score.py
@@ -101,8 +100,7 @@ dsa4265-investment-dashboard/
 │   │       └── HolisticSummary.js
 │   ├── App.js                 # Main frontend application
 │   └── index.js               # Entry point for React
-├── requirements.txt           # Python dependencies
-├── package.json               # Frontend dependencies
+│   └── package.json           # Frontend dependencies
 ├── .env                       # API credentials (excluded from version control)
 └── README.md                  # Project documentation
 ```
