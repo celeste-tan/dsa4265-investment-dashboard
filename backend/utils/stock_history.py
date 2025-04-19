@@ -101,7 +101,7 @@ def stock_data_summary(data, sma_50, sma_200, ema_50, ema_200, rsi, volatility):
     try:
         end_price = data['Close'].iloc[-1]
         return (
-            f"Price: {end_price:.2f}%, Volatility: {volatility:.2f}. "
+            f"Price: {end_price:.2f}, Volatility: {volatility:.2f}. "
             f"50-day SMA: {sma_50:.2f}, 200-day SMA: {sma_200:.2f}, "
             f"EMA-50: {ema_50:.2f}, EMA-200: {ema_200:.2f}, "
             f"RSI: {rsi:.2f}."
