@@ -67,7 +67,7 @@ Follow the steps below to set up the project locally:
       python generate_string_session.py  # Generates a session string after login via terminal
       ```
 
-      You'll be prompted to log in via Telegram. Once done, copy the session string output.
+      Once done, copy the session string output.
 
     - Return to the root folder:
 
