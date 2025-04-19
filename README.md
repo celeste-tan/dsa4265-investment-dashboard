@@ -1,110 +1,152 @@
 # 💹 WealthWave Investment Dashboard
 
-WealthWave is a full-stack AI-powered dashboard designed to assist retail investors in making holistic, data-driven investment decisions. The platform integrates stock history, financial health, ESG ratings, and media sentiment into an intuitive interface, powered by OpenAI and real-time market data.
+**WealthWave** is a full-stack, AI-powered dashboard designed to assist retail investors in making holistic, data-driven investment decisions. The platform seamlessly integrates stock history, financial health, ESG ratings, and media sentiment into an intuitive interface—powered by OpenAI and real-time market data.
+
+---
 
 ## 🧠 Features
 
 ### 📈 Stock History Performance
 - Volatility analysis over selectable periods (1 day to 15 years)
-- AI generated technical indicators (SMA, EMA, RSI) and analysis of what those numbers mean
-
+- AI-generated technical indicators (SMA, EMA, RSI) with plain-language interpretation
 
 ### 💰 Financial Metrics
-- Key metrics visualization (revenue, net income, free cash flow)
+- Visualisation of key financials: revenue, net income, and free cash flow
 - AI-generated commentary on financial health
-- Historical performance trends
+- Historical trend tracking for better decision-making
 
 ### 🌿 ESG Insights
-- Comprehensive ESG risk scoring
-- Sub-category breakdowns (Environmental, Social, Governance)
-- Controversy tracking and alerts
-- AI generated insights to explain the numbers and their meanings
+- ESG risk scores with breakdowns across Environmental, Social, and Governance dimensions
+- Controversy tracking with real-time alerts
+- AI-generated summaries to contextualise ESG data
 
 ### 📰 Media Analysis
-- Real-time news headline scraping via Telegram
-- Summary of news headlines over the past 6 months from The Business Times
-
+- Real-time news scraping from Telegram sources
+- Summarisation of headlines from *The Business Times* over the past 6 months
 
 ### ✅ Holistic Recommendation
-- GPT-4o-generated buy/hold/sell judgement
-- Multi-dimensional analysis combining all 4 outputs generated from above
+- GPT-4o-powered buy/hold/sell decisions
+- Integrated insights from all other modules: stock history, financials, ESG, and news sentiment
+
+---
 
 ## ⚙️ Setup Instructions
 
 ### Prerequisites
+
+Before installation, ensure the following are available:
+
 - Python 3.8+
 - Node.js 16+
 - npm
-- Telegram account (for news scraping)
+- Telegram account (required for media scraping)
 
-### Installation
+---
 
-```bash
-# Clone the repository
-git clone https://github.com/<your-user>/dsa4265-investment-dashboard.git
-cd dsa4265-investment-dashboard
+### 🔧 Installation & Environment Setup
 
-# Set up Python virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+Follow the steps below to set up the project locally:
 
-# Configure environment variables
-# Create a .env file in root folder with these contents:
-OPENAI_API_KEY="your_openai_key"
-ESG_API_TOKEN="your_esg_token"
-API_ID="your_telegram_api_id"
-API_HASH="your_telegram_api_hash"
-PHONE="your_phone_number"
-USERNAME="your_telegram_username"
-STRING_SESSION="your_telegram_string_session"
+1. **Clone the repository and activate a virtual environment:**
 
-# Start backend server
-cd backend
-pip install -r requirements.txt # Install backend dependencies
-python app.py
-# Backend runs at: http://127.0.0.1:5000
+    ```bash
+    git clone https://github.com/celeste-tan/dsa4265-investment-dashboard.git  # Clone the project
+    cd dsa4265-investment-dashboard
 
-# In a new terminal, setup frontend
-cd ../frontend
-npm install # Install frontend dependencies
-npm start
-# Frontend runs at: http://localhost:3000
+    python -m venv venv        # Create a virtual environment
+    source venv/bin/activate   # Activate it (use venv\Scripts\activate on Windows)
+    ```
 
-Note: Contact us to get access to credentials or generate your own using generate_string_session.py.
-```
+2. **Configure Telegram API credentials (for news scraping):**
 
-Note: Contact us to get access to credentials or generate your own using `generate_string_session.py`.
+    - [Follow the guide](https://core.telegram.org/api/obtaining_api_id) to obtain your **API ID** and **API HASH**.
+    - Generate your `STRING_SESSION` by running:
+
+      ```bash
+      cd backend/utils
+      python generate_string_session.py  # Generates a session string after login via terminal
+      ```
+
+      You'll be prompted to log in via Telegram. Once done, copy the session string output.
+
+    - Return to the root folder:
+
+      ```bash
+      cd ../../
+      ```
+
+3. **Create a `.env` file in the root directory with the following content:**
+
+    ```bash
+    echo 'OPENAI_API_KEY="your_openai_key"
+    ESG_API_TOKEN="your_esg_token"
+    API_ID="your_telegram_api_id"
+    API_HASH="your_telegram_api_hash"
+    PHONE="your_phone_number"
+    USERNAME="your_telegram_username"
+    STRING_SESSION="your_telegram_string_session"' > .env
+    ```
+
+    > 🔐 **Note:** Do **not** commit this file. It is excluded via `.gitignore`.
+    > If you don't have credentials, contact us or register to obtain them.
+
+4. **Install backend dependencies and run the backend server:**
+
+    ```bash
+    cd backend
+    pip install -r requirements.txt  # Install Python dependencies
+    python app.py                    # Launch the FastAPI server (http://127.0.0.1:5000)
+    ```
+
+5. **Open a new terminal/tab, activate the environment again, and run the frontend:**
+
+    ```bash
+    # In case you're not in project root
+    cd dsa4265-investment-dashboard
+    source venv/bin/activate           # Reactivate environment if needed
+    cd frontend
+    npm install                        # Install React dependencies
+    npm start                          # Launch the React app (http://localhost:3000)
+    ```
+
+    > 📨 **Note:** On your first run, Telegram will send a login code to your Telegram app. Enter this code in the terminal when prompted.  
+    > This process links your Telegram session and will only be required once. After that, news scraping will start automatically.
+
+---
 
 ## 📁 Folder Structure
 
-```
+```bash
 dsa4265-investment-dashboard/
 ├── backend/                   # FastAPI backend logic
 │   ├── app.py                 # Main entry point for the backend server
 │   ├── requirements.txt       # Python dependencies
 │   └── utils/                 # Core logic for each analysis component
-│       ├── stock_history.py
-│       ├── esg_score.py
-│       ├── financial_metrics.py
-│       ├── media_analysis.py
-│       └── holistic_summary.py
+│       ├── stock_history.py           # Historical stock data + technical indicators
+│       ├── esg_score.py               # ESG data analysis and scoring
+│       ├── financial_metrics.py       # Financial health analysis
+│       ├── media_analysis.py          # Telegram scraping + news summarisation
+│       ├── holistic_summary.py        # Aggregated GPT recommendation
+│       └── generate_string_session.py # Telegram login + session generation
 ├── frontend/                  # React frontend interface
 │   ├── public/                # Static assets and index.html
 │   ├── src/
 │   │   └── components/        # React components for UI rendering
-│   │       ├── Dashboard.js         # Calls all 5 components and renders them in the dashboard
-│   │       ├── StockHistory.js
-│   │       ├── ESGScore.js
-│   │       ├── FinancialMetrics.js
-│   │       ├── MediaAnalysis.js
-│   │       └── HolisticSummary.js
-│   ├── App.js                 # Main frontend application
-│   └── index.js               # Entry point for React
-│   └── package.json           # Frontend dependencies
+│   │       ├── Dashboard.js           # Dashboard layout and tabs
+│   │       ├── StockHistory.js        # Stock history visualisation
+│   │       ├── ESGScore.js            # ESG insights panel
+│   │       ├── FinancialMetrics.js    # Financial metrics display
+│   │       ├── MediaAnalysis.js       # News sentiment analysis
+│   │       └── HolisticSummary.js     # Final AI-generated investment recommendation
+│   ├── App.js                 # Root React app component
+│   ├── index.js               # React app entry point
+│   └── package.json           # React app dependencies
 ├── .env                       # API credentials (excluded from version control)
 └── README.md                  # Project documentation
-```
+ ```
+---
 
 ## ⚠️ Disclaimer
 
 This tool is intended for educational and informational purposes only. It does not constitute financial advice. Always consult a licensed financial advisor before making any investment decisions.
+
