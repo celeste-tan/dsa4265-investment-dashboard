@@ -155,6 +155,19 @@ dsa4265-investment-dashboard/
  ```
 ---
 
+## 💻 Developers
+
+This project is made possible with the efforts of everyone in the team:
+| Name            | GitHub           |
+|-----------------|------------------|
+| Celeste Tan     | [celeste-tan](https://github.com/celeste-tan)    |
+| Chua Yeong Hui    | [c0desnippet](https://github.com/c0desnippet)  |
+| Joan, Wong Ya Sian  | [joanwys](https://github.com/joanwys)     |
+| Lee Wen Yang   | [leewenyang](https://github.com/leewenyang) |
+| Nicole Chong    | [nicolechongg](https://github.com/nicolechongg)  |
+| Wan Yanbing   | [oneybb](https://github.com/oneybb)     |
+
+
 ## ⚠️ Disclaimer
 
 This tool is intended for educational and informational purposes only. It does not constitute financial advice. Always consult a licensed financial advisor before making any investment decisions.
