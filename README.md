@@ -82,7 +82,8 @@ Follow the steps below to set up the project locally:
    - Navigate to 'API Keys' from the dropdown under your profile or go directly to the [API Keys Page](https://platform.openai.com/api-keys)
    - Create a new key and give it a name (optional, for your own tracking)
    - Copy the key immediately and store it securely (eg. in a password manage or `.env` file if using in code)
-     🔐 **Note: you won't be able to view the full API key again, so make sure you copy it immediately.**
+   > 🔐 **Note: you won't be able to view the full API key again, so make sure you copy it immediately.**
+   > 
      
 4. **Create a `.env` file in the root directory with the following content:**
 
