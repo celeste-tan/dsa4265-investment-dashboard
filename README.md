@@ -41,7 +41,6 @@ Before installation, ensure the following are available:
 - npm
 - Telegram account (required for media scraping)
 - OpenAI API key
-- ESG token API key
 
 ---
 
