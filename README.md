@@ -40,7 +40,7 @@ Before installation, ensure the following are available:
 - Node.js 16+
 - npm
 - Telegram account (required for media scraping)
-- openAI API key
+- OpenAI API key
 - ESG token API key
 
 ---
@@ -76,8 +76,15 @@ Follow the steps below to set up the project locally:
       ```bash
       cd ../../
       ```
+3. **Creating an OpenAI API key (for generation of commentaries):**
 
-3. **Create a `.env` file in the root directory with the following content:**
+   - Login to [OpenAI](https://platform.openai.com)
+   - Navigate to 'API Keys' from the dropdown under your profile or go directly to the [API Keys Page](https://platform.openai.com/api-keys)
+   - Create a new key and give it a name (optional, for your own tracking)
+   - Copy the key immediately and store it securely (eg. in a password manage or `.env` file if using in code)
+     🔐 **Note: you won't be able to view the full API key again, so make sure you copy it immediately.**
+     
+4. **Create a `.env` file in the root directory with the following content:**
 
     ```bash
     echo 'OPENAI_API_KEY="your_openai_key"
@@ -92,7 +99,7 @@ Follow the steps below to set up the project locally:
     > 🔐 **Note:** Do **not** commit this file. It is excluded via `.gitignore`.
     > If you don't have credentials, contact us or register to obtain them.
 
-4. **Install backend dependencies and run the backend server:**
+5. **Install backend dependencies and run the backend server:**
 
     ```bash
     cd backend
@@ -100,7 +107,7 @@ Follow the steps below to set up the project locally:
     python app.py                    # Launch the FastAPI server (http://127.0.0.1:5000)
     ```
 
-5. **Open a new terminal/tab, activate the environment again, and run the frontend:**
+6. **Open a new terminal/tab, activate the environment again, and run the frontend:**
 
     ```bash
     # In case you're not in project root
