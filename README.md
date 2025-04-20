@@ -87,7 +87,6 @@ Follow the steps below to set up the project locally:
 
     ```bash
     echo 'OPENAI_API_KEY="your_openai_key"
-    ESG_API_TOKEN="your_esg_token"
     API_ID="your_telegram_api_id"
     API_HASH="your_telegram_api_hash"
     PHONE="your_phone_number"
