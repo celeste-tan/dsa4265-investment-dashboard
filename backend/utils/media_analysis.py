@@ -24,13 +24,6 @@ logger = logging.getLogger(__name__)
 # -----------------------------
 # Helper Functions
 # -----------------------------
-# def clean_headline(text):
-#     """
-#     Takes in a text
-#     """
-#     text = re.sub(r"<.*?>", "", text)
-#     text = re.sub(r"[^a-zA-Z0-9.,!? ]", "", text)
-#     return text.strip()
 
 def filter_message_data(message):
     """
