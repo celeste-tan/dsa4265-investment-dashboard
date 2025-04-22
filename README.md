@@ -1,6 +1,7 @@
 # 💹 WealthWave Investment Dashboard
 
 **WealthWave** is a full-stack, AI-powered dashboard designed to assist retail investors in making holistic, data-driven investment decisions. The platform seamlessly integrates stock history, financial health, ESG ratings, and media sentiment into an intuitive interface—powered by OpenAI and real-time market data.
+
 [Explore the technical document here](https://docs.google.com/document/d/1aLdd7UDTqBozy8Sius7_xDuM9LQTB_dgH7p6RgG1eOI/edit?usp=sharing)
 
 ---
