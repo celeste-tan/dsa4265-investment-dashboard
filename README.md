@@ -130,6 +130,7 @@ dsa4265-investment-dashboard/
 ├── backend/                   # FastAPI backend logic
 │   ├── app.py                 # Main entry point for the backend server
 │   ├── requirements.txt       # Python dependencies
+│   ├── database.py            # Handles SQLite database operations (e.g., insert, query)
 │   └── utils/                 # Core logic for each analysis component
 │       ├── stock_history.py           # Historical stock data + technical indicators
 │       ├── esg_score.py               # ESG data analysis and scoring
